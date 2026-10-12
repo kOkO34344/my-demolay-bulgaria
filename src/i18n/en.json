@@ -1,0 +1,854 @@
+{
+  "app": {
+    "name": "My DeMolay Bulgaria",
+    "shortName": "My DeMolay",
+    "subtitle": "Member Portal",
+    "description": "Member Portal for DeMolay Bulgaria — interactive prototype with fictional demo data.",
+    "titleTemplate": "{{page}} — {{app}}",
+    "organization": "DeMolay Bulgaria"
+  },
+  "brand": {
+    "logoAlt": "DeMolay Bulgaria",
+    "sealAlt": "DeMolay Bulgaria seal",
+    "internationalLogoAlt": "DeMolay International",
+    "emblemAlt": "DeMolay International emblem",
+    "photos": {
+      "nevskyDome": "Golden and green domes of the Alexander Nevsky Cathedral in Sofia against a clear blue sky",
+      "nevskyBelltower": "Bell tower of the Alexander Nevsky Cathedral in Sofia",
+      "vitosha": "Snow-capped Vitosha mountain above Sofia",
+      "tsarevets": "Medieval stone walls of Tsarevets fortress in Veliko Tarnovo"
+    }
+  },
+  "common": {
+    "actions": {
+      "save": "Save",
+      "saveChanges": "Save changes",
+      "saveDraft": "Save draft",
+      "cancel": "Cancel",
+      "close": "Close",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "remove": "Remove",
+      "edit": "Edit",
+      "create": "Create",
+      "add": "Add",
+      "update": "Update",
+      "submit": "Submit",
+      "submitForReview": "Submit for review",
+      "withdraw": "Withdraw submission",
+      "publish": "Publish",
+      "archive": "Archive",
+      "restore": "Restore",
+      "approve": "Approve",
+      "returnToDraft": "Return to draft",
+      "back": "Back",
+      "next": "Next",
+      "previous": "Previous",
+      "continue": "Continue",
+      "retry": "Try again",
+      "reload": "Reload",
+      "search": "Search",
+      "filter": "Filter",
+      "clearFilters": "Clear filters",
+      "clearSearch": "Clear search",
+      "reset": "Reset",
+      "viewAll": "View all",
+      "viewDetails": "View details",
+      "open": "Open",
+      "download": "Download",
+      "upload": "Upload",
+      "export": "Export",
+      "copy": "Copy",
+      "copied": "Copied",
+      "signIn": "Sign in",
+      "signOut": "Sign out",
+      "apply": "Apply",
+      "select": "Select",
+      "selectAll": "Select all",
+      "markAsRead": "Mark as read",
+      "markAllAsRead": "Mark all as read",
+      "markAsUnread": "Mark as unread",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "dismiss": "Dismiss",
+      "showMore": "Show more",
+      "showLess": "Show less",
+      "preview": "Preview",
+      "send": "Send",
+      "sendMessage": "Send message",
+      "assign": "Assign",
+      "revoke": "Revoke",
+      "resolve": "Resolve",
+      "ignore": "Ignore",
+      "refresh": "Refresh",
+      "addToCalendar": "Add to calendar",
+      "done": "Done",
+      "change": "Change",
+      "manage": "Manage",
+      "contact": "Contact",
+      "goHome": "Go to Home",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "cancelEvent": "Cancel event"
+    },
+    "states": {
+      "loading": "Loading…",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "submitting": "Submitting…",
+      "publishing": "Publishing…",
+      "updating": "Updating…",
+      "emptyTitle": "Nothing here yet",
+      "emptyDescription": "When there is something to show, it will appear here.",
+      "noResultsTitle": "No results",
+      "noResultsFor": "Nothing matches “{{query}}”. Try a different search or clear the filters.",
+      "errorTitle": "This didn't load",
+      "errorDescription": "Something went wrong while loading this content. Try again.",
+      "notFoundTitle": "Page not found",
+      "notFoundDescription": "The page may have been moved or removed. Check the address or go back to Home.",
+      "permissionDeniedTitle": "You don't have access to this page",
+      "permissionDeniedDescription": "Your role doesn't include permission to view this. If you think you should have access, contact your chapter advisor.",
+      "offlineTitle": "You're offline",
+      "offlineDescription": "You can keep browsing pages you've already opened. Changes need a connection.",
+      "backOnline": "You're back online.",
+      "unsavedChanges": "You have unsaved changes.",
+      "required": "Required",
+      "optional": "Optional",
+      "none": "None",
+      "notSet": "Not set",
+      "never": "Never",
+      "unknown": "Unknown",
+      "updatedAt": "Updated {{date}}",
+      "lastUpdated": "Last updated"
+    },
+    "errors": {
+      "generic": "Something went wrong. Try again.",
+      "network": "Can't reach the server. Check your connection and try again.",
+      "unauthorized": "Sign in to continue.",
+      "sessionExpired": "Your session has ended. Sign in again.",
+      "invalidCredentials": "Incorrect username or password.",
+      "forbidden": "You don't have permission to do this.",
+      "notFound": "We couldn't find that. It may have been moved or removed.",
+      "validation": "Check the highlighted fields.",
+      "conflict": "This was changed in the meantime. Reload and try again.",
+      "rateLimited_one": "Too many sign-in attempts. Try again in {{count}} second.",
+      "rateLimited_other": "Too many sign-in attempts. Try again in {{count}} seconds.",
+      "accountSuspended": "This account is suspended. Contact your chapter advisor.",
+      "accountPending": "This account isn't active yet. Contact your chapter advisor.",
+      "notImplemented": "This action isn't available in the prototype yet.",
+      "apiUnavailable": "The live API isn't available in this prototype.",
+      "demoModeDisabled": "Demo tools are turned off.",
+      "currentPasswordIncorrect": "Your current password is incorrect.",
+      "invalidResetCode": "That code is incorrect or has expired. Request a new one.",
+      "cannotChangeOwnAccount": "You can't change the status of your own account.",
+      "roleEscalation": "You can't grant access beyond your own.",
+      "invalidTransition": "This item can't move to that status."
+    },
+    "a11y": {
+      "skipToContent": "Skip to main content",
+      "mainNavigation": "Main navigation",
+      "mobileNavigation": "Primary",
+      "breadcrumb": "Breadcrumb",
+      "pagination": "Pagination",
+      "previousPage": "Go to previous page",
+      "nextPage": "Go to next page",
+      "morePages": "More pages",
+      "more": "More",
+      "toasts": "Notifications",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "userMenu": "Account menu",
+      "unreadNotifications_one": "{{count}} unread notification",
+      "unreadNotifications_other": "{{count}} unread notifications",
+      "commandPalette": "Command palette",
+      "commandPaletteDescription": "Search for a page or action",
+      "languageSwitcher": "Language",
+      "themeSwitcher": "Theme",
+      "scrollableTable": "Scrollable table",
+      "sortAscending": "Sorted ascending",
+      "sortDescending": "Sorted descending",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "opensInNewTab": "(opens in a new tab)",
+      "loadingContent": "Loading content",
+      "avatarOf": "Profile photo of {{name}}"
+    },
+    "labels": {
+      "search": "Search",
+      "filters": "Filters",
+      "sortBy": "Sort by",
+      "status": "Status",
+      "category": "Category",
+      "language": "Language",
+      "date": "Date",
+      "time": "Time",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "from": "From",
+      "to": "To",
+      "author": "Author",
+      "audience": "Audience",
+      "visibility": "Visibility",
+      "scope": "Scope",
+      "role": "Role",
+      "applicationRole": "Application role",
+      "chapter": "Chapter",
+      "position": "Position",
+      "actions": "Actions",
+      "details": "Details",
+      "description": "Description",
+      "title": "Title",
+      "summary": "Summary",
+      "body": "Body",
+      "name": "Name",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "birthDate": "Date of birth",
+      "username": "Username",
+      "password": "Password",
+      "all": "All",
+      "yes": "Yes",
+      "no": "No",
+      "total": "Total",
+      "notes": "Notes",
+      "reason": "Reason",
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "publishedAt": "Published",
+      "version": "Version",
+      "fileType": "File type",
+      "fileSize": "File size",
+      "attachments": "Attachments",
+      "related": "Related",
+      "organizer": "Organizer",
+      "location": "Location",
+      "capacity": "Capacity",
+      "registrationDeadline": "Registration deadline",
+      "online": "Online",
+      "unlimited": "Unlimited",
+      "member": "Member",
+      "members": "Members",
+      "joined": "Joined",
+      "lastLogin": "Last sign-in",
+      "approver": "Approver",
+      "permission": "Permission",
+      "permissions": "Permissions",
+      "priority": "Priority",
+      "active": "Active",
+      "inactive": "Inactive",
+      "source": "Source",
+      "type": "Type"
+    },
+    "time": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "tomorrow": "Tomorrow",
+      "justNow": "Just now",
+      "allDay": "All day",
+      "at": "{{date}} at {{time}}"
+    },
+    "count": {
+      "members_one": "{{count}} member",
+      "members_other": "{{count}} members",
+      "results_one": "{{count}} result",
+      "results_other": "{{count}} results",
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} items",
+      "selected_one": "{{count}} selected",
+      "selected_other": "{{count}} selected"
+    }
+  },
+  "demo": {
+    "badge": "Demo data",
+    "importedPosition": "Imported position — demo data",
+    "importedPositionShort": "Imported position",
+    "mode": "Demo mode",
+    "prototypeNotice": "Prototype with fictional data. No live systems are connected.",
+    "access": "Demo access",
+    "accessDescription": "Choose a demo account to fill in its username and password.",
+    "roleSwitcher": "Demo role switcher",
+    "roleSwitcherDescription": "Prototype-only tool. Switch roles without signing out — it will not exist in the production app.",
+    "viewingAs": "Viewing as {{role}}",
+    "returnToMyRole": "Return to my role",
+    "roleSwitched": "Now viewing as {{role}}.",
+    "resetData": "Reset demo data",
+    "resetDataDescription": "Restores all demo content to its original state. You stay signed in.",
+    "resetDataDone": "Demo data has been reset.",
+    "simulated": "Simulated",
+    "simulatedCode": "Simulated code",
+    "noEmailSent": "No email is sent in this prototype.",
+    "fictionalChapter": "Fictional chapter"
+  },
+  "nav": {
+    "home": "Home",
+    "news": "News",
+    "events": "Events",
+    "chapter": "My Chapter",
+    "chapterShort": "Chapter",
+    "resources": "Resources",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings",
+    "more": "More",
+    "officerWorkspace": "Officer Workspace",
+    "contentManagement": "Content Management",
+    "memberManagement": "Member Management",
+    "administration": "Administration",
+    "signOut": "Sign out",
+    "groups": {
+      "main": "Main",
+      "workspace": "Management",
+      "account": "Account"
+    },
+    "admin": {
+      "members": "Members",
+      "chapters": "Chapters",
+      "content": "Content",
+      "events": "Events",
+      "roles": "Roles",
+      "permissions": "Permissions",
+      "mappings": "Position mapping",
+      "translations": "Translations",
+      "audit": "Audit log",
+      "sync": "Synchronization"
+    }
+  },
+  "chapterTerm": {
+    "singular": "Chapter",
+    "plural": "Chapters",
+    "mine": "My Chapter",
+    "count_one": "{{count}} chapter",
+    "count_other": "{{count}} chapters"
+  },
+  "roles": {
+    "member": {
+      "name": "Member",
+      "description": "Reads news, RSVPs to events and uses the resources of their chapter."
+    },
+    "chapter_officer": {
+      "name": "Chapter Officer",
+      "description": "Drafts chapter announcements, runs chapter events, records attendance and manages chapter resources."
+    },
+    "chapter_advisor": {
+      "name": "Chapter Advisor",
+      "description": "Reviews and publishes chapter content, approves events and manages chapter-level access."
+    },
+    "national_officer": {
+      "name": "National Officer",
+      "description": "Publishes national announcements and events, sends national notifications and coordinates across chapters."
+    },
+    "national_admin": {
+      "name": "National Administrator",
+      "description": "Manages chapters, accounts, roles, mappings, translations, audit and synchronization."
+    }
+  },
+  "scopes": {
+    "self": {
+      "name": "Self",
+      "description": "Only their own records."
+    },
+    "chapter": {
+      "name": "Chapter",
+      "description": "One chapter."
+    },
+    "multi_chapter": {
+      "name": "Multi-chapter",
+      "description": "Several named chapters."
+    },
+    "national": {
+      "name": "National",
+      "description": "All chapters and national content."
+    },
+    "system": {
+      "name": "System",
+      "description": "Everything, including system administration."
+    },
+    "chapterNamed": "Chapter: {{chapter}}",
+    "chaptersCount_one": "{{count}} chapter",
+    "chaptersCount_other": "{{count}} chapters"
+  },
+  "permissions": {
+    "groups": {
+      "feed": "News",
+      "posts": "Announcements",
+      "events": "Events",
+      "attendance": "Attendance",
+      "resources": "Resources",
+      "chapters": "Chapters",
+      "members": "Members",
+      "notifications": "Notifications",
+      "roles": "Roles and access",
+      "translations": "Translations",
+      "audit": "Audit",
+      "integration": "Integration",
+      "system": "System"
+    },
+    "items": {
+      "feed": {
+        "read": {
+          "label": "Read news",
+          "description": "See published announcements for their audience."
+        }
+      },
+      "post": {
+        "create": {
+          "label": "Create announcements",
+          "description": "Write new announcement drafts."
+        },
+        "update": {
+          "label": "Edit announcements",
+          "description": "Change announcement content and audience."
+        },
+        "submit": {
+          "label": "Submit for review",
+          "description": "Send drafts to a reviewer."
+        },
+        "approve": {
+          "label": "Approve announcements",
+          "description": "Review submitted drafts and return them with a note."
+        },
+        "publish": {
+          "label": "Publish announcements",
+          "description": "Make announcements visible to their audience."
+        },
+        "archive": {
+          "label": "Archive announcements",
+          "description": "Remove announcements from the feed and restore them."
+        }
+      },
+      "event": {
+        "read": {
+          "label": "View events",
+          "description": "See published events for their audience."
+        },
+        "create": {
+          "label": "Create events",
+          "description": "Create and publish events."
+        },
+        "update": {
+          "label": "Edit events",
+          "description": "Change event details, capacity and participant visibility."
+        },
+        "cancel": {
+          "label": "Cancel events",
+          "description": "Cancel published events with a reason."
+        },
+        "rsvp": {
+          "label": "RSVP to events",
+          "description": "Answer Going, Maybe or Not going for themselves."
+        },
+        "participants": {
+          "read": {
+            "label": "View participants",
+            "description": "See who is attending, regardless of the event's visibility setting."
+          }
+        }
+      },
+      "attendance": {
+        "read": {
+          "label": "View attendance",
+          "description": "See recorded attendance."
+        },
+        "manage": {
+          "label": "Record attendance",
+          "description": "Mark members present, absent or excused."
+        }
+      },
+      "resource": {
+        "read": {
+          "label": "View resources",
+          "description": "Open and download permitted resources."
+        },
+        "upload": {
+          "label": "Upload resources",
+          "description": "Add new resource files."
+        },
+        "update": {
+          "label": "Edit resources",
+          "description": "Change resource details, category and language."
+        },
+        "archive": {
+          "label": "Archive resources",
+          "description": "Archive and restore resources."
+        }
+      },
+      "chapter": {
+        "read": {
+          "label": "View chapter",
+          "description": "See chapter information and the privacy-safe directory."
+        },
+        "update": {
+          "label": "Edit chapter details",
+          "description": "Change chapter information and meeting details."
+        },
+        "directory": {
+          "read": {
+            "label": "View chapter roster",
+            "description": "See the full member roster with roles and account status (no contact details)."
+          }
+        }
+      },
+      "member": {
+        "profile": {
+          "read": {
+            "label": "View member profiles",
+            "description": "See full profiles, including contact details."
+          },
+          "update": {
+            "label": "Edit member profiles",
+            "description": "Change profile details."
+          }
+        },
+        "access": {
+          "manage": {
+            "label": "Manage member access",
+            "description": "Activate and suspend accounts."
+          }
+        }
+      },
+      "notification": {
+        "read": {
+          "label": "Read notifications",
+          "description": "Receive and read in-app notifications."
+        },
+        "send": {
+          "chapter": {
+            "label": "Send chapter notifications",
+            "description": "Notify every member of a chapter."
+          },
+          "national": {
+            "label": "Send national notifications",
+            "description": "Notify every member nationally."
+          }
+        }
+      },
+      "role": {
+        "read": {
+          "label": "View roles",
+          "description": "See roles, permissions and assignments."
+        },
+        "assign": {
+          "label": "Assign roles",
+          "description": "Assign application roles, scopes and special permissions."
+        },
+        "mapping": {
+          "manage": {
+            "label": "Manage position mappings",
+            "description": "Configure how imported positions map to roles."
+          }
+        }
+      },
+      "translation": {
+        "create": {
+          "label": "Write translations",
+          "description": "Add English or Bulgarian versions of content."
+        },
+        "review": {
+          "label": "Review translations",
+          "description": "Mark translations as reviewed."
+        },
+        "publish": {
+          "label": "Publish translations",
+          "description": "Approve translations across all content."
+        }
+      },
+      "audit": {
+        "read": {
+          "chapter": {
+            "label": "View chapter activity",
+            "description": "See audit records for chapters in scope."
+          },
+          "national": {
+            "label": "View national audit log",
+            "description": "See national and system audit records."
+          }
+        }
+      },
+      "integration": {
+        "read": {
+          "label": "View synchronization",
+          "description": "See integration status, history and exceptions."
+        },
+        "manage": {
+          "label": "Manage synchronization",
+          "description": "Run synchronization and resolve exceptions."
+        }
+      },
+      "system": {
+        "manage": {
+          "label": "Manage system",
+          "description": "Administer chapters, accounts and system settings."
+        }
+      }
+    }
+  },
+  "contentStatus": {
+    "draft": "Draft",
+    "submitted": "Submitted for review",
+    "published": "Published",
+    "archived": "Archived"
+  },
+  "eventStatus": {
+    "draft": "Draft",
+    "published": "Published",
+    "cancelled": "Cancelled"
+  },
+  "audience": {
+    "scope": {
+      "national": "National",
+      "chapter": "Chapter",
+      "multi_chapter": "Several chapters"
+    },
+    "visibility": {
+      "all_members": "All members",
+      "leadership": "Leadership only"
+    }
+  },
+  "eventCategories": {
+    "meeting": "Meeting",
+    "ceremony": "Ceremony",
+    "service": "Service project",
+    "social": "Social",
+    "education": "Education",
+    "sports": "Sports",
+    "conference": "Conference",
+    "fundraiser": "Fundraiser"
+  },
+  "resourceCategories": {
+    "new_members": "New Members",
+    "meetings": "Meetings",
+    "events": "Events",
+    "policies": "Policies",
+    "leadership": "Leadership",
+    "forms": "Forms",
+    "branding": "Branding"
+  },
+  "resourceLanguages": {
+    "en": "English",
+    "bg": "Bulgarian",
+    "both": "English and Bulgarian"
+  },
+  "rsvpStatus": {
+    "going": "Going",
+    "maybe": "Maybe",
+    "not_going": "Not going"
+  },
+  "attendanceStatus": {
+    "present": "Present",
+    "absent": "Absent",
+    "excused": "Excused"
+  },
+  "participantVisibility": {
+    "members": "Visible to members",
+    "organizers": "Organizers and officers only"
+  },
+  "accountStatus": {
+    "active": "Active",
+    "suspended": "Suspended",
+    "pending": "Pending activation"
+  },
+  "notificationCategories": {
+    "announcements": "Announcements",
+    "events": "Events",
+    "resources": "Resources",
+    "chapter": "Chapter",
+    "approvals": "Approvals",
+    "account": "Account",
+    "system": "System"
+  },
+  "digest": {
+    "off": "Off",
+    "daily": "Daily",
+    "weekly": "Weekly"
+  },
+  "syncStatus": {
+    "queued": "Queued",
+    "running": "Running",
+    "succeeded": "Succeeded",
+    "partial": "Partly succeeded",
+    "failed": "Failed"
+  },
+  "syncStage": {
+    "queued": "Waiting to start",
+    "connecting": "Connecting to the member registry",
+    "fetching": "Fetching member records",
+    "matching": "Matching members",
+    "mapping": "Applying position mappings",
+    "applying": "Updating roles and access",
+    "finalizing": "Finishing up",
+    "done": "Done"
+  },
+  "syncExceptionKind": {
+    "unmapped_position": "Unmapped position",
+    "duplicate_member": "Possible duplicate member",
+    "unknown_chapter": "Unknown chapter",
+    "conflict": "Data conflict"
+  },
+  "syncExceptionStatus": {
+    "open": "Open",
+    "resolved": "Resolved",
+    "ignored": "Ignored"
+  },
+  "translationState": {
+    "missing": "Missing",
+    "needs_review": "Needs review",
+    "reviewed": "Reviewed"
+  },
+  "specialAssignmentState": {
+    "scheduled": "Scheduled",
+    "active": "Active",
+    "expired": "Expired",
+    "revoked": "Revoked"
+  },
+  "assignmentSource": {
+    "mapping": "From position mapping",
+    "manual": "Assigned manually"
+  },
+  "entityTypes": {
+    "announcement": "Announcement",
+    "event": "Event",
+    "resource": "Resource",
+    "member": "Member",
+    "user": "Account",
+    "chapter": "Chapter",
+    "role_assignment": "Role assignment",
+    "special_assignment": "Special permission",
+    "position_mapping": "Position mapping",
+    "sync_job": "Synchronization run",
+    "sync_exception": "Synchronization exception",
+    "notification": "Notification",
+    "message": "Message",
+    "translation": "Translation"
+  },
+  "auditActions": {
+    "auth": {
+      "login": "Signed in",
+      "logout": "Signed out",
+      "login_failed": "Failed sign-in attempt",
+      "lockout": "Sign-in temporarily locked",
+      "password_changed": "Changed password",
+      "password_reset": "Reset password"
+    },
+    "post": {
+      "created": "Created announcement",
+      "updated": "Edited announcement",
+      "submitted": "Submitted announcement for review",
+      "withdrawn": "Withdrew announcement from review",
+      "published": "Published announcement",
+      "returned": "Returned announcement to draft",
+      "archived": "Archived announcement",
+      "restored": "Restored announcement"
+    },
+    "event": {
+      "created": "Created event",
+      "updated": "Edited event",
+      "published": "Published event",
+      "cancelled": "Cancelled event",
+      "capacity_changed": "Changed event capacity",
+      "visibility_changed": "Changed participant visibility",
+      "note_added": "Added organizer note"
+    },
+    "attendance": {
+      "recorded": "Recorded attendance"
+    },
+    "resource": {
+      "created": "Added resource",
+      "updated": "Edited resource",
+      "archived": "Archived resource",
+      "restored": "Restored resource"
+    },
+    "member": {
+      "status_changed": "Changed account status",
+      "profile_updated": "Updated profile"
+    },
+    "role": {
+      "assigned": "Assigned role"
+    },
+    "special_assignment": {
+      "created": "Granted special permission",
+      "revoked": "Revoked special permission"
+    },
+    "mapping": {
+      "created": "Created position mapping",
+      "updated": "Edited position mapping",
+      "deleted": "Deleted position mapping"
+    },
+    "chapter": {
+      "created": "Created chapter",
+      "updated": "Edited chapter"
+    },
+    "notification": {
+      "broadcast": "Sent notification"
+    },
+    "sync": {
+      "started": "Started synchronization",
+      "completed": "Completed synchronization",
+      "exception_resolved": "Resolved synchronization exception",
+      "exception_ignored": "Ignored synchronization exception"
+    },
+    "translation": {
+      "updated": "Updated translation",
+      "reviewed": "Reviewed translation"
+    },
+    "demo": {
+      "role_switched": "Switched demo role",
+      "data_reset": "Reset demo data"
+    }
+  },
+  "languages": {
+    "en": "English",
+    "bg": "Bulgarian",
+    "code": {
+      "en": "EN",
+      "bg": "BG"
+    },
+    "endonym": {
+      "en": "English",
+      "bg": "Български"
+    },
+    "switchTo": "Switch language to {{language}}"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Toggle theme",
+    "switchToLight": "Switch to light theme",
+    "switchToDark": "Switch to dark theme"
+  },
+  "validation": {
+    "required": "This field is required.",
+    "invalid": "Enter a valid value.",
+    "invalidEmail": "Enter a valid email address.",
+    "invalidUrl": "Enter a valid web address.",
+    "invalidFormat": "This doesn't look right. Check the format.",
+    "invalidDate": "Enter a valid date.",
+    "invalidNumber": "Enter a valid number.",
+    "selectOption": "Select an option.",
+    "tooShort_one": "Use at least {{count}} character.",
+    "tooShort_other": "Use at least {{count}} characters.",
+    "tooLong_one": "Use at most {{count}} character.",
+    "tooLong_other": "Use at most {{count}} characters.",
+    "tooSmall": "Enter {{count}} or more.",
+    "tooBig": "Enter {{count}} or less.",
+    "selectAtLeast_one": "Select at least {{count}} option.",
+    "selectAtLeast_other": "Select at least {{count}} options.",
+    "selectAtMost_one": "Select at most {{count}} option.",
+    "selectAtMost_other": "Select at most {{count}} options.",
+    "dateTooEarly": "Choose a later date.",
+    "dateTooLate": "Choose an earlier date.",
+    "endBeforeStart": "The end must be after the start.",
+    "mustBeInFuture": "Choose a time in the future.",
+    "passwordsDontMatch": "The passwords don't match.",
+    "passwordTooWeak": "Use at least 10 characters, with upper- and lowercase letters, a number and a symbol.",
+    "passwordSameAsCurrent": "Choose a password different from your current one.",
+    "invalidCode": "Enter the 6-digit code.",
+    "translationMissingEn": "Add the English version.",
+    "translationMissingBg": "Add the Bulgarian version.",
+    "atLeastOneChapter": "Select at least one chapter."
+  }
+}

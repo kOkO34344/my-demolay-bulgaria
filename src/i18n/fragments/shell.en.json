@@ -1,0 +1,106 @@
+{
+  "shell": {
+    "routes": {
+      "newsDetail": "Announcement",
+      "eventCreate": "New event",
+      "eventDetail": "Event details",
+      "eventEdit": "Edit event",
+      "eventAttendance": "Attendance",
+      "contentCreate": "New announcement",
+      "contentEdit": "Edit announcement"
+    },
+    "nav": {
+      "profileAndSettings": "Profile & settings",
+      "homeLink": "{{app}} — Home"
+    },
+    "placeholder": {
+      "title": "This page is being built",
+      "description": "Navigation, access rules and translations for this page are already in place. Its content arrives in the next build of the prototype."
+    },
+    "demo": {
+      "switcherTitle": "Demo role switcher",
+      "chip": "Demo",
+      "chipLabel": "Demo role switcher",
+      "chipLabelViewing": "Demo role switcher: viewing as {{role}}",
+      "viewingAsLabel": "View the app as",
+      "yourRoleSuffix": " (your account)",
+      "resetTitle": "Reset demo data?",
+      "resetConfirm": "Reset data",
+      "resetting": "Resetting…",
+      "returnedToOwnRole": "You're back to your own role."
+    },
+    "permissionDenied": {
+      "demoHint": "You're viewing the app as {{role}} with the demo role switcher. This role can't open this page."
+    },
+    "confirm": {
+      "typeToConfirm": "To confirm, type",
+      "working": "Working…"
+    },
+    "errors": {
+      "pageTitle": "This page couldn't be displayed",
+      "pageDescription": "Something went wrong while showing this page. Try again, or go back to Home.",
+      "appDescription": "Something went wrong. Reload the app to continue.",
+      "updateTitle": "A newer version is available",
+      "updateDescription": "This part of the app was updated. Reload to get the latest version."
+    },
+    "offline": {
+      "contentUnavailable": "This content needs a connection. Reconnect and try again."
+    },
+    "footer": {
+      "prototypeNotice": "My DeMolay Bulgaria — prototype with fictional data. No live systems are connected."
+    },
+    "more": {
+      "description": "Everything else you can open, plus your preferences.",
+      "browse": "Browse",
+      "preferences": "Preferences"
+    },
+    "notifications": {
+      "bellLabel": "Notifications",
+      "bellLabelUnread_one": "Notifications ({{count}} unread)",
+      "bellLabelUnread_other": "Notifications ({{count}} unread)",
+      "unread": "Unread",
+      "allRead": "All notifications are marked as read.",
+      "emptyTitle": "You're all caught up",
+      "emptyDescription": "New announcements, event updates and approvals will appear here."
+    },
+    "table": {
+      "selectAllOnPage": "Select all rows on this page",
+      "selectRow": "Select {{name}}",
+      "selectionActions": "Actions for selected rows",
+      "clearSelection": "Clear selection",
+      "showing": "{{from}}–{{to}} of {{total}}",
+      "page": "Page {{page}} of {{pages}}",
+      "defaultOrder": "Default order",
+      "sortAscendingBy": "{{column}}, ascending",
+      "sortDescendingBy": "{{column}}, descending"
+    },
+    "theme": {
+      "menuLabel": "Theme: {{theme}}"
+    },
+    "userMenu": {
+      "label": "Account menu: {{name}}",
+      "demoRoleActive": "Demo role active"
+    },
+    "signOut": {
+      "done": "You've signed out."
+    },
+    "admin": {
+      "sectionsLabel": "Administration sections"
+    },
+    "workflow": {
+      "label": "Workflow",
+      "contentLabel": "Publishing workflow",
+      "state": {
+        "done": "completed",
+        "current": "current step",
+        "upcoming": "upcoming"
+      }
+    },
+    "pwa": {
+      "updateAvailable": "A new version is available",
+      "updateDescription": "Reload to update the app.",
+      "reload": "Reload",
+      "offlineReady": "The app is ready to work offline."
+    }
+  }
+}

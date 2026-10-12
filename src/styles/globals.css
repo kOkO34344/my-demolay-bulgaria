@@ -1,0 +1,374 @@
+/*
+ * My DeMolay Bulgaria — design tokens & base styles (Tailwind CSS v4, CSS-first).
+ *
+ * Token model (shadcn-compatible):
+ *   - Semantic tokens (--background, --primary, --muted-foreground, …) are what components use.
+ *   - Status tones come in two forms: a solid tone (--success, used for icons/indicators/large text)
+ *     and a soft pair (--success-soft + --success-soft-foreground) for badges/banners with text.
+ *   - --gold is the Crown Gold accent. Use it sparingly: active navigation indicator, pinned/featured
+ *     badges, small emphasis. shadcn's --accent is a NEUTRAL hover tint, not gold.
+ *   - --brand-* are fixed brand fills (logos, decorative blocks). Never use them for body text on
+ *     arbitrary surfaces; use the semantic tokens which are contrast-checked per theme.
+ * All text/background pairs are documented with WCAG ratios in CONVENTIONS-core.md.
+ */
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --radius: 0.5rem;
+
+  /* Fixed brand palette (DeMolay-inspired). */
+  --brand-blue: #1e4488;
+  --brand-navy: #152945;
+  --brand-gold: #ffcf00;
+  --brand-ruby: #ac242a;
+  --brand-emerald: #3a9144;
+  --brand-ivory: #f7f6f2;
+  --brand-slate: #667085;
+
+  /* Surfaces & text */
+  --background: #f7f6f2;
+  --foreground: #202733;
+  --card: #ffffff;
+  --card-foreground: #202733;
+  --popover: #ffffff;
+  --popover-foreground: #202733;
+
+  /* Actions */
+  --primary: #1e4488;
+  --primary-foreground: #ffffff;
+  --secondary: #eef1f6;
+  --secondary-foreground: #152945;
+  --muted: #f0eee8;
+  /* #667085 (spec) measures 4.25–4.39:1 on tinted surfaces; this one step darker passes everywhere. */
+  --muted-foreground: #5e677a;
+  --accent: #edf1f7;
+  --accent-foreground: #152945;
+  --destructive: #ac242a;
+  --destructive-foreground: #ffffff;
+
+  /* Lines & focus */
+  --border: #e2dfd7;
+  --input: #838a98;
+  --ring: #1e4488;
+
+  /* Crown Gold accent */
+  --gold: #ffcf00;
+  --gold-foreground: #152945;
+  --gold-soft: #fff4c2;
+  --gold-soft-foreground: #5f4a00;
+
+  /* Status tones */
+  --success: #3a9144;
+  --success-foreground: #ffffff; /* large text / icons only (3.95:1) */
+  --success-soft: #e6f2e7;
+  --success-soft-foreground: #24692e;
+  --warning: #b26a00;
+  --warning-foreground: #ffffff; /* large text / icons only */
+  --warning-soft: #fdf1d3;
+  --warning-soft-foreground: #7a4a00;
+  --info: #1f7391;
+  --info-foreground: #ffffff;
+  --info-soft: #e3f0f5;
+  --info-soft-foreground: #155a73;
+  --destructive-soft: #f9e5e5;
+  --destructive-soft-foreground: #9a1f25;
+
+  /* Navigation chrome: navy sidebar with gold active indicator (both themes). */
+  --sidebar: #152945;
+  --sidebar-foreground: #e6ebf3;
+  --sidebar-muted-foreground: #a9b5c8;
+  --sidebar-primary: #ffcf00;
+  --sidebar-primary-foreground: #152945;
+  --sidebar-accent: #1f3658;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #243b5e;
+  --sidebar-ring: #ffcf00;
+
+  /* Header / meta theme-color (kept in sync by ThemeProvider). */
+  --header: #ffffff;
+
+  --shadow-color: 215 40% 18%;
+}
+
+.dark {
+  --brand-gold: #e3bc3f;
+
+  --background: #0f1b2e;
+  --foreground: #e8ecf2;
+  --card: #16243a;
+  --card-foreground: #e8ecf2;
+  --popover: #1a2a42;
+  --popover-foreground: #e8ecf2;
+
+  --primary: #8db0ee;
+  --primary-foreground: #0f1b2e;
+  --secondary: #1d2e47;
+  --secondary-foreground: #e8ecf2;
+  --muted: #1d2e47;
+  --muted-foreground: #a6b2c4;
+  --accent: #22344f;
+  --accent-foreground: #f2f5f9;
+  --destructive: #f2878b;
+  --destructive-foreground: #2a0c0e;
+
+  --border: #2a3e5c;
+  --input: #5b7090;
+  --ring: #8db0ee;
+
+  --gold: #e3bc3f;
+  --gold-foreground: #0f1b2e;
+  --gold-soft: #2e2810;
+  --gold-soft-foreground: #f0cf5c;
+
+  --success: #5dbb6c;
+  --success-foreground: #0f1b2e;
+  --success-soft: #15301f;
+  --success-soft-foreground: #8ad597;
+  --warning: #e0a43a;
+  --warning-foreground: #0f1b2e;
+  --warning-soft: #33280f;
+  --warning-soft-foreground: #f1c46a;
+  --info: #5fb2d0;
+  --info-foreground: #0f1b2e;
+  --info-soft: #122c38;
+  --info-soft-foreground: #86c8e0;
+  --destructive-soft: #3a171a;
+  --destructive-soft-foreground: #f4a3a6;
+
+  --sidebar: #0b1524;
+  --sidebar-foreground: #e8ecf2;
+  --sidebar-muted-foreground: #a6b2c4;
+  --sidebar-primary: #e3bc3f;
+  --sidebar-primary-foreground: #0f1b2e;
+  --sidebar-accent: #172740;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #1e2f48;
+  --sidebar-ring: #e3bc3f;
+
+  --header: #132136;
+
+  --shadow-color: 220 60% 3%;
+}
+
+@theme inline {
+  --font-sans:
+    'Sofia Sans Variable', 'Sofia Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, Arial, sans-serif;
+  --font-heading:
+    'Sofia Sans Semi Condensed Variable', 'Sofia Sans Variable', ui-sans-serif, system-ui,
+    sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-header: var(--header);
+
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-soft-foreground: var(--gold-soft-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-foreground: var(--success-soft-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-soft-foreground: var(--warning-soft-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-soft: var(--info-soft);
+  --color-info-soft-foreground: var(--info-soft-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-destructive-soft-foreground: var(--destructive-soft-foreground);
+
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-ruby: var(--brand-ruby);
+  --color-brand-emerald: var(--brand-emerald);
+  --color-brand-ivory: var(--brand-ivory);
+  --color-brand-slate: var(--brand-slate);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted-foreground: var(--sidebar-muted-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 2px); /* 6px — chips, small controls */
+  --radius-md: calc(var(--radius) - 2px); /* 6px — buttons, inputs */
+  --radius-lg: var(--radius); /* 8px — cards, menus */
+  --radius-xl: calc(var(--radius) + 2px); /* 10px — dialogs, sheets */
+
+  --shadow-xs: 0 1px 1px hsl(var(--shadow-color) / 0.05);
+  --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.06), 0 1px 1px hsl(var(--shadow-color) / 0.04);
+  --shadow-md:
+    0 4px 12px -2px hsl(var(--shadow-color) / 0.1), 0 2px 4px -2px hsl(var(--shadow-color) / 0.06);
+  --shadow-lg:
+    0 12px 32px -8px hsl(var(--shadow-color) / 0.18), 0 4px 8px -4px hsl(var(--shadow-color) / 0.08);
+}
+
+@theme {
+  --breakpoint-xs: 23.4375rem; /* 375px */
+
+  --animate-rsvp-pop: rsvp-pop 280ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  --animate-success-check: success-check 360ms ease-out;
+
+  @keyframes rsvp-pop {
+    0% {
+      transform: scale(0.92);
+    }
+    60% {
+      transform: scale(1.04);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes success-check {
+    from {
+      opacity: 0;
+      transform: translateY(2px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* Visible keyboard focus: 2px solid ring with offset. Use on any custom interactive element. */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Inset variant for elements clipped by overflow (table rows, list items, tabs inside scrollers). */
+@utility focus-ring-inset {
+  &:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: -2px;
+  }
+}
+
+/* Expands the hit area of small controls to 44×44px on coarse pointers without changing layout. */
+@utility touch-hitbox {
+  position: relative;
+  @media (pointer: coarse) {
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: max(100%, 2.75rem);
+      height: max(100%, 2.75rem);
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+/* Tabular, lining numerals for dates, counts and table figures. */
+@utility tabular-nums-lining {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--border);
+  }
+
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-padding-top: 4.5rem;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+    font-kerning: normal;
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    font-weight: 650;
+    letter-spacing: -0.012em;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--primary) 22%, transparent);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+/* Respect reduced-motion globally: disable non-essential animation and transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

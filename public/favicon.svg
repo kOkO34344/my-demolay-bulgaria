@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="My DeMolay Bulgaria">
+  <!-- Placeholder app icon (not an official DeMolay mark). Replace with approved DeMolay Bulgaria artwork. -->
+  <rect width="512" height="512" rx="104" fill="#152945"/>
+  <path d="M140 316 L140 196 L200 252 L256 164 L312 252 L372 196 L372 316 Z" fill="#FFCF00"/>
+  <rect x="140" y="336" width="232" height="30" rx="6" fill="#FFCF00"/>
+  <circle cx="140" cy="186" r="14" fill="#FFCF00"/>
+  <circle cx="256" cy="152" r="14" fill="#FFCF00"/>
+  <circle cx="372" cy="186" r="14" fill="#FFCF00"/>
+</svg>

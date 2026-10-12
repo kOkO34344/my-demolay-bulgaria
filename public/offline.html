@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#152945" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Offline — My DeMolay Bulgaria</title>
+    <!--
+      Static offline fallback (SHELL agent). Served by the service worker for navigations it cannot
+      answer from the app shell while the device is offline (see vite.config.ts › runtimeCaching).
+      Self-contained: no external CSS/JS/fonts. The icon is the precached PWA icon (generated from
+      the DeMolay Bulgaria seal). Bilingual: English first, Bulgarian second (lang="bg").
+    -->
+    <style>
+      :root {
+        --navy: #152945;
+        --blue: #1e4488;
+        --gold: #ffcf00;
+        --bg: #f7f6f2;
+        --card: #ffffff;
+        --text: #202733;
+        --muted: #5e677a;
+        --border: #e2dfd7;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f1b2e;
+          --card: #16243a;
+          --text: #e8ecf2;
+          --muted: #a6b2c4;
+          --border: #2a3e5c;
+          --blue: #8db0ee;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          'Sofia Sans Variable', 'Sofia Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial,
+          sans-serif;
+        line-height: 1.5;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        background: var(--navy);
+        color: #ffffff;
+        padding: max(1.25rem, env(safe-area-inset-top)) 1.5rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+      }
+      header img {
+        width: 44px;
+        height: 44px;
+        object-fit: contain;
+        flex-shrink: 0;
+      }
+      .brand-name {
+        font-weight: 650;
+        font-size: 1.125rem;
+        letter-spacing: -0.01em;
+        margin: 0;
+      }
+      .brand-sub {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: #a9b5c8;
+      }
+      main {
+        flex: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 2.5rem 1rem max(2rem, env(safe-area-inset-bottom));
+      }
+      .card {
+        width: 100%;
+        max-width: 34rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.75rem 1.5rem;
+      }
+      .rule {
+        width: 3rem;
+        height: 3px;
+        border-radius: 3px;
+        background: var(--gold);
+        margin-bottom: 1rem;
+      }
+      h1,
+      h2 {
+        margin: 0 0 0.5rem;
+        font-weight: 650;
+        line-height: 1.2;
+        letter-spacing: -0.012em;
+      }
+      h1 {
+        font-size: 1.625rem;
+      }
+      h2 {
+        font-size: 1.25rem;
+      }
+      p {
+        margin: 0 0 1rem;
+        color: var(--muted);
+      }
+      hr {
+        border: 0;
+        border-top: 1px solid var(--border);
+        margin: 1.5rem 0;
+      }
+      button {
+        appearance: none;
+        border: 0;
+        border-radius: 6px;
+        background: var(--blue);
+        color: #ffffff;
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        min-height: 44px;
+        padding: 0.625rem 1.25rem;
+        cursor: pointer;
+      }
+      @media (prefers-color-scheme: dark) {
+        button {
+          color: #0f1b2e;
+        }
+      }
+      button:focus-visible {
+        outline: 2px solid var(--blue);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <img src="/pwa-192x192.png" alt="" width="44" height="44" />
+      <div>
+        <p class="brand-name">My DeMolay Bulgaria</p>
+        <p class="brand-sub">Member Portal · <span lang="bg">Портал за членове</span></p>
+      </div>
+    </header>
+    <main id="main-content">
+      <div class="card">
+        <div class="rule" aria-hidden="true"></div>
+        <section aria-labelledby="offline-en">
+          <h1 id="offline-en">You're offline</h1>
+          <p>
+            This page isn't available without a connection. Check your internet connection, then try
+            again. Pages you have already opened keep working in the app.
+          </p>
+        </section>
+        <hr />
+        <section lang="bg" aria-labelledby="offline-bg">
+          <h2 id="offline-bg">Няма връзка с интернет</h2>
+          <p>
+            Тази страница не е достъпна без връзка. Проверете интернет връзката си и опитайте
+            отново. Вече отворените страници продължават да работят в приложението.
+          </p>
+        </section>
+        <button type="button" onclick="window.location.reload()">
+          Try again · <span lang="bg">Опитай отново</span>
+        </button>
+      </div>
+    </main>
+  </body>
+</html>

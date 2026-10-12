@@ -1,0 +1,67 @@
+{
+  "auth": {
+    "brand": {
+      "panelLabel": "About My DeMolay Bulgaria",
+      "tagline": "News, events and resources for the members of DeMolay Bulgaria — in English and Bulgarian.",
+      "photoCredit": "Photo: bell tower of the Alexander Nevsky Cathedral, Sofia — Julian Lupyan, CC0"
+    },
+    "footer": {
+      "copyright": "© {{year}} DeMolay Bulgaria"
+    },
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Use your member username and password.",
+      "subtitleRedirect": "Sign in to continue to the page you asked for.",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submitting": "Signing in…",
+      "failedTitle": "Couldn't sign in",
+      "lockedTitle": "Sign-in is temporarily locked",
+      "welcome": "Welcome, {{name}}."
+    },
+    "demo": {
+      "listLabel": "Demo accounts",
+      "usernameLabel": "Username:",
+      "filled": "{{role}} demo account filled in. Press Sign in to continue."
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "stepOf": "Step {{step}} of {{total}}",
+      "backToSignIn": "Back to sign in",
+      "requestTitle": "Find your account",
+      "requestDescription": "Enter your username and we'll send you a one-time reset code.",
+      "usernameHint": "The same username you use to sign in.",
+      "sendCode": "Send reset code",
+      "sending": "Sending…",
+      "simulatedTitle": "Simulated recovery",
+      "simulatedBody": "In production, a 6-digit code would be emailed to the address on your account. This prototype shows it here instead.",
+      "codeExpires": "valid until {{time}}",
+      "verifyTitle": "Enter the code and a new password",
+      "verifyDescription": "Choose a password you don't use anywhere else.",
+      "codeLabel": "Reset code",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "resetPassword": "Reset password",
+      "resetting": "Resetting…",
+      "resend": "Send a new code",
+      "doneTitle": "Password updated",
+      "doneDescription": "You can now sign in with your new password.",
+      "doneConfirmation": "Your password has been reset.",
+      "demoNote": "Demo note: the Demo access cards still fill in the original demo password. Sign in with your new password instead.",
+      "goToSignIn": "Go to sign in"
+    },
+    "password": {
+      "rulesLabel": "Password requirements",
+      "rules": {
+        "length_one": "At least {{count}} character",
+        "length_other": "At least {{count}} characters",
+        "upper": "An uppercase letter",
+        "lower": "A lowercase letter",
+        "digit": "A number",
+        "symbol": "A symbol, such as ! or #"
+      },
+      "ruleMet": "met",
+      "ruleNotMet": "not met yet"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>My DeMolay Bulgaria</title>
+    <meta
+      name="description"
+      content="Member Portal for DeMolay Bulgaria — interactive prototype with fictional demo data."
+    />
+    <meta name="application-name" content="My DeMolay Bulgaria" />
+    <meta name="apple-mobile-web-app-title" content="My DeMolay" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="format-detection" content="telephone=no" />
+    <script>
+      // Prevents a flash of the wrong theme/language before React loads.
+      // Keep in sync with src/lib/theme/theme.ts and src/i18n/index.ts (sessionStorage keys).
+      (function () {
+        var root = document.documentElement;
+        var pref = 'system';
+        var lang = 'en';
+        try {
+          var storedTheme = window.sessionStorage.getItem('mdb.theme');
+          if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system')
+            pref = storedTheme;
+          var storedLang = window.sessionStorage.getItem('mdb.lang');
+          if (storedLang === 'en' || storedLang === 'bg') lang = storedLang;
+        } catch (e) {
+          /* storage unavailable */
+        }
+        var dark =
+          pref === 'dark' ||
+          (pref === 'system' &&
+            !!window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches);
+        root.classList.toggle('dark', dark);
+        root.style.colorScheme = dark ? 'dark' : 'light';
+        root.setAttribute('data-theme', dark ? 'dark' : 'light');
+        root.lang = lang;
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', dark ? '#132136' : '#ffffff');
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <p style="font-family: sans-serif; padding: 1rem">
+        My DeMolay Bulgaria needs JavaScript to run. / My DeMolay Bulgaria изисква JavaScript.
+      </p>
+    </noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

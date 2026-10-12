@@ -1,0 +1,227 @@
+{
+  "messages": {
+    "errors": {
+      "rsvpNotSelf": "Можете да отговаряте само от свое име.",
+      "eventNotPublished": "Това събитие все още не е публикувано.",
+      "eventCancelled": "Това събитие е отменено.",
+      "eventPast": "Събитието вече е започнало и отговорите са затворени.",
+      "registrationClosed": "Регистрацията за това събитие е приключила.",
+      "eventFull": "Няма свободни места. Все още можете да отговорите „Може би“ или „Няма да присъствам“.",
+      "attendanceNotStarted": "Присъствието може да се отбелязва след началото на събитието.",
+      "attendanceNotEligible": "Някои от тези хора не са в списъка за присъствие на събитието.",
+      "syncRunning": "Вече тече синхронизация. Изчакайте я да приключи.",
+      "exceptionClosed": "Това изключение вече е обработено.",
+      "mappingInUse": "Това правило се използва от текущи роли. Деактивирайте го вместо да го изтривате.",
+      "mappingDuplicate": "Вече има активно правило със същия код на длъжност и приоритет.",
+      "mappingMismatch": "Избраното правило е неактивно или не съответства на тази длъжност.",
+      "slugTaken": "Друга обител вече използва този уеб адрес.",
+      "recipientUnavailable": "Този член не може да получава съобщения в момента.",
+      "messageSelf": "Не можете да изпратите съобщение до себе си.",
+      "translationIncomplete": "Попълнете всички полета на този език, преди да го отбележите като прегледан.",
+      "notEditable": "Този елемент не може да бъде променян в текущото си състояние."
+    },
+    "validation": {
+      "titleInOneLanguage": "Добавете заглавие поне на един език.",
+      "deadlineAfterStart": "Крайният срок за регистрация трябва да е преди началото.",
+      "versionFormat": "Използвайте версия във формат 1.0 или 2.1.3.",
+      "slugFormat": "Използвайте малки латински букви, цифри и тирета.",
+      "scopeNotAllowedForRole": "Този обхват не е достъпен за избраната роля.",
+      "approverIsRecipient": "Одобряващият не може да е членът, който получава правото.",
+      "approverInvalid": "Изберете активен член за одобряващ.",
+      "positionCodeFormat": "Използвайте главни латински букви, цифри и долна черта, напр. CH_SCRIBE.",
+      "phoneFormat": "Въведете валиден телефонен номер.",
+      "unknownChapter": "Изберете съществуваща обител.",
+      "unknownMember": "Изберете съществуващ член.",
+      "capacityBelowGoing": "Капацитетът не може да е по-малък от броя на вече записаните ({{count}})."
+    },
+    "notifications": {
+      "postPublished": {
+        "title": "Ново съобщение: {{title}}",
+        "body": "{{summary}}"
+      },
+      "postPublishedAuthor": {
+        "title": "Публикувано: {{title}}",
+        "body": "Съобщението ви вече е видимо за аудиторията си."
+      },
+      "postSubmitted": {
+        "title": "Искане за преглед: {{title}}",
+        "body": "{{author}} изпрати съобщение за преглед."
+      },
+      "postReturned": {
+        "title": "Нужни са промени: {{title}}",
+        "body": "{{reviewer}}: {{note}}"
+      },
+      "eventPublished": {
+        "title": "Ново събитие: {{title}}",
+        "body": "{{date}}. {{summary}}"
+      },
+      "eventUpdated": {
+        "title": "Промяна в събитие: {{title}}",
+        "body": "Организаторите промениха подробностите. Проверете датата, часа и мястото, преди да тръгнете."
+      },
+      "eventCancelled": {
+        "title": "Отменено събитие: {{title}}",
+        "body": "Причина: {{reason}}"
+      },
+      "eventReminder": {
+        "title": "Отговорете скоро: {{title}}",
+        "body": "Регистрацията приключва на {{date}}."
+      },
+      "eventAlmostFull": {
+        "title": "Почти няма места: {{title}}",
+        "body_one": "Остава само {{count}} свободно място.",
+        "body_other": "Остават само {{count}} свободни места."
+      },
+      "eventFull": {
+        "title": "Всички места са заети: {{title}}",
+        "body": "Няма свободни места. Членовете все още могат да отговорят „Може би“ или „Няма да присъствам“."
+      },
+      "eventNewReplies": {
+        "title": "Нови отговори: {{title}}",
+        "body_one": "{{count}} член отговори през последните няколко дни.",
+        "body_other": "{{count}} членове отговориха през последните няколко дни."
+      },
+      "attendanceMissing": {
+        "title": "Присъствието не е отбелязано: {{title}}",
+        "body": "Отбележете кой е присъствал, за да бъдат записите на обителта пълни."
+      },
+      "resourceAdded": {
+        "title": "Нов ресурс: {{title}}",
+        "body": "{{description}}"
+      },
+      "messageReceived": {
+        "title": "Ново съобщение от {{name}}",
+        "body": "{{subject}}"
+      },
+      "accountActivated": {
+        "title": "Профилът ви е активен",
+        "body": "Причина: {{reason}}"
+      },
+      "accountSuspended": {
+        "title": "Профилът ви е временно спрян",
+        "body": "Причина: {{reason}}"
+      },
+      "accountPending": {
+        "title": "Профилът ви очаква активиране",
+        "body": "Причина: {{reason}}"
+      },
+      "memberStatusChanged": {
+        "title": "Променен статус на профил: {{name}}",
+        "body": "Нов статус: {{status}}."
+      },
+      "pendingAccount": {
+        "title": "Профил очаква активиране: {{name}}",
+        "body": "Нов профил на член от вашата обител очаква да бъде активиран."
+      },
+      "roleChanged": {
+        "title": "Достъпът ви е променен",
+        "body": "Ролята ви в приложението вече е {{role}} ({{scope}})."
+      },
+      "specialAssignmentGranted": {
+        "title": "Предоставено е специално право",
+        "body": "{{permission}}, от {{start}} до {{end}}."
+      },
+      "specialAssignmentRevoked": {
+        "title": "Специалното право е отнето",
+        "body": "{{permission}}: {{reason}}"
+      },
+      "specialAssignmentNotice": {
+        "title": "Специално право за {{name}}",
+        "body": "{{permission}}, до {{end}}."
+      },
+      "positionUpdated": {
+        "title": "Импортираната ви длъжност е обновена",
+        "body": "Според регистъра на членовете вашата длъжност е {{position}} (демо данни)."
+      },
+      "syncSucceeded": {
+        "title": "Синхронизацията приключи",
+        "body": "Обновени: {{updated}} · Грешки: {{errors}} · Нови изключения: {{exceptions}}"
+      },
+      "syncPartial": {
+        "title": "Синхронизацията приключи с предупреждения",
+        "body": "Обновени: {{updated}} · Грешки: {{errors}} · Нови изключения: {{exceptions}}"
+      },
+      "syncFailed": {
+        "title": "Синхронизацията е неуспешна",
+        "body": "{{reason}}"
+      },
+      "syncException": {
+        "title": "Ново изключение при синхронизацията",
+        "body": "{{details}}"
+      },
+      "translationsWaiting": {
+        "title": "Преводи, които очакват преглед",
+        "body_one": "{{count}} елемент се нуждае от превод или езиков преглед.",
+        "body_other": "{{count}} елемента се нуждаят от превод или езиков преглед."
+      },
+      "chapterUpdated": {
+        "title": "Обновени данни: {{chapter}}",
+        "body": "Информацията за срещите е променена."
+      },
+      "mappingDeactivated": {
+        "title": "Деактивирано правило: {{position}}",
+        "body": "За членовете с тази длъжност вече се прилага следващото активно правило."
+      },
+      "newSignIn": {
+        "title": "Нов вход в профила ви",
+        "body": "Ако не сте били вие, сменете паролата си от профила."
+      },
+      "failedSignIns": {
+        "title": "Неуспешни опити за вход",
+        "body_one": "{{count}} неуспешен опит за вход в профила ви. Ако не сте били вие, сменете паролата си.",
+        "body_other": "{{count}} неуспешни опита за вход в профила ви. Ако не сте били вие, сменете паролата си."
+      },
+      "maintenance": {
+        "title": "Планирана поддръжка (симулация)",
+        "body": "В неделя сутринта порталът ще бъде само за четене в продължение на един час. Не е необходимо да правите нищо."
+      }
+    },
+    "audit": {
+      "postCreated": "Създаде съобщението „{{title}}“",
+      "postUpdated": "Редактира съобщението „{{title}}“",
+      "postSubmitted": "Изпрати за преглед съобщението „{{title}}“",
+      "postWithdrawn": "Оттегли от преглед съобщението „{{title}}“",
+      "postPublished": "Публикува съобщението „{{title}}“",
+      "postReturned": "Върна за редакция съобщението „{{title}}“: {{note}}",
+      "postArchived": "Архивира съобщението „{{title}}“",
+      "postRestored": "Възстанови като чернова съобщението „{{title}}“",
+      "eventCreated": "Създаде събитието „{{title}}“",
+      "eventUpdated": "Редактира събитието „{{title}}“",
+      "eventPublished": "Публикува събитието „{{title}}“",
+      "eventCancelled": "Отмени събитието „{{title}}“: {{reason}}",
+      "eventCapacityChanged": "Промени капацитета на „{{title}}“ на {{capacity}}",
+      "eventCapacityUnlimited": "Премахна ограничението на местата за „{{title}}“",
+      "eventVisibilityChanged": "Промени видимостта на списъка с участници за „{{title}}“: {{visibility}}",
+      "eventNoteAdded": "Добави бележка на организатора към „{{title}}“",
+      "attendanceRecorded_one": "Отбеляза присъствието за „{{title}}“ ({{count}} запис)",
+      "attendanceRecorded_other": "Отбеляза присъствието за „{{title}}“ ({{count}} записа)",
+      "resourceCreated": "Добави ресурса „{{title}}“",
+      "resourceUpdated": "Редактира ресурса „{{title}}“",
+      "resourceArchived": "Архивира ресурса „{{title}}“",
+      "resourceRestored": "Възстанови ресурса „{{title}}“",
+      "memberStatusChanged": "Промени статуса на профила на {{name}} на „{{status}}“: {{reason}}",
+      "profileUpdated": "Обнови собствения си профил",
+      "roleAssigned": "Определи на {{name}} ролята „{{role}}“ ({{scope}}): {{reason}}",
+      "roleSynced": "Синхронизацията определи на {{name}} ролята „{{role}}“ ({{scope}})",
+      "specialAssignmentCreated": "Предостави на {{name}} специалното право „{{permission}}“ до {{end}}",
+      "specialAssignmentRevoked": "Отне специалното право „{{permission}}“ на {{name}}: {{reason}}",
+      "mappingCreated": "Създаде правилото {{position}} → „{{role}}“",
+      "mappingUpdated": "Редактира правилото {{position}} → „{{role}}“",
+      "mappingDeleted": "Изтри правилото за {{position}}",
+      "chapterCreated": "Създаде {{chapter}}",
+      "chapterUpdated": "Редактира данните на {{chapter}}",
+      "broadcast_one": "Изпрати известието „{{title}}“ до {{count}} член",
+      "broadcast_other": "Изпрати известието „{{title}}“ до {{count}} членове",
+      "syncStarted": "Стартира демо синхронизация",
+      "syncStartedScheduled": "Започна планирана синхронизация",
+      "syncCompleted": "Синхронизацията приключи – обновени: {{updated}}, грешки: {{errors}}, нови изключения: {{exceptions}}",
+      "syncFailed": "Синхронизацията е неуспешна: {{reason}}",
+      "exceptionResolved": "Реши изключение {{ref}}: {{note}}",
+      "exceptionIgnored": "Игнорира изключение {{ref}}: {{note}}",
+      "translationUpdatedEn": "Обнови английската версия на „{{title}}“",
+      "translationUpdatedBg": "Обнови българската версия на „{{title}}“",
+      "translationReviewedEn": "Прегледа английската версия на „{{title}}“",
+      "translationReviewedBg": "Прегледа българската версия на „{{title}}“"
+    }
+  }
+}

@@ -1,0 +1,227 @@
+{
+  "messages": {
+    "errors": {
+      "rsvpNotSelf": "You can only reply for yourself.",
+      "eventNotPublished": "This event hasn't been published yet.",
+      "eventCancelled": "This event has been cancelled.",
+      "eventPast": "This event has already started, so replies are closed.",
+      "registrationClosed": "Registration for this event has closed.",
+      "eventFull": "This event is full. You can still reply Maybe or Not going.",
+      "attendanceNotStarted": "Attendance can be recorded once the event has started.",
+      "attendanceNotEligible": "Some of these people aren't on this event's attendance list.",
+      "syncRunning": "A synchronization is already running. Wait for it to finish.",
+      "exceptionClosed": "This exception has already been handled.",
+      "mappingInUse": "Current role assignments use this mapping. Deactivate it instead of deleting it.",
+      "mappingDuplicate": "An active mapping with this position code and priority already exists.",
+      "mappingMismatch": "The selected mapping is inactive or doesn't match this position.",
+      "slugTaken": "Another chapter already uses this web address.",
+      "recipientUnavailable": "This member can't receive messages right now.",
+      "messageSelf": "You can't send a message to yourself.",
+      "translationIncomplete": "Fill in every field of this language before marking it as reviewed.",
+      "notEditable": "This item can't be changed in its current state."
+    },
+    "validation": {
+      "titleInOneLanguage": "Add a title in at least one language.",
+      "deadlineAfterStart": "The registration deadline must be before the start.",
+      "versionFormat": "Use a version like 1.0 or 2.1.3.",
+      "slugFormat": "Use lowercase Latin letters, digits and hyphens.",
+      "scopeNotAllowedForRole": "This scope isn't available for the selected role.",
+      "approverIsRecipient": "The approver can't be the member who receives the permission.",
+      "approverInvalid": "Choose an active member as the approver.",
+      "positionCodeFormat": "Use capital Latin letters, digits and underscores, e.g. CH_SCRIBE.",
+      "phoneFormat": "Enter a valid phone number.",
+      "unknownChapter": "Choose an existing chapter.",
+      "unknownMember": "Choose an existing member.",
+      "capacityBelowGoing": "The capacity can't be lower than the number of members already going ({{count}})."
+    },
+    "notifications": {
+      "postPublished": {
+        "title": "New announcement: {{title}}",
+        "body": "{{summary}}"
+      },
+      "postPublishedAuthor": {
+        "title": "Published: {{title}}",
+        "body": "Your announcement is now visible to its audience."
+      },
+      "postSubmitted": {
+        "title": "Review requested: {{title}}",
+        "body": "{{author}} submitted an announcement for review."
+      },
+      "postReturned": {
+        "title": "Changes requested: {{title}}",
+        "body": "{{reviewer}}: {{note}}"
+      },
+      "eventPublished": {
+        "title": "New event: {{title}}",
+        "body": "{{date}}. {{summary}}"
+      },
+      "eventUpdated": {
+        "title": "Event updated: {{title}}",
+        "body": "The organizers changed the details. Check the date, time and place before you go."
+      },
+      "eventCancelled": {
+        "title": "Event cancelled: {{title}}",
+        "body": "Reason: {{reason}}"
+      },
+      "eventReminder": {
+        "title": "Reply soon: {{title}}",
+        "body": "Registration closes on {{date}}."
+      },
+      "eventAlmostFull": {
+        "title": "Almost full: {{title}}",
+        "body_one": "Only {{count}} place is left.",
+        "body_other": "Only {{count}} places are left."
+      },
+      "eventFull": {
+        "title": "Fully booked: {{title}}",
+        "body": "All places are taken. Members can still reply Maybe or Not going."
+      },
+      "eventNewReplies": {
+        "title": "New replies: {{title}}",
+        "body_one": "{{count}} member replied in the last few days.",
+        "body_other": "{{count}} members replied in the last few days."
+      },
+      "attendanceMissing": {
+        "title": "Attendance not recorded: {{title}}",
+        "body": "Record who attended so the chapter's records stay complete."
+      },
+      "resourceAdded": {
+        "title": "New resource: {{title}}",
+        "body": "{{description}}"
+      },
+      "messageReceived": {
+        "title": "New message from {{name}}",
+        "body": "{{subject}}"
+      },
+      "accountActivated": {
+        "title": "Your account is active",
+        "body": "Reason: {{reason}}"
+      },
+      "accountSuspended": {
+        "title": "Your account has been suspended",
+        "body": "Reason: {{reason}}"
+      },
+      "accountPending": {
+        "title": "Your account is waiting for activation",
+        "body": "Reason: {{reason}}"
+      },
+      "memberStatusChanged": {
+        "title": "Account status changed: {{name}}",
+        "body": "New status: {{status}}."
+      },
+      "pendingAccount": {
+        "title": "Account awaiting activation: {{name}}",
+        "body": "A new member account in your chapter is waiting to be activated."
+      },
+      "roleChanged": {
+        "title": "Your access has changed",
+        "body": "Your application role is now {{role}} ({{scope}})."
+      },
+      "specialAssignmentGranted": {
+        "title": "Special permission granted",
+        "body": "{{permission}}, from {{start}} until {{end}}."
+      },
+      "specialAssignmentRevoked": {
+        "title": "Special permission revoked",
+        "body": "{{permission}}: {{reason}}"
+      },
+      "specialAssignmentNotice": {
+        "title": "Special permission for {{name}}",
+        "body": "{{permission}}, until {{end}}."
+      },
+      "positionUpdated": {
+        "title": "Your imported position was updated",
+        "body": "The member registry now lists you as {{position}} (demo data)."
+      },
+      "syncSucceeded": {
+        "title": "Synchronization finished",
+        "body": "Updated: {{updated}} · Errors: {{errors}} · New exceptions: {{exceptions}}"
+      },
+      "syncPartial": {
+        "title": "Synchronization finished with warnings",
+        "body": "Updated: {{updated}} · Errors: {{errors}} · New exceptions: {{exceptions}}"
+      },
+      "syncFailed": {
+        "title": "Synchronization failed",
+        "body": "{{reason}}"
+      },
+      "syncException": {
+        "title": "New synchronization exception",
+        "body": "{{details}}"
+      },
+      "translationsWaiting": {
+        "title": "Translations waiting for review",
+        "body_one": "{{count}} item needs a translation or a language review.",
+        "body_other": "{{count}} items need a translation or a language review."
+      },
+      "chapterUpdated": {
+        "title": "Chapter details updated: {{chapter}}",
+        "body": "The meeting information was changed."
+      },
+      "mappingDeactivated": {
+        "title": "Mapping rule deactivated: {{position}}",
+        "body": "Members holding this position now fall back to the next active rule."
+      },
+      "newSignIn": {
+        "title": "New sign-in to your account",
+        "body": "If this wasn't you, change your password in your profile."
+      },
+      "failedSignIns": {
+        "title": "Failed sign-in attempts",
+        "body_one": "{{count}} failed attempt to sign in to your account. If this wasn't you, change your password.",
+        "body_other": "{{count}} failed attempts to sign in to your account. If this wasn't you, change your password."
+      },
+      "maintenance": {
+        "title": "Scheduled maintenance (simulated)",
+        "body": "The portal will be read-only for one hour on Sunday morning. No action is needed."
+      }
+    },
+    "audit": {
+      "postCreated": "Created the announcement “{{title}}”",
+      "postUpdated": "Edited the announcement “{{title}}”",
+      "postSubmitted": "Submitted “{{title}}” for review",
+      "postWithdrawn": "Withdrew “{{title}}” from review",
+      "postPublished": "Published “{{title}}”",
+      "postReturned": "Returned “{{title}}” to draft: {{note}}",
+      "postArchived": "Archived “{{title}}”",
+      "postRestored": "Restored “{{title}}” as a draft",
+      "eventCreated": "Created the event “{{title}}”",
+      "eventUpdated": "Edited the event “{{title}}”",
+      "eventPublished": "Published the event “{{title}}”",
+      "eventCancelled": "Cancelled the event “{{title}}”: {{reason}}",
+      "eventCapacityChanged": "Changed the capacity of “{{title}}” to {{capacity}}",
+      "eventCapacityUnlimited": "Removed the capacity limit of “{{title}}”",
+      "eventVisibilityChanged": "Set the participant list of “{{title}}” to: {{visibility}}",
+      "eventNoteAdded": "Added an organizer note to “{{title}}”",
+      "attendanceRecorded_one": "Recorded attendance for “{{title}}” ({{count}} entry)",
+      "attendanceRecorded_other": "Recorded attendance for “{{title}}” ({{count}} entries)",
+      "resourceCreated": "Added the resource “{{title}}”",
+      "resourceUpdated": "Edited the resource “{{title}}”",
+      "resourceArchived": "Archived the resource “{{title}}”",
+      "resourceRestored": "Restored the resource “{{title}}”",
+      "memberStatusChanged": "Changed the account status of {{name}} to “{{status}}”: {{reason}}",
+      "profileUpdated": "Updated their own profile",
+      "roleAssigned": "Assigned {{name}} the role “{{role}}” ({{scope}}): {{reason}}",
+      "roleSynced": "Synchronization set the role of {{name}} to “{{role}}” ({{scope}})",
+      "specialAssignmentCreated": "Granted {{name}} the special permission “{{permission}}” until {{end}}",
+      "specialAssignmentRevoked": "Revoked the special permission “{{permission}}” of {{name}}: {{reason}}",
+      "mappingCreated": "Created the mapping {{position}} → “{{role}}”",
+      "mappingUpdated": "Edited the mapping {{position}} → “{{role}}”",
+      "mappingDeleted": "Deleted the mapping for {{position}}",
+      "chapterCreated": "Created {{chapter}}",
+      "chapterUpdated": "Edited the details of {{chapter}}",
+      "broadcast_one": "Sent the notification “{{title}}” to {{count}} member",
+      "broadcast_other": "Sent the notification “{{title}}” to {{count}} members",
+      "syncStarted": "Started a demo synchronization",
+      "syncStartedScheduled": "Scheduled synchronization started",
+      "syncCompleted": "Synchronization finished — updated: {{updated}}, errors: {{errors}}, new exceptions: {{exceptions}}",
+      "syncFailed": "Synchronization failed: {{reason}}",
+      "exceptionResolved": "Resolved exception {{ref}}: {{note}}",
+      "exceptionIgnored": "Ignored exception {{ref}}: {{note}}",
+      "translationUpdatedEn": "Updated the English version of “{{title}}”",
+      "translationUpdatedBg": "Updated the Bulgarian version of “{{title}}”",
+      "translationReviewedEn": "Reviewed the English version of “{{title}}”",
+      "translationReviewedBg": "Reviewed the Bulgarian version of “{{title}}”"
+    }
+  }
+}

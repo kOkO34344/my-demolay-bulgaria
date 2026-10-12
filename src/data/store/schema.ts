@@ -26,7 +26,7 @@ import type {
  * Bump whenever the seed data or record shapes change: stale sessionStorage snapshots with a
  * different version are discarded and re-seeded on next load.
  */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /** Server-side member record (public profile + restricted fields). Never returned to the UI as-is. */
 export interface MemberRecord extends MemberProfile {

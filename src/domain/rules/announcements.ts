@@ -94,13 +94,10 @@ export function compareFeedOrder(
 export type AnnouncementTransitionAction = Exclude<AnnouncementAction, 'edit'>;
 
 export type AnnouncementTransitionFailure =
-  | 'invalid_transition'
-  | 'translations_incomplete'
-  | 'note_required';
+  'invalid_transition' | 'translations_incomplete' | 'note_required';
 
 export type AnnouncementTransitionResult =
-  | { ok: true; post: Announcement }
-  | { ok: false; reason: AnnouncementTransitionFailure };
+  { ok: true; post: Announcement } | { ok: false; reason: AnnouncementTransitionFailure };
 
 export interface TransitionContext {
   actorId: ID;

@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
-import { ACCOUNT_STATUSES, ENTITY_TYPES, NOTIFICATION_CATEGORIES, DIGEST_FREQUENCIES } from '@/domain';
+import {
+  ACCOUNT_STATUSES,
+  ENTITY_TYPES,
+  NOTIFICATION_CATEGORIES,
+  DIGEST_FREQUENCIES,
+} from '@/domain';
 import type { NotificationCategory } from '@/domain';
 
 import {

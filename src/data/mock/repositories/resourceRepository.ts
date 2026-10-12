@@ -46,7 +46,8 @@ import { toResourceView } from '../services/views';
 
 function visibleResource(subject: Subject, resourceId: ID): Resource {
   const resource = db.get('resources', resourceId);
-  if (!resource || !canViewResource(subject, resource)) throw new NotFoundError('resource', resourceId);
+  if (!resource || !canViewResource(subject, resource))
+    throw new NotFoundError('resource', resourceId);
   return resource;
 }
 
@@ -67,7 +68,12 @@ function assertChapterExists(chapterId: ID | null): void {
   }
 }
 
-function auditResource(subject: Subject, action: AuditAction, resource: Resource, key: string): void {
+function auditResource(
+  subject: Subject,
+  action: AuditAction,
+  resource: Resource,
+  key: string,
+): void {
   appendAudit(subject, {
     action,
     entityType: 'resource',
@@ -114,7 +120,9 @@ export function createMockResourceRepository(): ResourceRepository {
           .list('resources')
           .filter((r) => (query.includeArchived ? true : r.status === 'active'))
           .filter((r) => canViewResource(subject, r))
-          .filter((r) => !query.category || query.category === 'all' || r.category === query.category)
+          .filter(
+            (r) => !query.category || query.category === 'all' || r.category === query.category,
+          )
           .filter((r) => matchesResourceLanguage(r.language, query.language))
           .filter((r) => matchesResourceScope(r, query.scope))
           .filter((r) => !query.chapterId || r.chapterId === query.chapterId)
@@ -230,7 +238,12 @@ export function createMockResourceRepository(): ResourceRepository {
           throw new ForbiddenError('permission_denied', 'resource.archive');
         }
         const now = clock.nowIso();
-        const archived: Resource = { ...resource, status: 'archived', archivedAt: now, updatedAt: now };
+        const archived: Resource = {
+          ...resource,
+          status: 'archived',
+          archivedAt: now,
+          updatedAt: now,
+        };
         db.transaction(() => {
           db.upsert('resources', archived);
           auditResource(subject, 'resource.archived', archived, 'resourceArchived');

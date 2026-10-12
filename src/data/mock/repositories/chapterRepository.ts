@@ -74,7 +74,9 @@ export function createMockChapterRepository(): ChapterRepository {
     list: () =>
       mockCall((): Chapter[] => {
         requireSubject();
-        return db.list('chapters').sort((a, b) => a.id.localeCompare(b.id, 'en', { numeric: true }));
+        return db
+          .list('chapters')
+          .sort((a, b) => a.id.localeCompare(b.id, 'en', { numeric: true }));
       }),
 
     get: (chapterId) =>

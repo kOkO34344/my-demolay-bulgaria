@@ -1,39 +1,111 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 /**
- * Foundation smoke test (core team). Feature teams add their own specs next to this one.
- * Verifies the production bundle boots without console errors and exposes PWA metadata.
+ * Smoke test (shell team): the production bundle boots on the login page, a member signs in through
+ * "Demo access", lands on Home and signs out again — with zero console errors or warnings.
+ * Feature teams: copy `collectConsoleProblems` into your specs.
  */
-test('app shell boots without console errors', async ({ page }) => {
+
+function collectConsoleProblems(page: Page): string[] {
   const problems: string[] = [];
   page.on('console', (message) => {
     if (message.type() === 'error' || message.type() === 'warning')
       problems.push(`${message.type()}: ${message.text()}`);
   });
   page.on('pageerror', (error) => problems.push(`pageerror: ${error.message}`));
+  return problems;
+}
 
-  await page.goto('/');
-  await expect(page).toHaveTitle(/My DeMolay Bulgaria/);
+test('signed-out visitors land on a production-like login page', async ({ page }) => {
+  const problems = collectConsoleProblems(page);
+  await page.goto('/events');
+
+  await expect(page).toHaveURL(/\/login\?redirect=%2Fevents$/);
+  await expect(page).toHaveTitle('Sign in · My DeMolay Bulgaria');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
     'href',
     '/manifest.webmanifest',
   );
-  await expect(page.locator('#root')).not.toBeEmpty();
+  await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
+  const demoAccess = page.getByRole('button', { name: 'Demo access' });
+  await expect(demoAccess).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByRole('button', { name: /member\.demo/ })).toBeHidden();
   expect(problems).toEqual([]);
 });
 
-test('manifest is installable', async ({ request }) => {
+test('member signs in via demo access, lands on Home and signs out', async ({ page }, testInfo) => {
+  const problems = collectConsoleProblems(page);
+  const isMobile = testInfo.project.name === 'mobile';
+  await page.goto('/login');
+
+  await page.getByRole('button', { name: 'Demo access' }).click();
+  await page.getByRole('button', { name: /^Member/ }).click();
+  await expect(page.getByLabel('Username')).toHaveValue('member.demo');
+  // Filling never signs in by itself; focus moves to the submit button.
+  await expect(page.getByRole('button', { name: 'Sign in' })).toBeFocused();
+  await expect(page).toHaveURL(/\/login$/);
+
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Home' })).toBeVisible();
+  await expect(page).toHaveTitle('Home · My DeMolay Bulgaria');
+  await expect(page.getByText('Welcome, Martin.')).toBeVisible();
+
+  if (isMobile) {
+    const bottomNav = page.getByRole('navigation', { name: 'Primary' });
+    await expect(bottomNav).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeHidden();
+    await bottomNav.getByRole('link', { name: 'More' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'More' })).toBeVisible();
+    await page.getByRole('main').getByRole('button', { name: 'Sign out' }).click();
+  } else {
+    const sidebar = page.getByRole('navigation', { name: 'Main navigation' });
+    await expect(sidebar).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Home' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    await expect(sidebar.getByRole('link', { name: 'Administration' })).toHaveCount(0);
+    await sidebar.getByRole('button', { name: 'Sign out' }).click();
+  }
+
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
+  await expect(page.getByText("You've signed out.")).toBeVisible();
+  expect(problems).toEqual([]);
+});
+
+test('manifest is installable and every declared icon exists', async ({ request }) => {
   const response = await request.get('/manifest.webmanifest');
   expect(response.ok()).toBe(true);
   const manifest = (await response.json()) as {
     name: string;
+    short_name: string;
     display: string;
-    icons: Array<{ sizes: string }>;
+    start_url: string;
+    scope: string;
+    background_color: string;
+    theme_color: string;
+    icons: Array<{ src: string; sizes: string; purpose?: string }>;
   };
-  expect(manifest.name).toBe('My DeMolay Bulgaria');
-  expect(manifest.display).toBe('standalone');
-  expect(manifest.icons.map((i) => i.sizes)).toEqual(
+  expect(manifest).toMatchObject({
+    name: 'My DeMolay Bulgaria',
+    short_name: 'My DeMolay',
+    display: 'standalone',
+    start_url: '/',
+    scope: '/',
+    background_color: '#F7F6F2',
+    theme_color: '#ffffff',
+  });
+  expect(manifest.icons.map((icon) => icon.sizes)).toEqual(
     expect.arrayContaining(['192x192', '512x512']),
   );
+  expect(manifest.icons.some((icon) => icon.purpose === 'maskable')).toBe(true);
+  for (const icon of [...manifest.icons, { src: 'apple-touch-icon-180x180.png' }]) {
+    const file = await request.get(`/${icon.src}`);
+    expect(file.ok(), icon.src).toBe(true);
+    expect(file.headers()['content-type']).toContain('image/png');
+  }
 });

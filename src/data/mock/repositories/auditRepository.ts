@@ -98,7 +98,9 @@ export function createMockAuditRepository(): AuditRepository {
     forMember: (userId) =>
       mockCall((): AuditLogEntryView[] =>
         readable(requireSubject())
-          .filter((e) => e.actorId === userId || e.entityId === userId || e.entityId === `ra-${userId}`)
+          .filter(
+            (e) => e.actorId === userId || e.entityId === userId || e.entityId === `ra-${userId}`,
+          )
           .map(toView),
       ),
   };

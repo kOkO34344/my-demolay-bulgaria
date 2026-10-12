@@ -9,7 +9,14 @@ import {
 import { roleRank } from '@/auth/roles';
 import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from '@/data/errors';
 import type { MemberRepository } from '@/data/repositories';
-import { appendAudit, assignmentFor, db, mockCall, requireSubject, type MemberRecord } from '@/data/store';
+import {
+  appendAudit,
+  assignmentFor,
+  db,
+  mockCall,
+  requireSubject,
+  type MemberRecord,
+} from '@/data/store';
 import { compareDirectoryEntries, isListedInDirectory } from '@/domain/rules/directory';
 import {
   memberStatusChangeSchema,
@@ -103,7 +110,11 @@ export function createMockMemberRepository(): MemberRepository {
           'members',
           subject.userId,
           (current) => {
-            const next = { ...current, private: { ...current.private }, privacy: { ...current.privacy } };
+            const next = {
+              ...current,
+              private: { ...current.private },
+              privacy: { ...current.privacy },
+            };
             if (data.bio !== undefined) {
               next.bio = data.bio === null || data.bio === '' ? null : data.bio;
               changed.push('bio');

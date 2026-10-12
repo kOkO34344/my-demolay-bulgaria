@@ -92,7 +92,8 @@ function schedule(): void {
 /** Starts a manual demo run (integration.manage is checked by the repository). */
 export function startDemoSync(subject: Subject): SyncJob {
   advanceDemoSyncs();
-  if (db.count('syncJobs', isActiveSyncJob) > 0) throw new ConflictError('messages.errors.syncRunning');
+  if (db.count('syncJobs', isActiveSyncJob) > 0)
+    throw new ConflictError('messages.errors.syncRunning');
   const run = db.count('syncJobs', (j) => j.id.startsWith(RUN_ID_PREFIX)) + 1;
   const job: SyncJob = {
     id: `${RUN_ID_PREFIX}${run}`,
@@ -144,7 +145,10 @@ function unmappedDetails(member: MemberRecord, position: ImportedPosition): Loca
 
 function hasOpenException(kind: SyncException['kind'], externalRef: string): boolean {
   return (
-    db.count('syncExceptions', (e) => e.status === 'open' && e.kind === kind && e.externalRef === externalRef) > 0
+    db.count(
+      'syncExceptions',
+      (e) => e.status === 'open' && e.kind === kind && e.externalRef === externalRef,
+    ) > 0
   );
 }
 
@@ -201,7 +205,9 @@ function finishJob(job: SyncJob, now: Date): void {
     // 3. Recalculate roles through the mappings (manual overrides are kept).
     const roleChanges: RoleChange[] = [];
     let newExceptions = 0;
-    const imported = db.find('members', (m) => m.importedPosition !== null).sort((a, b) => a.userId.localeCompare(b.userId));
+    const imported = db
+      .find('members', (m) => m.importedPosition !== null)
+      .sort((a, b) => a.userId.localeCompare(b.userId));
     for (const member of imported) {
       const { change, resolution } = applyMappedRole(member.userId, { at, actor: null });
       if (change) {
@@ -217,11 +223,20 @@ function finishJob(job: SyncJob, now: Date): void {
             role: roleLabel(change.toRole ?? 'member'),
             scope: scopeText(change.scope ?? { level: 'chapter', chapterIds: [member.chapterId] }),
           }),
-          metadata: { from: change.fromRole, to: change.toRole, mappingId: change.mappingId, jobId: job.id },
+          metadata: {
+            from: change.fromRole,
+            to: change.toRole,
+            mappingId: change.mappingId,
+            jobId: job.id,
+          },
         });
       }
       const position = member.importedPosition;
-      if (resolution.kind === 'unmapped' && position && !hasOpenException('unmapped_position', position.externalId)) {
+      if (
+        resolution.kind === 'unmapped' &&
+        position &&
+        !hasOpenException('unmapped_position', position.externalId)
+      ) {
         db.upsert('syncExceptions', {
           id: createId('exc'),
           jobId: job.id,
@@ -251,7 +266,10 @@ function finishJob(job: SyncJob, now: Date): void {
     }
 
     // 4. Result, counts and job status.
-    const changedIds = new Set([...positionChanges.map((c) => c.userId), ...roleChanges.map((c) => c.userId)]);
+    const changedIds = new Set([
+      ...positionChanges.map((c) => c.userId),
+      ...roleChanges.map((c) => c.userId),
+    ]);
     const importedNew = positionChanges.filter((c) => c.fromCode === null).length;
     const total = db.count('members', (m) => m.importedPosition !== null);
     const counts: SyncCounts = {
@@ -260,7 +278,8 @@ function finishJob(job: SyncJob, now: Date): void {
       unchanged: Math.max(0, total - changedIds.size),
       deactivated: 0,
     };
-    const status: SyncJobStatus = scenario.errors.length > 0 || newExceptions > 0 ? 'partial' : 'succeeded';
+    const status: SyncJobStatus =
+      scenario.errors.length > 0 || newExceptions > 0 ? 'partial' : 'succeeded';
     db.upsert('syncResults', {
       id: job.id,
       jobId: job.id,
@@ -272,7 +291,11 @@ function finishJob(job: SyncJob, now: Date): void {
     db.update('syncJobs', job.id, { status, stage: 'done', progress: 100, finishedAt: at });
 
     // 5. Audit + notify administrators.
-    const params = { updated: counts.updated + counts.imported, errors: scenario.errors.length, exceptions: newExceptions };
+    const params = {
+      updated: counts.updated + counts.imported,
+      errors: scenario.errors.length,
+      exceptions: newExceptions,
+    };
     appendAudit(null, {
       action: 'sync.completed',
       entityType: 'sync_job',
@@ -286,8 +309,13 @@ function finishJob(job: SyncJob, now: Date): void {
       activeUsersWhere((s) => can(s, 'integration.manage')),
       {
         category: 'system',
-        title: msg(`messages.notifications.${status === 'succeeded' ? 'syncSucceeded' : 'syncPartial'}.title`),
-        body: msg(`messages.notifications.${status === 'succeeded' ? 'syncSucceeded' : 'syncPartial'}.body`, params),
+        title: msg(
+          `messages.notifications.${status === 'succeeded' ? 'syncSucceeded' : 'syncPartial'}.title`,
+        ),
+        body: msg(
+          `messages.notifications.${status === 'succeeded' ? 'syncSucceeded' : 'syncPartial'}.body`,
+          params,
+        ),
         link: { to: paths.adminSection('sync'), entityType: 'sync_job', entityId: job.id },
         actorId: null,
       },

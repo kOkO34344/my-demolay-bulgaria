@@ -1,9 +1,8 @@
 import { createElement, lazy, type ComponentType, type LazyExoticComponent } from 'react';
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 
-import { RequireAuth } from '@/auth';
 import { FullPageLoader } from '@/components/common/LoadingSkeletons';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { ProtectedLayout } from '@/components/layout/ProtectedLayout';
 import { PublicOnlyRoute } from '@/components/layout/PublicOnlyRoute';
 import { RootRoute, RouterErrorPage } from '@/components/layout/RootRoute';
 import { RouteView } from '@/components/layout/RouteView';
@@ -23,7 +22,7 @@ import {
  *
  *   RootRoute (ScrollRestoration, errorElement)
  *   ├─ PublicOnlyRoute → /login, /forgot-password
- *   └─ RequireAuth + AppLayout
+ *   └─ ProtectedLayout (RequireAuth + AppLayout; loader during sign-out)
  *      ├─ every app route (RouteView: guard → error boundary → Suspense(skeleton) → lazy page)
  *      ├─ /admin (AdminLayout) → index redirect + 10 sections
  *      ├─ /officer → redirect to the officer workspace
@@ -96,11 +95,7 @@ function buildRoutes(): RouteObject[] {
           })),
         },
         {
-          element: (
-            <RequireAuth loadingFallback={<FullPageLoader />}>
-              <AppLayout />
-            </RequireAuth>
-          ),
+          element: <ProtectedLayout />,
           children: appChildren,
         },
       ],

@@ -253,11 +253,13 @@ const RESOURCES: ResourceSeed[] = [
     downloads: 120,
     en: {
       title: 'Member code of conduct',
-      description: 'The standards of behaviour expected from every member at meetings, events and online.',
+      description:
+        'The standards of behaviour expected from every member at meetings, events and online.',
     },
     bg: {
       title: 'Етичен кодекс на членовете',
-      description: 'Нормите на поведение, които се очакват от всеки член на срещи, събития и онлайн.',
+      description:
+        'Нормите на поведение, които се очакват от всеки член на срещи, събития и онлайн.',
     },
   },
   {
@@ -395,7 +397,8 @@ const RESOURCES: ResourceSeed[] = [
     },
     bg: {
       title: 'Формуляр за кандидатстване за членство',
-      description: 'Формуляр за нови членове, който младежът попълва заедно с родител или настойник.',
+      description:
+        'Формуляр за нови членове, който младежът попълва заедно с родител или настойник.',
     },
   },
   {
@@ -461,7 +464,8 @@ const RESOURCES: ResourceSeed[] = [
     },
     bg: {
       title: 'Правила за визуалната идентичност (резюме)',
-      description: 'Как правилно да използвате логото, печата, цветовете и шрифтовете на Дьо Моле България.',
+      description:
+        'Как правилно да използвате логото, печата, цветовете и шрифтовете на Дьо Моле България.',
     },
   },
   {
@@ -498,11 +502,13 @@ const RESOURCES: ResourceSeed[] = [
     downloads: 25,
     en: {
       title: 'Presentation template',
-      description: 'A slide template in the national colours for chapter presentations and reports.',
+      description:
+        'A slide template in the national colours for chapter presentations and reports.',
     },
     bg: {
       title: 'Шаблон за презентации',
-      description: 'Шаблон за слайдове в националните цветове за презентации и отчети на обителите.',
+      description:
+        'Шаблон за слайдове в националните цветове за презентации и отчети на обителите.',
     },
   },
   {

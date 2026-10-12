@@ -1,4 +1,11 @@
-import type { ID, LocalizedText, PositionLevel, PositionRoleMapping, Role, ScopeLevel } from '@/domain';
+import type {
+  ID,
+  LocalizedText,
+  PositionLevel,
+  PositionRoleMapping,
+  Role,
+  ScopeLevel,
+} from '@/domain';
 
 import { ago, lt, type SeedContext } from './context';
 import { mappingIdFor } from './demoAccounts';

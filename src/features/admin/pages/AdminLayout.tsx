@@ -23,7 +23,7 @@ export default function AdminLayout() {
 
   return (
     <>
-      {/* documentTitle={null}: the route table titles each section ("Roles — My DeMolay Bulgaria"). */}
+      {/* documentTitle={null}: the route table titles each section ("Roles · My DeMolay Bulgaria"). */}
       <PageHeader title={t('nav.administration')} documentTitle={null} meta={<DemoDataBadge />} />
       <LinkTabs tabs={tabs} label={t('shell.admin.sectionsLabel')} className="mb-6" />
       <Outlet />

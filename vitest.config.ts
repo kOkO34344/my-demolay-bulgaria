@@ -21,6 +21,9 @@ export default defineConfig({
     exclude: ['node_modules', 'dist', 'dev-dist', 'e2e/**'],
     css: false,
     restoreMocks: true,
+    // SHELL: Vitest 5's persistent transform cache keeps stale `import.meta.glob` results, so i18n
+    // fragments added after the first run (src/i18n/resources.ts) were invisible to tests.
+    fsModuleCache: false,
     env: {
       VITE_MOCK_LATENCY_MS: '0',
       VITE_DEMO_MODE: 'true',

@@ -50,7 +50,9 @@ export function requiredText(max: number, min = 1) {
   return z
     .string({ error: 'validation.required' })
     .trim()
-    .min(min, { error: min <= 1 ? 'validation.required' : vmsg('validation.tooShort', { count: min }) })
+    .min(min, {
+      error: min <= 1 ? 'validation.required' : vmsg('validation.tooShort', { count: min }),
+    })
     .max(max, { error: vmsg('validation.tooLong', { count: max }) });
 }
 

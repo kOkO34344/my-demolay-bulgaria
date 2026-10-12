@@ -1,4 +1,4 @@
-import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from '@/data/errors';
+import { ConflictError, NotFoundError, ValidationError } from '@/data/errors';
 import type { SyncRepository } from '@/data/repositories';
 import { appendAudit, assertCan, db, mockCall, requireSubject } from '@/data/store';
 import { ignoreSyncExceptionSchema, resolveSyncExceptionSchema } from '@/domain/schemas';
@@ -114,7 +114,10 @@ export function createMockSyncRepository(): SyncRepository {
         assertCan(subject, 'integration.manage');
         const exception = openException(id);
         const data = validateInput(resolveSyncExceptionSchema, input);
-        const holders = db.find('members', (m) => m.importedPosition?.externalId === exception.externalRef);
+        const holders = db.find(
+          'members',
+          (m) => m.importedPosition?.externalId === exception.externalRef,
+        );
         if (data.action === 'map_position') {
           const mapping = data.mappingId ? db.get('positionMappings', data.mappingId) : undefined;
           const codes = new Set(holders.map((m) => m.importedPosition?.code));
@@ -123,8 +126,6 @@ export function createMockSyncRepository(): SyncRepository {
             mapping.active &&
             (exception.kind !== 'unmapped_position' || codes.has(mapping.positionCode));
           if (!matches) throw new ValidationError({ mappingId: 'messages.errors.mappingMismatch' });
-        } else if (data.action === 'map_position') {
-          throw new ForbiddenError('invalid_transition');
         }
         const now = clock.nowIso();
         const resolution: SyncExceptionResolution = {
@@ -168,7 +169,11 @@ export function createMockSyncRepository(): SyncRepository {
               ref: exception.externalRef,
               note: data.note,
             }),
-            metadata: { kind: exception.kind, action: data.action, mappingId: resolution.mappingId },
+            metadata: {
+              kind: exception.kind,
+              action: data.action,
+              mappingId: resolution.mappingId,
+            },
           });
         });
         return resolved;

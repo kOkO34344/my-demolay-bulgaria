@@ -104,7 +104,10 @@ function auditPost(
     entityType: 'announcement',
     entityId: post.id,
     chapterId: post.chapterId,
-    summary: msg(`messages.audit.${key}`, { title: titleWithFallback(post.translations), ...extra }),
+    summary: msg(`messages.audit.${key}`, {
+      title: titleWithFallback(post.translations),
+      ...extra,
+    }),
     metadata: { status: post.status, audience: post.audience.scope },
   });
 }
@@ -138,7 +141,9 @@ function audienceRecipients(post: Announcement): ID[] {
   const now = clock.now();
   return activeUserSubjects()
     .filter((u) => isInAudience(u.subject, post, now))
-    .filter((u) => post.audience.scope === 'national' || isLocalTo(u.subject, post.audience.chapterIds))
+    .filter(
+      (u) => post.audience.scope === 'national' || isLocalTo(u.subject, post.audience.chapterIds),
+    )
     .map((u) => u.userId);
 }
 
@@ -176,7 +181,8 @@ function transition(
     if (result.reason === 'translations_incomplete') {
       throw new ValidationError(translationCompletenessErrors('announcement', post.translations));
     }
-    if (result.reason === 'note_required') throw new ValidationError({ note: 'validation.required' });
+    if (result.reason === 'note_required')
+      throw new ValidationError({ note: 'validation.required' });
     throw new ForbiddenError('invalid_transition');
   }
   db.upsert('announcements', result.post);

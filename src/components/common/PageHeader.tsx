@@ -37,7 +37,7 @@ export interface PageHeaderProps {
 
 /**
  * Top of every authenticated page: back link / breadcrumbs, the page <h1>, description, meta badges and
- * actions. Sets `document.title` ("<title> — My DeMolay Bulgaria") unless told otherwise. The shell moves
+ * actions. Sets `document.title` ("<title> · My DeMolay Bulgaria") unless told otherwise. The shell moves
  * focus to this <h1> after client-side navigation, so keep exactly one PageHeader per page.
  */
 export function PageHeader({

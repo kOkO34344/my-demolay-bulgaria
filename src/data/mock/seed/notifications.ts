@@ -33,7 +33,9 @@ export interface NotificationSeedContext {
 }
 
 const key = (k: string, params?: Record<string, MessageParam>): LocalizedMessage =>
-  params ? { kind: 'key', key: `messages.notifications.${k}`, params } : { kind: 'key', key: `messages.notifications.${k}` };
+  params
+    ? { kind: 'key', key: `messages.notifications.${k}`, params }
+    : { kind: 'key', key: `messages.notifications.${k}` };
 
 const link = (to: string, entityType: EntityType, entityId: ID): NotificationLink => ({
   to,
@@ -171,7 +173,12 @@ export function seedNotifications(ctx: SeedContext, data: NotificationSeedContex
       read,
     };
   };
-  const reviewRequested = (id: ID, hoursAgo: number, read: boolean, author: LocalizedText): Spec => ({
+  const reviewRequested = (
+    id: ID,
+    hoursAgo: number,
+    read: boolean,
+    author: LocalizedText,
+  ): Spec => ({
     category: 'approvals',
     title: key('postSubmitted.title', { title: titleWithFallback(post(id).translations) }),
     body: key('postSubmitted.body', { author }),
@@ -216,7 +223,9 @@ export function seedNotifications(ctx: SeedContext, data: NotificationSeedContex
     return {
       category: 'resources',
       title: key('resourceAdded.title', { title: titleWithFallback(r.translations) }),
-      body: key('resourceAdded.body', { description: fieldWithFallback(r.translations, 'description') }),
+      body: key('resourceAdded.body', {
+        description: fieldWithFallback(r.translations, 'description'),
+      }),
       link: link(paths.resources({ q: r.translations.en?.title }), 'resource', id),
       actorId,
       hoursAgo,
@@ -293,7 +302,14 @@ export function seedNotifications(ctx: SeedContext, data: NotificationSeedContex
         18,
         false,
       ),
-      messageReceived(SEED_MESSAGE_IDS.officerToMember, 'u-officer', names.officer, 'Chapter flag for the installation', 20, false),
+      messageReceived(
+        SEED_MESSAGE_IDS.officerToMember,
+        'u-officer',
+        names.officer,
+        'Chapter flag for the installation',
+        20,
+        false,
+      ),
       postPublished('ann-ch1-study-group', 'u-advisor', 166, false),
       eventPublished('ev-ch1-installation', 'u-officer', 142, true),
       eventSpec('ev-ch1-meeting-next', 'eventUpdated', {}, 50, true, 'u-officer'),
@@ -322,7 +338,11 @@ export function seedNotifications(ctx: SeedContext, data: NotificationSeedContex
           reviewer: names.advisor,
           note: post('ann-ch1-returned-bowling').reviewNote ?? '',
         }),
-        link: link(paths.contentEdit('ann-ch1-returned-bowling'), 'announcement', 'ann-ch1-returned-bowling'),
+        link: link(
+          paths.contentEdit('ann-ch1-returned-bowling'),
+          'announcement',
+          'ann-ch1-returned-bowling',
+        ),
         actorId: 'u-advisor',
         hoursAgo: 94,
         read: false,
@@ -333,7 +353,11 @@ export function seedNotifications(ctx: SeedContext, data: NotificationSeedContex
           title: titleWithFallback(post('ann-ch1-installation').translations),
         }),
         body: key('postPublishedAuthor.body'),
-        link: link(paths.newsDetail('ann-ch1-installation'), 'announcement', 'ann-ch1-installation'),
+        link: link(
+          paths.newsDetail('ann-ch1-installation'),
+          'announcement',
+          'ann-ch1-installation',
+        ),
         actorId: 'u-advisor',
         hoursAgo: 40,
         read: true,
@@ -342,7 +366,14 @@ export function seedNotifications(ctx: SeedContext, data: NotificationSeedContex
       eventSpec('ev-ch1-past-parents-evening', 'attendanceMissing', {}, 28, false),
       postPublished('ann-nat-leadership-briefing', 'u-admin', 90, false),
       postPublished('ann-nat-conference', 'u-national-officer', 70, false),
-      messageReceived(SEED_MESSAGE_IDS.advisorToOfficer, 'u-advisor', names.advisor, 'Bowling announcement', 94, false),
+      messageReceived(
+        SEED_MESSAGE_IDS.advisorToOfficer,
+        'u-advisor',
+        names.advisor,
+        'Bowling announcement',
+        94,
+        false,
+      ),
       eventSpec(
         'ev-ch1-hike-cancelled',
         'eventCancelled',
@@ -380,7 +411,14 @@ export function seedNotifications(ctx: SeedContext, data: NotificationSeedContex
       postPublished('ann-nat-leadership-briefing', 'u-admin', 90, false),
       eventSpec('ev-ch1-bowling', 'eventFull', {}, 60, true),
       postPublished('ann-nat-conference', 'u-national-officer', 70, true),
-      messageReceived(SEED_MESSAGE_IDS.officerToAdvisor, 'u-officer', names.officer, 'Day of Comfort post', 26, true),
+      messageReceived(
+        SEED_MESSAGE_IDS.officerToAdvisor,
+        'u-officer',
+        names.officer,
+        'Day of Comfort post',
+        26,
+        true,
+      ),
       {
         category: 'chapter',
         title: key('memberStatusChanged.title', { name: names.simeon }),
@@ -408,7 +446,14 @@ export function seedNotifications(ctx: SeedContext, data: NotificationSeedContex
     'u-national-officer': [
       reviewRequested('ann-nat-submitted-survey', 32, false, names.petko),
       eventSpec('ev-nat-conference', 'eventNewReplies', { count: 18 }, 6, false),
-      messageReceived(SEED_MESSAGE_IDS.adminToNational, 'u-admin', names.admin, 'Conference registrations', 9, false),
+      messageReceived(
+        SEED_MESSAGE_IDS.adminToNational,
+        'u-admin',
+        names.admin,
+        'Conference registrations',
+        9,
+        false,
+      ),
       postPublished('ann-nat-privacy', 'u-admin', 598, false),
       eventPublished('ev-ch2-football', 'u-p03', 118, false),
       {
@@ -476,7 +521,14 @@ export function seedNotifications(ctx: SeedContext, data: NotificationSeedContex
         hoursAgo: 8,
         read: false,
       },
-      messageReceived(SEED_MESSAGE_IDS.nationalToAdmin, 'u-national-officer', names.national, 'National Inspector mapping', 30, false),
+      messageReceived(
+        SEED_MESSAGE_IDS.nationalToAdmin,
+        'u-national-officer',
+        names.national,
+        'National Inspector mapping',
+        30,
+        false,
+      ),
       eventSpec('ev-nat-conference', 'eventNewReplies', { count: 18 }, 6, false),
       {
         category: 'system',
@@ -503,7 +555,9 @@ export function seedNotifications(ctx: SeedContext, data: NotificationSeedContex
       },
       {
         category: 'chapter',
-        title: key('chapterUpdated.title', { chapter: lt('Tsarevgrad Tarnov Chapter', 'Обител „Царевград Търнов“') }),
+        title: key('chapterUpdated.title', {
+          chapter: lt('Tsarevgrad Tarnov Chapter', 'Обител „Царевград Търнов“'),
+        }),
         body: key('chapterUpdated.body'),
         link: link(paths.adminSection('chapters'), 'chapter', 'ch-5'),
         actorId: 'u-admin',
@@ -550,7 +604,9 @@ export function seedNotifications(ctx: SeedContext, data: NotificationSeedContex
         actorId: spec.actorId,
         createdAt,
         readAt: spec.read
-          ? new Date(Math.min(Date.parse(createdAt) + 2 * 3600 * 1000, ctx.now.getTime() - 60_000)).toISOString()
+          ? new Date(
+              Math.min(Date.parse(createdAt) + 2 * 3600 * 1000, ctx.now.getTime() - 60_000),
+            ).toISOString()
           : null,
       });
     });

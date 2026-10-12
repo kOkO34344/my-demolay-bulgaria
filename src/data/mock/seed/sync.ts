@@ -206,14 +206,18 @@ const JOBS: JobSeed[] = [
 export function lastSeededSyncFinishedAt(ctx: SeedContext): string {
   const last = JOBS[JOBS.length - 1];
   if (!last) return ctx.now.toISOString();
-  return new Date(Date.parse(at(ctx, last.start[0], last.start[1])) + last.durationSeconds * 1000).toISOString();
+  return new Date(
+    Date.parse(at(ctx, last.start[0], last.start[1])) + last.durationSeconds * 1000,
+  ).toISOString();
 }
 
 /** Finish time of a seeded job (used by other seed modules for consistent history). */
 export function seededJobFinishedAt(ctx: SeedContext, jobId: ID): string {
   const job = JOBS.find((j) => j.id === jobId);
   if (!job) return ctx.now.toISOString();
-  return new Date(Date.parse(at(ctx, job.start[0], job.start[1])) + job.durationSeconds * 1000).toISOString();
+  return new Date(
+    Date.parse(at(ctx, job.start[0], job.start[1])) + job.durationSeconds * 1000,
+  ).toISOString();
 }
 
 export interface SyncSeed {

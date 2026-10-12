@@ -17,7 +17,7 @@ export function SkipLink({ targetId = 'main-content' }: { targetId?: string }) {
         target.focus();
         target.scrollIntoView({ block: 'start' });
       }}
-      className="sr-only rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-md focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:outline-2 focus:outline-offset-2 focus:outline-ring"
+      className="sr-only rounded-md bg-primary text-sm font-semibold text-primary-foreground shadow-md focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2.5 focus:outline-2 focus:outline-offset-2 focus:outline-ring"
     >
       {t('common.a11y.skipToContent')}
     </a>

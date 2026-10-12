@@ -38,7 +38,10 @@ export function seedChapters(ctx: SeedContext): Chapter[] {
           'Всяка втора и четвърта събота, 11:00–13:00 ч.',
         ),
         venue: lt('Chapter meeting hall (demo venue)', 'Зала на обителта (демо място)'),
-        address: lt('10 Primerna St, Sofia (fictional)', 'ул. „Примерна“ 10, София (измислен адрес)'),
+        address: lt(
+          '10 Primerna St, Sofia (fictional)',
+          'ул. „Примерна“ 10, София (измислен адрес)',
+        ),
         notes: DEMO_NOTE,
       },
       status: 'active',
@@ -83,7 +86,10 @@ export function seedChapters(ctx: SeedContext): Chapter[] {
       ),
       foundedAt: '2023-07-01',
       meeting: {
-        schedule: lt('First Sunday of the month, 16:00–18:00', 'Първата неделя на месеца, 16:00–18:00 ч.'),
+        schedule: lt(
+          'First Sunday of the month, 16:00–18:00',
+          'Първата неделя на месеца, 16:00–18:00 ч.',
+        ),
         venue: lt('Seaside community room (demo venue)', 'Зала край морето (демо място)'),
         address: lt('3 Primerna St, Varna (fictional)', 'ул. „Примерна“ 3, Варна (измислен адрес)'),
         notes: DEMO_NOTE,

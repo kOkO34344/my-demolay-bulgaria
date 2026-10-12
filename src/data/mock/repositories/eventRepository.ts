@@ -103,7 +103,10 @@ function auditEvent(
     entityType: 'event',
     entityId: event.id,
     chapterId: event.chapterId,
-    summary: msg(`messages.audit.${key}`, { title: titleWithFallback(event.translations), ...params }),
+    summary: msg(`messages.audit.${key}`, {
+      title: titleWithFallback(event.translations),
+      ...params,
+    }),
     metadata: { status: event.status, ...metadata },
   });
 }
@@ -147,7 +150,11 @@ function translationsOf(input: EventInput): Event['translations'] {
   for (const locale of ['en', 'bg'] as const) {
     const value = input.translations[locale];
     if (value && (value.title || value.summary || value.description)) {
-      result[locale] = { title: value.title, summary: value.summary, description: value.description };
+      result[locale] = {
+        title: value.title,
+        summary: value.summary,
+        description: value.description,
+      };
     }
   }
   return result;
@@ -195,7 +202,10 @@ function attendanceSheet(event: Event): AttendanceEntry[] {
 // ---- .ics export ---------------------------------------------------------------------------
 
 const icsDate = (iso: string): string =>
-  new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  new Date(iso)
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}/, '');
 
 const icsEscape = (value: string): string =>
   value.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
@@ -274,11 +284,17 @@ export function createMockEventRepository(): EventRepository {
           .filter((e) => includeDrafts || e.status !== 'draft')
           .filter((e) => !query.status || query.status === 'all' || e.status === query.status)
           .filter((e) =>
-            when === 'all' ? true : when === 'past' ? hasEventEnded(e, now) : !hasEventEnded(e, now),
+            when === 'all'
+              ? true
+              : when === 'past'
+                ? hasEventEnded(e, now)
+                : !hasEventEnded(e, now),
           )
           .filter((e) => !query.scope || query.scope === 'all' || e.scope === query.scope)
           .filter((e) => !query.chapterId || e.chapterId === query.chapterId)
-          .filter((e) => !query.category || query.category === 'all' || e.category === query.category)
+          .filter(
+            (e) => !query.category || query.category === 'all' || e.category === query.category,
+          )
           .filter((e) => !query.month || toSofiaMonthKey(e.startsAt) === query.month)
           .filter((e) =>
             matchesSearch(
@@ -291,7 +307,9 @@ export function createMockEventRepository(): EventRepository {
             ),
           )
           .sort((a, b) =>
-            when === 'past' ? b.startsAt.localeCompare(a.startsAt) : a.startsAt.localeCompare(b.startsAt),
+            when === 'past'
+              ? b.startsAt.localeCompare(a.startsAt)
+              : a.startsAt.localeCompare(b.startsAt),
           )
           .map((e) => toEventView(e, subject, now));
       }),
@@ -313,7 +331,9 @@ export function createMockEventRepository(): EventRepository {
         const translations = translationsOf(data);
         if (data.publish) assertReadyToPublish({ translations, location: data.location });
         const now = clock.nowIso();
-        const scopeTarget = data.chapterId ? { chapterId: data.chapterId } : { level: 'national' as const };
+        const scopeTarget = data.chapterId
+          ? { chapterId: data.chapterId }
+          : { level: 'national' as const };
         const event: Event = {
           id: createId('ev'),
           status: data.publish ? 'published' : 'draft',
@@ -360,7 +380,8 @@ export function createMockEventRepository(): EventRepository {
         const subject = requireSubject();
         const event = visibleEvent(subject, eventId);
         if (event.status === 'cancelled') throw new ForbiddenError('invalid_transition');
-        if (!canManageEvent(subject, event)) throw new ForbiddenError('permission_denied', 'event.update');
+        if (!canManageEvent(subject, event))
+          throw new ForbiddenError('permission_denied', 'event.update');
         const data = validateInput(eventInputSchema, input);
         assertChapterExists(data.chapterId);
         const moved = data.scope !== event.scope || data.chapterId !== event.chapterId;
@@ -368,14 +389,17 @@ export function createMockEventRepository(): EventRepository {
           throw new ForbiddenError('permission_denied', 'event.create');
         }
         const translations = translationsOf(data);
-        if (event.status === 'published') assertReadyToPublish({ translations, location: data.location });
+        if (event.status === 'published')
+          assertReadyToPublish({ translations, location: data.location });
         const going = countGoing(rsvpsOf(event.id));
         if (data.capacity !== null && data.capacity < going) {
           throw new ValidationError({
             capacity: vmsg('messages.validation.capacityBelowGoing', { count: going }),
           });
         }
-        const scopeTarget = data.chapterId ? { chapterId: data.chapterId } : { level: 'national' as const };
+        const scopeTarget = data.chapterId
+          ? { chapterId: data.chapterId }
+          : { level: 'national' as const };
         const updated: Event = {
           ...event,
           scope: data.scope,
@@ -436,10 +460,16 @@ export function createMockEventRepository(): EventRepository {
         const subject = requireSubject();
         const event = visibleEvent(subject, eventId);
         if (event.status !== 'draft') throw new ForbiddenError('invalid_transition');
-        if (!canPublishEvent(subject, event)) throw new ForbiddenError('permission_denied', 'event.update');
+        if (!canPublishEvent(subject, event))
+          throw new ForbiddenError('permission_denied', 'event.update');
         assertReadyToPublish(event);
         const now = clock.nowIso();
-        const published: Event = { ...event, status: 'published', publishedAt: now, updatedAt: now };
+        const published: Event = {
+          ...event,
+          status: 'published',
+          publishedAt: now,
+          updatedAt: now,
+        };
         db.transaction(() => {
           db.upsert('events', published);
           auditEvent(subject, 'event.published', published, 'eventPublished');
@@ -453,7 +483,8 @@ export function createMockEventRepository(): EventRepository {
         const subject = requireSubject();
         const event = visibleEvent(subject, eventId);
         if (event.status !== 'published') throw new ForbiddenError('invalid_transition');
-        if (!canCancelEvent(subject, event)) throw new ForbiddenError('permission_denied', 'event.cancel');
+        if (!canCancelEvent(subject, event))
+          throw new ForbiddenError('permission_denied', 'event.cancel');
         const data = validateInput(cancelEventSchema, { reason });
         const now = clock.nowIso();
         const cancelled: Event = {
@@ -465,7 +496,9 @@ export function createMockEventRepository(): EventRepository {
         };
         db.transaction(() => {
           db.upsert('events', cancelled);
-          auditEvent(subject, 'event.cancelled', cancelled, 'eventCancelled', { reason: data.reason });
+          auditEvent(subject, 'event.cancelled', cancelled, 'eventCancelled', {
+            reason: data.reason,
+          });
           notifyUsers(interestedIn(event.id), {
             category: 'events',
             title: msg('messages.notifications.eventCancelled.title', {
@@ -483,10 +516,18 @@ export function createMockEventRepository(): EventRepository {
       mockCall((): EventView => {
         const subject = requireSubject();
         const event = visibleEvent(subject, eventId);
-        if (!canManageEvent(subject, event)) throw new ForbiddenError('permission_denied', 'event.update');
-        const value = validateInput(z.enum(PARTICIPANT_VISIBILITIES, { error: 'validation.selectOption' }), visibility);
+        if (!canManageEvent(subject, event))
+          throw new ForbiddenError('permission_denied', 'event.update');
+        const value = validateInput(
+          z.enum(PARTICIPANT_VISIBILITIES, { error: 'validation.selectOption' }),
+          visibility,
+        );
         if (value === event.participantVisibility) return toEventView(event, subject);
-        const updated: Event = { ...event, participantVisibility: value, updatedAt: clock.nowIso() };
+        const updated: Event = {
+          ...event,
+          participantVisibility: value,
+          updatedAt: clock.nowIso(),
+        };
         db.transaction(() => {
           db.upsert('events', updated);
           auditEvent(subject, 'event.visibility_changed', updated, 'eventVisibilityChanged', {
@@ -500,7 +541,8 @@ export function createMockEventRepository(): EventRepository {
       mockCall((): EventView => {
         const subject = requireSubject();
         const event = visibleEvent(subject, eventId);
-        if (!canManageEvent(subject, event)) throw new ForbiddenError('permission_denied', 'event.update');
+        if (!canManageEvent(subject, event))
+          throw new ForbiddenError('permission_denied', 'event.update');
         const value = validateInput(z.object({ capacity: capacitySchema }), { capacity }).capacity;
         const going = countGoing(rsvpsOf(event.id));
         if (value !== null && value < going) {
@@ -542,7 +584,8 @@ export function createMockEventRepository(): EventRepository {
           },
           requested,
         );
-        if (!decision.allowed) throw new ConflictError(RSVP_REJECTION_MESSAGE_KEYS[decision.reason]);
+        if (!decision.allowed)
+          throw new ConflictError(RSVP_REJECTION_MESSAGE_KEYS[decision.reason]);
         db.upsert('rsvps', {
           id: `${event.id}:${subject.userId}`,
           eventId: event.id,
@@ -629,10 +672,17 @@ export function createMockEventRepository(): EventRepository {
             };
             db.upsert('attendance', entry);
           }
-          auditEvent(subject, 'attendance.recorded', event, 'attendanceRecorded', { count: data.length }, {
-            count: data.length,
-            present: data.filter((r) => r.status === 'present').length,
-          });
+          auditEvent(
+            subject,
+            'attendance.recorded',
+            event,
+            'attendanceRecorded',
+            { count: data.length },
+            {
+              count: data.length,
+              present: data.filter((r) => r.status === 'present').length,
+            },
+          );
         });
         return attendanceSheet(event);
       }),
@@ -652,7 +702,10 @@ export function createMockEventRepository(): EventRepository {
           createdAt: clock.nowIso(),
         };
         db.transaction(() => {
-          db.update('events', event.id, (current) => ({ ...current, notes: [...current.notes, note] }));
+          db.update('events', event.id, (current) => ({
+            ...current,
+            notes: [...current.notes, note],
+          }));
           auditEvent(subject, 'event.note_added', event, 'eventNoteAdded');
         });
         return note;

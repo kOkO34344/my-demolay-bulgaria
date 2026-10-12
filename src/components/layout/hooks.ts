@@ -11,21 +11,28 @@ import type { Role } from '@/domain';
 import { labelKeys } from '@/i18n/public';
 import { paths } from '@/lib/routes';
 
-/** Signs out, lands on /login (without a redirect target) and confirms with a toast. */
+import { setSigningOut, useIsSigningOut } from './signOutState';
+
+/**
+ * Signs out, lands on a clean /login (no `?redirect=` target) and confirms with a toast. Use this
+ * for every sign-out button (sidebar, user menu, More, profile) — not `useAuth().logout` directly.
+ * The flag makes ProtectedLayout send the now signed-out visitor to /login itself instead of
+ * core's RequireAuth redirect with `?redirect=<current page>`; PublicOnlyRoute clears it on arrival.
+ */
 export function useSignOut(): { signOut: () => Promise<void>; isSigningOut: boolean } {
   const { logout, isLoggingOut } = useAuth();
-  const navigate = useNavigate();
   const { t } = useTranslation();
+  const flagged = useIsSigningOut();
   const signOut = useCallback(async () => {
+    setSigningOut(true);
     try {
       await logout();
     } catch {
       // The session cache is cleared even when the request fails (see useLogout).
     }
-    void navigate(paths.login(), { replace: true });
     toast.success(t('shell.signOut.done'));
-  }, [logout, navigate, t]);
-  return { signOut, isSigningOut: isLoggingOut };
+  }, [logout, t]);
+  return { signOut, isSigningOut: isLoggingOut || flagged };
 }
 
 /**

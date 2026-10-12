@@ -63,8 +63,18 @@ const POSTS: PostSeed[] = [
     createdAt: [-4, '16:20'],
     publishedAt: [-3, '10:00'],
     attachments: [
-      { id: 'att-conf-programme', name: 'national-conference-2026-programme.pdf', fileType: 'pdf', size: 845_312 },
-      { id: 'att-conf-consent', name: 'parental-consent-form.docx', fileType: 'docx', size: 48_640 },
+      {
+        id: 'att-conf-programme',
+        name: 'national-conference-2026-programme.pdf',
+        fileType: 'pdf',
+        size: 845_312,
+      },
+      {
+        id: 'att-conf-consent',
+        name: 'parental-consent-form.docx',
+        fileType: 'docx',
+        size: 48_640,
+      },
     ],
     relatedIds: ['ann-nat-scholarship', 'ann-nat-obligatory-days'],
     en: {
@@ -169,7 +179,12 @@ Afterwards, share a few lines about the visit with your chapter so others can le
     createdAt: [-15, '13:00'],
     publishedAt: [-14, '10:00'],
     attachments: [
-      { id: 'att-grant-form', name: 'study-support-grant-application.pdf', fileType: 'pdf', size: 214_016 },
+      {
+        id: 'att-grant-form',
+        name: 'study-support-grant-application.pdf',
+        fileType: 'pdf',
+        size: 214_016,
+      },
     ],
     en: {
       title: 'Study support grants for members: applications open',
@@ -205,8 +220,18 @@ Use the application form attached below and send it through your chapter advisor
     createdAt: [-21, '11:00'],
     publishedAt: [-20, '15:00'],
     attachments: [
-      { id: 'att-brand-summary', name: 'brand-guidelines-summary.pdf', fileType: 'pdf', size: 2_457_600 },
-      { id: 'att-logo-pack', name: 'demolay-bulgaria-logo-pack.zip', fileType: 'zip', size: 6_815_744 },
+      {
+        id: 'att-brand-summary',
+        name: 'brand-guidelines-summary.pdf',
+        fileType: 'pdf',
+        size: 2_457_600,
+      },
+      {
+        id: 'att-logo-pack',
+        name: 'demolay-bulgaria-logo-pack.zip',
+        fileType: 'zip',
+        size: 6_815_744,
+      },
     ],
     en: {
       title: 'Brand guidelines and logo files for chapters',
@@ -242,7 +267,12 @@ If you are unsure whether a design follows the guidelines, send it to the nation
     createdAt: [-26, '10:00'],
     publishedAt: [-25, '12:00'],
     attachments: [
-      { id: 'att-privacy-policy', name: 'member-privacy-policy.pdf', fileType: 'pdf', size: 356_352 },
+      {
+        id: 'att-privacy-policy',
+        name: 'member-privacy-policy.pdf',
+        fileType: 'pdf',
+        size: 356_352,
+      },
     ],
     en: {
       title: 'Updated member privacy policy',
@@ -278,7 +308,12 @@ The full policy is available in the Policies section of Resources. If you have q
     createdAt: [-5, '12:00'],
     publishedAt: [-4, '18:00'],
     attachments: [
-      { id: 'att-delegate-list', name: 'delegate-list-template.xlsx', fileType: 'xlsx', size: 22_528 },
+      {
+        id: 'att-delegate-list',
+        name: 'delegate-list-template.xlsx',
+        fileType: 'xlsx',
+        size: 22_528,
+      },
     ],
     relatedIds: ['ann-nat-conference'],
     en: {
@@ -382,7 +417,12 @@ This is also a good opportunity to get to know members from another chapter — 
     submittedAt: [-3, '20:00'],
     publishedAt: [-2, '19:00'],
     attachments: [
-      { id: 'att-installation-invite', name: 'installation-invitation.pdf', fileType: 'pdf', size: 1_126_400 },
+      {
+        id: 'att-installation-invite',
+        name: 'installation-invitation.pdf',
+        fileType: 'pdf',
+        size: 1_126_400,
+      },
     ],
     relatedIds: ['ann-ch1-meeting-schedule'],
     en: {
@@ -454,7 +494,12 @@ Photos from the drive are available to members on request. We will plan the next
     submittedAt: [-19, '21:00'],
     publishedAt: [-18, '20:00'],
     attachments: [
-      { id: 'att-term-calendar', name: 'sveta-sofia-term-calendar.pdf', fileType: 'pdf', size: 402_432 },
+      {
+        id: 'att-term-calendar',
+        name: 'sveta-sofia-term-calendar.pdf',
+        fileType: 'pdf',
+        size: 402_432,
+      },
     ],
     en: {
       title: 'New meeting schedule for the term',
@@ -854,7 +899,8 @@ Thank you for taking the time — your answers will shape the programme.`,
     archivedAt: [-30, '10:00'],
     en: {
       title: 'Summer camp registration (closed)',
-      summary: 'Registration for the summer leadership camp is now closed. Thank you for the great interest!',
+      summary:
+        'Registration for the summer leadership camp is now closed. Thank you for the great interest!',
       body: `Registration for the summer leadership camp is closed — all places were taken within two weeks. Thank you for the great interest!
 
 Registered participants will receive the packing list and the daily programme by message. If you are on the waiting list, we will contact you as soon as a place becomes available.`,

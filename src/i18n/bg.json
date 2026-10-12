@@ -4,7 +4,7 @@
     "shortName": "My DeMolay",
     "subtitle": "Портал за членове",
     "description": "Портал за членове на Дьо Моле България — интерактивен прототип с измислени демо данни.",
-    "titleTemplate": "{{page}} — {{app}}",
+    "titleTemplate": "{{page}} · {{app}}",
     "organization": "Дьо Моле България"
   },
   "brand": {

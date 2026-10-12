@@ -4,7 +4,7 @@
     "shortName": "My DeMolay",
     "subtitle": "Member Portal",
     "description": "Member Portal for DeMolay Bulgaria — interactive prototype with fictional demo data.",
-    "titleTemplate": "{{page}} — {{app}}",
+    "titleTemplate": "{{page}} · {{app}}",
     "organization": "DeMolay Bulgaria"
   },
   "brand": {

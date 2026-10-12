@@ -112,7 +112,8 @@ export function toMemberDetail(
   subject: Subject,
   now: Date = clock.now(),
 ): MemberDetail {
-  const assignment = db.get('roleAssignments', `ra-${record.userId}`) ?? assignmentFor(record.userId);
+  const assignment =
+    db.get('roleAssignments', `ra-${record.userId}`) ?? assignmentFor(record.userId);
   return {
     ...toMemberProfile(record),
     account: db.require('users', record.userId, 'user'),

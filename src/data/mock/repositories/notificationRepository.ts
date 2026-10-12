@@ -31,7 +31,9 @@ export function createMockNotificationRepository(): NotificationRepository {
         return db
           .find('notifications', (n) => n.userId === subject.userId)
           .filter((n) => query.filter !== 'unread' || !n.readAt)
-          .filter((n) => !query.category || query.category === 'all' || n.category === query.category)
+          .filter(
+            (n) => !query.category || query.category === 'all' || n.category === query.category,
+          )
           .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
           .slice(0, query.limit ?? undefined);
       }),
@@ -56,7 +58,10 @@ export function createMockNotificationRepository(): NotificationRepository {
         const subject = requireSubject();
         const now = clock.nowIso();
         db.transaction(() => {
-          for (const n of db.find('notifications', (x) => x.userId === subject.userId && !x.readAt)) {
+          for (const n of db.find(
+            'notifications',
+            (x) => x.userId === subject.userId && !x.readAt,
+          )) {
             db.update('notifications', n.id, { readAt: now });
           }
         });
@@ -89,7 +94,9 @@ export function createMockNotificationRepository(): NotificationRepository {
         } else {
           const chapterId = data.audience.chapterId;
           if (!db.get('chapters', chapterId)) {
-            throw new ValidationError({ 'audience.chapterId': 'messages.validation.unknownChapter' });
+            throw new ValidationError({
+              'audience.chapterId': 'messages.validation.unknownChapter',
+            });
           }
           if (!can(subject, 'notification.send.chapter', { chapterId })) {
             throw new ForbiddenError('permission_denied', 'notification.send.chapter');
@@ -112,7 +119,10 @@ export function createMockNotificationRepository(): NotificationRepository {
             entityType: 'notification',
             entityId: `broadcast-${clock.now().getTime()}`,
             chapterId: data.audience.scope === 'chapter' ? data.audience.chapterId : null,
-            summary: msg('messages.audit.broadcast', { title: data.title, count: sent.recipientCount }),
+            summary: msg('messages.audit.broadcast', {
+              title: data.title,
+              count: sent.recipientCount,
+            }),
             metadata: {
               audience: data.audience.scope,
               category: data.category,

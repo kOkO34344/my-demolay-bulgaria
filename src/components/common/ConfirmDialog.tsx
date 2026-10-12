@@ -285,7 +285,9 @@ function ConfirmDialogBody({
         ) : null}
 
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={pending}>
+          {/* type="button": Button asChild does not apply its default type through the Slot, and a
+              typeless button inside this <form> would submit it (Cancel/Enter → onConfirm). */}
+          <AlertDialogCancel type="button" disabled={pending}>
             {cancelLabel ?? t('common.actions.cancel')}
           </AlertDialogCancel>
           <Button

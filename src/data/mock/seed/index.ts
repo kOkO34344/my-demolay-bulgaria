@@ -30,7 +30,10 @@ const DEMO_EXTRAS: Record<string, { lastLoginHoursAgo: number; bio: string | nul
     lastLoginHoursAgo: 26,
     bio: 'Scribe of Sveta Sofia — minutes, attendance and the chapter calendar.',
   },
-  'u-advisor': { lastLoginHoursAgo: 22, bio: 'Chapter Advisor of Sveta Sofia since its first year.' },
+  'u-advisor': {
+    lastLoginHoursAgo: 22,
+    bio: 'Chapter Advisor of Sveta Sofia since its first year.',
+  },
   'u-national-officer': {
     lastLoginHoursAgo: 44,
     bio: 'National Programme Coordinator. Ask me about the National Leadership Conference.',

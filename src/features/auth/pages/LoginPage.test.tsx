@@ -15,7 +15,12 @@ function renderLogin(options: { lang?: 'en' | 'bg'; demoMode?: boolean; route?: 
       <Route path="/" element={<p>Home screen</p>} />
       <Route path="/events" element={<p>Events screen</p>} />
     </Routes>,
-    { role: null, route: options.route ?? '/login', lang: options.lang, demoMode: options.demoMode },
+    {
+      role: null,
+      route: options.route ?? '/login',
+      lang: options.lang,
+      demoMode: options.demoMode,
+    },
   );
 }
 
@@ -48,7 +53,10 @@ describe('LoginPage', () => {
     const { user } = renderLogin({ lang: 'bg' });
     expect(screen.getByRole('heading', { level: 1, name: 'Вход' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Вход' }));
-    expect(await screen.findAllByText('Това поле е задължително.')).toHaveLength(2);
+    // `validation.required` in src/i18n/bg.json (the zod schema emits the key; FormMessage translates).
+    expect(await screen.findAllByText('Полето е задължително.')).toHaveLength(2);
+    expect(screen.getByLabelText('Потребителско име')).toHaveAttribute('aria-invalid', 'true');
+    expect(document.documentElement).toHaveAttribute('lang', 'bg');
   });
 
   it('shows a generic alert for invalid credentials', async () => {
@@ -72,7 +80,9 @@ describe('LoginPage', () => {
       if (attempt < 4) await screen.findByText('Incorrect username or password.');
     }
     expect(await screen.findByText('Sign-in is temporarily locked')).toBeInTheDocument();
-    expect(screen.getByText(/Too many sign-in attempts\. Try again in \d+ seconds?\./)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Too many sign-in attempts\. Try again in \d+ seconds?\./),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeDisabled();
   });
 

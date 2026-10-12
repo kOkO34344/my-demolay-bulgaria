@@ -84,7 +84,7 @@ export function SidebarDemoPanel() {
         <SelectTrigger
           id={selectId}
           size="sm"
-          className="mt-1 w-full border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground focus-visible:border-sidebar-ring focus-visible:outline-sidebar-ring dark:bg-sidebar-accent dark:hover:bg-sidebar-accent [&_[data-slot=select-value]_[data-role-suffix]]:hidden [&_svg:not([class*='text-'])]:text-sidebar-muted-foreground"
+          className="mt-1 w-full border-sidebar-border bg-sidebar-accent text-[0.8125rem] text-sidebar-accent-foreground focus-visible:border-sidebar-ring focus-visible:outline-sidebar-ring dark:bg-sidebar-accent dark:hover:bg-sidebar-accent [&_[data-slot=select-value]_[data-role-suffix]]:hidden [&_svg:not([class*='text-'])]:text-sidebar-muted-foreground"
         >
           <SelectValue />
         </SelectTrigger>

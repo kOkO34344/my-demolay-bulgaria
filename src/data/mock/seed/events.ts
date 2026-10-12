@@ -50,7 +50,10 @@ interface EventSeed {
 
 const hall = (cityEn: string, cityBg: string): EventLocation => ({
   name: lt('Chapter meeting hall (demo venue)', 'Зала на обителта (демо място)'),
-  address: lt(`Central ${cityEn} — exact address shared with members (fictional)`, `Център на ${cityBg} – точният адрес се изпраща на членовете (измислен)`),
+  address: lt(
+    `Central ${cityEn} — exact address shared with members (fictional)`,
+    `Център на ${cityBg} – точният адрес се изпраща на членовете (измислен)`,
+  ),
   online: false,
   url: null,
 });
@@ -59,7 +62,10 @@ const SOFIA_HALL = hall('Sofia', 'София');
 
 const ONLINE = (url: string): EventLocation => ({
   name: lt('Online', 'Онлайн'),
-  address: lt('Link shared with registered participants', 'Връзката се изпраща на записаните участници'),
+  address: lt(
+    'Link shared with registered participants',
+    'Връзката се изпраща на записаните участници',
+  ),
   online: true,
   url,
 });
@@ -177,7 +183,10 @@ The ceremony takes about an hour and is followed by a reception prepared by the 
     starts: [19, '14:00'],
     ends: [19, '17:00'],
     location: {
-      name: lt('Care home for elderly people, Sofia (demo venue)', 'Дом за възрастни хора, София (демо място)'),
+      name: lt(
+        'Care home for elderly people, Sofia (demo venue)',
+        'Дом за възрастни хора, София (демо място)',
+      ),
       address: lt('Shared with registered participants', 'Изпраща се на записаните участници'),
       online: false,
       url: null,
@@ -213,8 +222,7 @@ Two advisors come with the group. Please do not bring food — the home has aske
     },
     bg: {
       title: 'Ден на комфорта: посещение в дом за възрастни хора',
-      summary:
-        'Следобед с живеещите в дом за възрастни хора: разговори, настолни игри и песни.',
+      summary: 'Следобед с живеещите в дом за възрастни хора: разговори, настолни игри и песни.',
       description: `За Деня на комфорта ще прекараме следобеда с живеещите в дом за възрастни хора. Ще си говорим, ще играем настолни игри и ще изпеем заедно няколко песни.
 
 С групата идват двама съветници. Моля, не носете храна – домът е помолил посетителите за това. Ръчно направените картички са добре дошли.`,
@@ -366,8 +374,14 @@ To do before publishing: confirm the place, the stall rota and the Bulgarian ver
     starts: [33, '09:00'],
     ends: [34, '17:00'],
     location: {
-      name: lt('Conference centre, Plovdiv (demo venue)', 'Конферентен център, Пловдив (демо място)'),
-      address: lt('1 Primerna Sq, Plovdiv (fictional)', 'пл. „Примерен“ 1, Пловдив (измислен адрес)'),
+      name: lt(
+        'Conference centre, Plovdiv (demo venue)',
+        'Конферентен център, Пловдив (демо място)',
+      ),
+      address: lt(
+        '1 Primerna Sq, Plovdiv (fictional)',
+        'пл. „Примерен“ 1, Пловдив (измислен адрес)',
+      ),
       online: false,
       url: null,
     },
@@ -449,7 +463,8 @@ Members under 18 need a signed parental consent form. Travel and accommodation d
     ],
     en: {
       title: 'Public speaking workshop (online)',
-      summary: 'A practical online workshop: structure a short speech and deliver it with confidence.',
+      summary:
+        'A practical online workshop: structure a short speech and deliver it with confidence.',
       description: `In this online workshop you will learn how to structure a short speech, how to open and close it and how to handle nerves. Every participant gives a one-minute speech and receives friendly feedback.
 
 You need a computer or phone with a camera and microphone. The meeting link is sent to registered participants the day before.`,
@@ -471,7 +486,10 @@ You need a computer or phone with a camera and microphone. The meeting link is s
     starts: [22, '10:00'],
     ends: [22, '15:00'],
     location: {
-      name: lt('School sports ground, Plovdiv (demo venue)', 'Училищно игрище, Пловдив (демо място)'),
+      name: lt(
+        'School sports ground, Plovdiv (demo venue)',
+        'Училищно игрище, Пловдив (демо място)',
+      ),
       address: lt('14 Demo St, Plovdiv (fictional)', 'ул. „Демо“ 14, Пловдив (измислен адрес)'),
       online: false,
       url: null,
@@ -485,7 +503,8 @@ You need a computer or phone with a camera and microphone. The meeting link is s
     rsvps: [...going('u-p01', 'u-p02', 'u-p03', 'u-p05', 'u-national-officer'), ['u-p04', 'maybe']],
     en: {
       title: 'Inter-chapter football tournament',
-      summary: 'Five-a-side football with teams from several chapters. Players and supporters welcome.',
+      summary:
+        'Five-a-side football with teams from several chapters. Players and supporters welcome.',
       description: `The Plovdiv chapter hosts a five-a-side football tournament for teams from several chapters. Each chapter can register up to two teams of six players; supporters are just as welcome.
 
 The tournament ends with a short award ceremony and a picnic. Bring sports shoes, water and your chapter's spirit!`,
@@ -507,7 +526,10 @@ The tournament ends with a short award ceremony and a picnic. Bring sports shoes
     starts: [11, '09:00'],
     ends: [11, '12:00'],
     location: {
-      name: lt('Beach, Burgas (meeting point at the north entrance)', 'Плажът в Бургас (среща при северния вход)'),
+      name: lt(
+        'Beach, Burgas (meeting point at the north entrance)',
+        'Плажът в Бургас (среща при северния вход)',
+      ),
       address: lt('Burgas', 'Бургас'),
       online: false,
       url: null,
@@ -527,7 +549,8 @@ Wear clothes you don't mind getting dirty and bring water. Members under 16 come
     },
     bg: {
       title: 'Почистване на брега',
-      summary: 'Помогнете да почистим плажа преди зимните бури. Ръкавиците и чувалите се осигуряват.',
+      summary:
+        'Помогнете да почистим плажа преди зимните бури. Ръкавиците и чувалите се осигуряват.',
       description: `Събираме се на плажа за редовното ни почистване. Общината осигурява ръкавици и чували и след това извозва отпадъците.
 
 Облечете дрехи, които не ви е жал да изцапате, и носете вода. Членовете под 16 години идват с родител или с писмено разрешение от съветник.`,
@@ -615,7 +638,17 @@ New members are especially welcome — it's a good meeting to see how the chapte
     created: [-21, '18:00'],
     published: [-20, '10:00'],
     rsvps: [
-      ...going('u-member', 'u-officer', 'u-advisor', 'u-s01', 'u-s02', 'u-s04', 'u-s06', 'u-s07', 'u-s08'),
+      ...going(
+        'u-member',
+        'u-officer',
+        'u-advisor',
+        'u-s01',
+        'u-s02',
+        'u-s04',
+        'u-s06',
+        'u-s07',
+        'u-s08',
+      ),
       ['u-s03', 'not_going'],
       ['u-s05', 'maybe'],
     ],
@@ -660,7 +693,10 @@ The minutes are available from the Scribe.`,
     starts: [-16, '10:00'],
     ends: [-16, '16:00'],
     location: {
-      name: lt('Neighbourhood supermarkets, Sofia (demo venues)', 'Квартални супермаркети, София (демо места)'),
+      name: lt(
+        'Neighbourhood supermarkets, Sofia (demo venues)',
+        'Квартални супермаркети, София (демо места)',
+      ),
       address: lt('Two collection points (fictional)', 'Два пункта за събиране (измислени)'),
       online: false,
       url: null,
@@ -670,7 +706,10 @@ The minutes are available from the Scribe.`,
     visibility: 'organizers',
     created: [-30, '18:00'],
     published: [-29, '10:00'],
-    rsvps: [...going('u-member', 'u-officer', 'u-s01', 'u-s04', 'u-s05', 'u-s06', 'u-s08'), ['u-s02', 'maybe']],
+    rsvps: [
+      ...going('u-member', 'u-officer', 'u-s01', 'u-s04', 'u-s05', 'u-s06', 'u-s08'),
+      ['u-s02', 'maybe'],
+    ],
     attendance: {
       by: 'u-officer',
       at: [-15, '18:00'],
@@ -822,7 +861,8 @@ The recording is available to officers on request.`,
     },
     en: {
       title: 'Unification Day wreath-laying',
-      summary: 'Wreath-laying at the Unification monument, followed by a history walk in the old town.',
+      summary:
+        'Wreath-laying at the Unification monument, followed by a history walk in the old town.',
       description: `We lay a wreath at the Unification monument and walk through the old town, where the Master Councilor tells the story of 1885.
 
 Formal dress.`,

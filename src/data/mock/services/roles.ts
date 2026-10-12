@@ -1,5 +1,9 @@
 import { db } from '@/data/store';
-import { assignmentNeedsUpdate, resolveMemberRole, type RoleResolution } from '@/domain/rules/mappings';
+import {
+  assignmentNeedsUpdate,
+  resolveMemberRole,
+  type RoleResolution,
+} from '@/domain/rules/mappings';
 import type { ID, RoleAssignment, RoleChange, Subject } from '@/domain';
 import { paths } from '@/lib/routes';
 

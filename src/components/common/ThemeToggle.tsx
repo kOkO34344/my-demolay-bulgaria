@@ -47,7 +47,11 @@ export function ThemeToggle({ variant = 'menu', onSidebar = false, className }: 
         }}
         aria-label={t('common.a11y.themeSwitcher')}
         spacing={0}
-        className={cn('rounded-md border bg-card p-0.5', className)}
+        // Phones: three equal columns, icon above label („Като системата“ is long); sm+: inline row.
+        className={cn(
+          'grid w-full grid-cols-3 rounded-md border bg-card p-0.5 sm:inline-flex sm:w-auto',
+          className,
+        )}
       >
         {THEME_PREFERENCES.map((option) => {
           const Icon = THEME_ICONS[option];
@@ -56,7 +60,7 @@ export function ThemeToggle({ variant = 'menu', onSidebar = false, className }: 
               key={option}
               value={option}
               size="sm"
-              className="rounded-[4px]! px-3 text-muted-foreground"
+              className="h-auto min-h-11 flex-col gap-1 rounded-[4px]! px-1.5 py-1.5 text-xs leading-tight whitespace-normal text-muted-foreground sm:h-8 sm:min-h-8 sm:flex-row sm:gap-2 sm:px-3 sm:text-sm"
             >
               <Icon aria-hidden="true" />
               {t(labelKeys.theme(option))}

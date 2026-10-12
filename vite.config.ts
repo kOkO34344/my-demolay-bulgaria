@@ -43,7 +43,10 @@ export default defineConfig({
         display_override: ['standalone', 'minimal-ui'],
         orientation: 'any',
         background_color: '#F7F6F2',
-        theme_color: '#152945',
+        // SHELL: same as index.html's <meta name="theme-color"> and THEME_COLORS.light in
+        // src/lib/theme/theme.ts (the white app header); the ThemeProvider switches the meta to
+        // #132136 in dark mode at runtime.
+        theme_color: '#ffffff',
         categories: ['education', 'productivity'],
       },
       workbox: {

@@ -58,9 +58,9 @@ const announcementBaseSchema = z.object({
   }),
   audience: audienceSchema,
   pinned: z.boolean(),
-  attachments: z
-    .array(attachmentSchema)
-    .max(LIMITS.attachments, { error: vmsg('validation.selectAtMost', { count: LIMITS.attachments }) }),
+  attachments: z.array(attachmentSchema).max(LIMITS.attachments, {
+    error: vmsg('validation.selectAtMost', { count: LIMITS.attachments }),
+  }),
   relatedIds: z
     .array(idSchema)
     .max(LIMITS.related, { error: vmsg('validation.selectAtMost', { count: LIMITS.related }) }),

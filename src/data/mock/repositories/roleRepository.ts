@@ -101,7 +101,12 @@ function auditMapping(
   });
 }
 
-function assertNoDuplicateMapping(code: string, priority: number, active: boolean, exceptId: ID | null): void {
+function assertNoDuplicateMapping(
+  code: string,
+  priority: number,
+  active: boolean,
+  exceptId: ID | null,
+): void {
   if (!active) return;
   const clash = db.find(
     'positionMappings',
@@ -134,7 +139,8 @@ export function createMockRoleRepository(): RoleRepository {
           .list('roleAssignments')
           .filter((a) => {
             const member = db.get('members', a.userId);
-            if (!member || !can(subject, 'role.read', { chapterId: member.chapterId })) return false;
+            if (!member || !can(subject, 'role.read', { chapterId: member.chapterId }))
+              return false;
             if (query.role && query.role !== 'all' && a.role !== query.role) return false;
             if (query.chapterId && member.chapterId !== query.chapterId) return false;
             return true;
@@ -146,7 +152,8 @@ export function createMockRoleRepository(): RoleRepository {
       mockCall((): RoleAssignment => {
         const subject = requireSubject();
         const data = validateInput(roleAssignmentInputSchema, input);
-        if (!memberInRoleScope(subject, data.userId)) throw new NotFoundError('member', data.userId);
+        if (!memberInRoleScope(subject, data.userId))
+          throw new NotFoundError('member', data.userId);
         assertScopeChaptersExist(data.scope, 'scope.chapterIds');
         const current = assignmentFor(data.userId);
         const check = checkAssignRole(subject, data.role, data.scope, {
@@ -154,7 +161,10 @@ export function createMockRoleRepository(): RoleRepository {
           currentRole: current.role,
         });
         if (!check.allowed) {
-          throw new ForbiddenError(DENIAL_REASON[check.reason ?? 'missing_permission'], 'role.assign');
+          throw new ForbiddenError(
+            DENIAL_REASON[check.reason ?? 'missing_permission'],
+            'role.assign',
+          );
         }
         const member = db.require('members', data.userId, 'member');
         const assignment: RoleAssignment = {
@@ -224,7 +234,8 @@ export function createMockRoleRepository(): RoleRepository {
       mockCall((): SpecialAssignment => {
         const subject = requireSubject();
         const data = validateInput(specialAssignmentInputSchema, input);
-        if (!memberInRoleScope(subject, data.userId)) throw new NotFoundError('member', data.userId);
+        if (!memberInRoleScope(subject, data.userId))
+          throw new NotFoundError('member', data.userId);
         assertScopeChaptersExist(data.scope, 'scope.chapterIds');
         const approver = db.get('users', data.approverId);
         if (!approver || approver.status !== 'active' || !db.get('members', data.approverId)) {
@@ -284,7 +295,11 @@ export function createMockRoleRepository(): RoleRepository {
               start: dateText(data.startsAt),
               end: dateText(data.endsAt),
             }),
-            link: { to: paths.profile(), entityType: 'special_assignment', entityId: assignment.id },
+            link: {
+              to: paths.profile(),
+              entityType: 'special_assignment',
+              entityId: assignment.id,
+            },
             actorId: subject.userId,
           });
         });
@@ -355,7 +370,8 @@ export function createMockRoleRepository(): RoleRepository {
     createMapping: (input) =>
       mockCall((): PositionRoleMapping => {
         const subject = requireSubject();
-        if (!canManageMappings(subject)) throw new ForbiddenError('permission_denied', 'role.mapping.manage');
+        if (!canManageMappings(subject))
+          throw new ForbiddenError('permission_denied', 'role.mapping.manage');
         const data = validateInput(positionMappingInputSchema, input);
         assertNoDuplicateMapping(data.positionCode, data.priority, data.active, null);
         const mapping: PositionRoleMapping = {
@@ -377,7 +393,8 @@ export function createMockRoleRepository(): RoleRepository {
         assertCan(subject, 'role.read');
         const existing = db.get('positionMappings', id);
         if (!existing) throw new NotFoundError('position_mapping', id);
-        if (!canManageMappings(subject)) throw new ForbiddenError('permission_denied', 'role.mapping.manage');
+        if (!canManageMappings(subject))
+          throw new ForbiddenError('permission_denied', 'role.mapping.manage');
         const data = validateInput(positionMappingInputSchema, input);
         assertNoDuplicateMapping(data.positionCode, data.priority, data.active, id);
         const mapping: PositionRoleMapping = {
@@ -399,7 +416,8 @@ export function createMockRoleRepository(): RoleRepository {
         assertCan(subject, 'role.read');
         const existing = db.get('positionMappings', id);
         if (!existing) throw new NotFoundError('position_mapping', id);
-        if (!canManageMappings(subject)) throw new ForbiddenError('permission_denied', 'role.mapping.manage');
+        if (!canManageMappings(subject))
+          throw new ForbiddenError('permission_denied', 'role.mapping.manage');
         if (db.count('roleAssignments', (a) => a.source === 'mapping' && a.mappingId === id) > 0) {
           throw new ConflictError('messages.errors.mappingInUse');
         }
@@ -417,7 +435,12 @@ export function createMockRoleRepository(): RoleRepository {
         const holders = db
           .find('members', (m) => m.importedPosition?.code === code)
           .map((m) => ({ chapterId: m.chapterId, position: m.importedPosition }));
-        return previewPositionMapping(code, db.list('positionMappings'), holders, subject.homeChapterId);
+        return previewPositionMapping(
+          code,
+          db.list('positionMappings'),
+          holders,
+          subject.homeChapterId,
+        );
       }),
 
     listImportedPositions: () =>

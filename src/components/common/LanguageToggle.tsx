@@ -59,9 +59,8 @@ export function LanguageToggle({
             <span lang={locale}>{t(labelKeys.languageEndonym(locale))}</span>
           ) : (
             <>
-              <span>{t(labelKeys.languageCode(locale))}</span>
+              <span>{t(labelKeys.languageCode(locale))}</span>{' '}
               <span className="sr-only" lang={locale}>
-                {' '}
                 ({t(labelKeys.languageEndonym(locale))})
               </span>
             </>

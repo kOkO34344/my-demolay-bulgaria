@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 
 import { repositories } from '@/data/registry';
 import type {
@@ -18,6 +18,17 @@ const POLL_MS = 700;
 const isActive = (job: SyncJob | undefined): boolean =>
   job?.status === 'queued' || job?.status === 'running';
 
+/**
+ * DATA agent (additive): a finished run changes roles, imported positions, exceptions, audit and
+ * the admins' notifications, so refresh those caches when polling sees a job finish. The polled
+ * job keys themselves are left alone (no refetch loop).
+ */
+function refreshAfterSyncFinished(client: QueryClient): void {
+  void invalidateDomains(client, ['roles', 'members', 'notifications', 'audit', 'chapters']);
+  void client.invalidateQueries({ queryKey: queryKeys.sync.status() });
+  void client.invalidateQueries({ queryKey: [...queryKeys.sync.all, 'exceptions'] });
+}
+
 /** Key: sync.status() */
 export function useIntegrationStatus(options?: QueryOptions<IntegrationStatus>) {
   return useQuery({
@@ -29,9 +40,15 @@ export function useIntegrationStatus(options?: QueryOptions<IntegrationStatus>) 
 
 /** Sync history; polls while a job is running. Key: sync.jobs() */
 export function useSyncJobs(options?: QueryOptions<SyncJob[]>) {
+  const client = useQueryClient();
   return useQuery({
     queryKey: queryKeys.sync.jobs(),
-    queryFn: () => repositories.sync.listJobs(),
+    queryFn: async () => {
+      const previous = client.getQueryData<SyncJob[]>(queryKeys.sync.jobs());
+      const jobs = await repositories.sync.listJobs();
+      if (previous?.some(isActive) && !jobs.some(isActive)) refreshAfterSyncFinished(client);
+      return jobs;
+    },
     refetchInterval: (query) => (query.state.data?.some(isActive) ? POLL_MS : false),
     ...options,
   });
@@ -39,10 +56,17 @@ export function useSyncJobs(options?: QueryOptions<SyncJob[]>) {
 
 /** One job with result; polls until finished. Key: sync.job(jobId) */
 export function useSyncJob(jobId: ID | null | undefined, options?: QueryOptions<SyncJobDetail>) {
+  const client = useQueryClient();
   return useQuery({
     ...options,
     queryKey: queryKeys.sync.job(jobId ?? ''),
-    queryFn: () => repositories.sync.getJob(jobId ?? ''),
+    queryFn: async () => {
+      const key = queryKeys.sync.job(jobId ?? '');
+      const previous = client.getQueryData<SyncJobDetail>(key);
+      const detail = await repositories.sync.getJob(jobId ?? '');
+      if (isActive(previous?.job) && !isActive(detail.job)) refreshAfterSyncFinished(client);
+      return detail;
+    },
     enabled: !!jobId && (options?.enabled ?? true),
     refetchInterval: (query) => (isActive(query.state.data?.job) ? POLL_MS : false),
   });

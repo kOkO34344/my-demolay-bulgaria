@@ -3,7 +3,14 @@ import type { z } from 'zod';
 import { zodFieldErrors } from '@/auth/schemas';
 import { NotImplementedError, ValidationError } from '@/data/errors';
 import { db, simulateLatency } from '@/data/store';
-import type { ID, LocalizedMessage, LocalizedText, MessageParam, Paginated, PersonRef } from '@/domain';
+import type {
+  ID,
+  LocalizedMessage,
+  LocalizedText,
+  MessageParam,
+  Paginated,
+  PersonRef,
+} from '@/domain';
 
 /**
  * Shared helpers for the mock repositories (the emulated FastAPI backend). OWNED BY THE DATA TEAM.

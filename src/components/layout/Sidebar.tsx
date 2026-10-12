@@ -16,7 +16,8 @@ import { NavIcon } from './NavIcon';
 import { CountBadge } from './NotificationBell';
 
 /**
- * Desktop/tablet navigation (md+). lg+: 256 px navy sidebar with labels and group headings.
+ * Desktop/tablet navigation (md+). lg+: 280 px navy sidebar with labels and group headings (labels
+ * wrap rather than truncate — Bulgarian labels such as „Управление на съдържанието“ are long).
  * md–lg (tablet): 76 px icon rail; labels stay in the accessible name and appear as tooltips.
  * Active item: gold edge indicator + raised surface + bold text + aria-current="page".
  */
@@ -27,7 +28,7 @@ import { CountBadge } from './NotificationBell';
  */
 const ITEM_CLASS = cn(
   'group/nav relative flex items-center gap-3 rounded-md text-sm font-medium transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring',
-  'h-11 justify-center lg:h-10 lg:justify-start lg:px-3',
+  'h-11 justify-center lg:h-auto lg:min-h-10 lg:justify-start lg:px-3 lg:py-2 lg:text-left',
   'text-sidebar-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
   'aria-[current=page]:bg-sidebar-accent aria-[current=page]:font-semibold aria-[current=page]:text-sidebar-accent-foreground',
   'aria-[current=page]:before:absolute aria-[current=page]:before:top-1.5 aria-[current=page]:before:bottom-1.5 aria-[current=page]:before:-left-3 aria-[current=page]:before:w-1 aria-[current=page]:before:rounded-r-sm aria-[current=page]:before:bg-sidebar-primary',
@@ -76,7 +77,7 @@ function SidebarNavLink({
               <CountBadge count={badge} className="absolute -top-2 -right-2.5 lg:hidden" />
             ) : null}
           </span>
-          <span className="sr-only lg:not-sr-only lg:flex-1 lg:truncate">{label}</span>
+          <span className="sr-only lg:not-sr-only lg:flex-1 lg:leading-snug">{label}</span>
           {badge ? (
             <>
               <CountBadge count={badge} className="hidden lg:inline-flex" />
@@ -102,7 +103,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="fixed inset-y-0 left-0 z-30 hidden w-[4.75rem] flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex lg:w-64"
+      className="fixed inset-y-0 left-0 z-30 hidden w-[4.75rem] flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex lg:w-[17.5rem]"
       data-slot="sidebar"
     >
       <Link

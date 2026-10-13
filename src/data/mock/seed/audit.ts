@@ -421,7 +421,7 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
       name: name('u-v03'),
       role: roleLabel('chapter_officer'),
       scope: chapterScope('ch-3'),
-      reason: 'Acting Scribe for Varna until the registry is updated.',
+      reason: 'Acting Secretary for Varna until the registry is updated.',
     },
     { to: 'chapter_officer', source: 'manual' },
   );
@@ -450,7 +450,7 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
     {
       name: name('u-p02'),
       permission: permissionLabel('post.publish'),
-      reason: 'Granted by mistake — publishing stays with the chapter advisor.',
+      reason: 'Granted by mistake — publishing stays with the Chapter Chairman.',
     },
   );
   add(

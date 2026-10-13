@@ -277,7 +277,7 @@ export function DemoDataBadge({ className, label }: { className?: string; label?
 
 /**
  * Imported organizational position with its provenance:
- *   Писар  [Imported position — demo data]
+ *   Секретар  [Imported position — demo data]
  * `layout="stacked"` puts the marker under the title (profile cards); `inline` keeps one line.
  */
 export function ImportedPositionLabel({

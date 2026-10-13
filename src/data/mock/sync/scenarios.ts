@@ -34,7 +34,7 @@ export const SYNC_SCENARIOS: readonly SyncScenario[] = [
     positionUpdates: [
       // Tarnovo member elected Treasurer → mapped role changes member → chapter officer.
       { userId: 'u-t03', code: 'CH_TREASURER', externalId: 'REG-10805' },
-      // Varna acting Scribe now confirmed in the registry → the MANUAL override is kept.
+      // Varna acting Secretary now confirmed in the registry → the MANUAL override is kept.
       { userId: 'u-v03', code: 'CH_SCRIBE', externalId: 'REG-10607' },
       // Newly admitted Sofia member receives an office that has no mapping → new exception.
       { userId: 'u-s11', code: 'CH_JUNIOR_STEWARD', externalId: 'REG-10760' },

@@ -66,7 +66,7 @@ export function seedSpecialAssignments(ctx: SeedContext): SpecialAssignment[] {
       createdAt: ago(ctx, { days: 15, hours: 2 }),
       revokedAt: ago(ctx, { days: 14, hours: 1 }),
       revokedBy: 'u-admin',
-      revokeReason: 'Granted by mistake — publishing stays with the chapter advisor.',
+      revokeReason: 'Granted by mistake — publishing stays with the Chapter Chairman.',
     },
   ];
 }

@@ -70,14 +70,14 @@ const RESOURCES: ResourceSeed[] = [
     createdDaysAgo: 180,
     downloads: 97,
     en: {
-      title: 'The seven cardinal virtues — study card',
+      title: 'The seven precepts — study card',
       description:
-        'A one-page card with the seven cardinal virtues: Filial Love, Reverence for Sacred Things, Courtesy, Comradeship, Fidelity, Cleanness and Patriotism.',
+        'A one-page card with the seven precepts of DeMolay, in DeMolay International order: Filial Love, Reverence for Sacred Things, Courtesy, Comradeship, Fidelity, Cleanness and Patriotism.',
     },
     bg: {
-      title: 'Седемте кардинални добродетели – карта за учене',
+      title: 'Седемте принципа – карта за учене',
       description:
-        'Карта на една страница със седемте кардинални добродетели: синовна любов, благоговение – почит към свещените неща, учтивост, другарство, вярност, чистота и патриотизъм.',
+        'Карта на една страница със седемте принципа на Дьо Моле в реда на DeMolay International: синовна любов, благоговение – почит към свещените неща, учтивост, другарство, вярност, чистота и патриотизъм.',
     },
   },
   {
@@ -140,12 +140,12 @@ const RESOURCES: ResourceSeed[] = [
     updatedDaysAgo: 9,
     downloads: 33,
     en: {
-      title: 'Meeting minutes template for Scribes',
+      title: 'Meeting minutes template for Secretaries',
       description:
         'The standard format for minutes of working meetings, with guidance on what to record and how to store it.',
     },
     bg: {
-      title: 'Шаблон за протокол от среща за Писарите',
+      title: 'Шаблон за протокол от среща за Секретарите',
       description:
         'Стандартният формат за протоколи от работни срещи с указания какво да се записва и как да се съхранява.',
     },

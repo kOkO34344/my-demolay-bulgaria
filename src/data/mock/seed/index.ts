@@ -28,7 +28,7 @@ const DEMO_EXTRAS: Record<string, { lastLoginHoursAgo: number; bio: string | nul
   },
   'u-officer': {
     lastLoginHoursAgo: 26,
-    bio: 'Scribe of Sveta Sofia — minutes, attendance and the chapter calendar.',
+    bio: 'Secretary of Sveta Sofia — minutes, attendance and the chapter calendar.',
   },
   'u-advisor': {
     lastLoginHoursAgo: 22,

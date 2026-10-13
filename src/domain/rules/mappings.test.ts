@@ -14,7 +14,7 @@ import {
 function mapping(overrides: Partial<PositionRoleMapping> & { id: string }): PositionRoleMapping {
   return {
     positionCode: 'CH_SCRIBE',
-    positionTitle: { en: 'Scribe', bg: 'Писар' },
+    positionTitle: { en: 'Secretary', bg: 'Секретар' },
     role: 'chapter_officer',
     scopeLevel: 'chapter',
     priority: 100,

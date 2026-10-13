@@ -33,7 +33,7 @@ export const POSITIONS = {
   CH_MASTER_COUNCILOR: p('CH_MASTER_COUNCILOR', 'Master Councilor', 'Главен съветник', 'chapter'),
   CH_SENIOR_COUNCILOR: p('CH_SENIOR_COUNCILOR', 'Senior Councilor', 'Старши съветник', 'chapter'),
   CH_JUNIOR_COUNCILOR: p('CH_JUNIOR_COUNCILOR', 'Junior Councilor', 'Младши съветник', 'chapter'),
-  CH_SCRIBE: p('CH_SCRIBE', 'Scribe', 'Писар', 'chapter'),
+  CH_SCRIBE: p('CH_SCRIBE', 'Secretary', 'Секретар', 'chapter'),
   CH_TREASURER: p('CH_TREASURER', 'Treasurer', 'Ковчежник', 'chapter'),
   CH_CHAPLAIN: p('CH_CHAPLAIN', 'Chaplain', 'Капелан', 'chapter'),
   CH_MARSHAL: p('CH_MARSHAL', 'Marshal', 'Маршал', 'chapter'),
@@ -47,8 +47,8 @@ export const POSITIONS = {
   CH_ADVISOR: p('CH_ADVISOR', 'Chapter Advisor', 'Съветник на обителта', 'chapter'),
   CH_ADVISORY_COUNCIL_CHAIR: p(
     'CH_ADVISORY_COUNCIL_CHAIR',
-    'Chairman of the Advisory Council',
-    'Председател на Консултативния съвет',
+    'Chapter Chairman',
+    'Председател на обителта',
     'chapter',
   ),
   NAT_PROGRAMME_COORDINATOR: p(

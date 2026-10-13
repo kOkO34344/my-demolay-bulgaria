@@ -210,7 +210,7 @@ export const PEOPLE: PersonSeed[] = [
     lastLoginDaysAgo: 5,
     phone: '+359 000 000 212',
     address: 'бул. „Примерен“ 11, София (fictional)',
-    bio: 'Chairman of the Advisory Council. Also advises the Veliko Tarnovo chapter this year.',
+    bio: 'Chapter Chairman of Sveta Sofia. Also advises the Veliko Tarnovo chapter this year.',
   },
   // ch-2 Plovdiv -------------------------------------------------------------------------------
   {
@@ -467,7 +467,7 @@ export const MANUAL_OVERRIDES: ManualOverride[] = [
     scope: { level: 'chapter', chapterIds: ['ch-3'] },
     assignedBy: 'u-admin',
     assignedDaysAgo: 30,
-    reason: 'Acting Scribe for Varna until the registry is updated after the next installation.',
+    reason: 'Acting Secretary for Varna until the registry is updated after the next installation.',
   },
 ];
 

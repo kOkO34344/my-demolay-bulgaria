@@ -104,7 +104,7 @@ const PERSONAS: DemoPersona[] = [
     lastName: lt('Stoyanov', 'Стоянов'),
     position: {
       code: 'CH_SCRIBE',
-      title: lt('Scribe', 'Писар'),
+      title: lt('Secretary', 'Секретар'),
       level: 'chapter',
       externalId: 'REG-10388',
     },

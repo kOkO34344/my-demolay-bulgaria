@@ -28,8 +28,8 @@ export function seedChapters(ctx: SeedContext): Chapter[] {
       name: lt('Sveta Sofia Chapter', 'Обител „Света София“'),
       city: lt('Sofia', 'София'),
       description: lt(
-        'Sveta Sofia was the first DeMolay chapter in Bulgaria, instituted in Sofia on 5 June 2021. Its members meet regularly for working meetings, leadership practice and service projects in the capital, and welcome young men aged 12 to 21 who want to grow as leaders of character.',
-        '„Света София“ е първата обител на Дьо Моле в България, учредена в София на 5 юни 2021 г. Членовете ѝ се събират редовно на работни срещи, упражняват лидерски умения и организират благотворителни инициативи в столицата. Обителта приема млади мъже между 12 и 21 години, които искат да израснат като лидери с характер.',
+        'Sveta Sofia was the first DeMolay chapter in Bulgaria, instituted in Sofia on 5 June 2021. Its members meet regularly for working meetings, leadership practice and service projects in the capital, and welcome young men aged 14 to 21 who want to grow as leaders of character.',
+        '„Света София“ е първата обител на Дьо Моле в България, учредена в София на 5 юни 2021 г. Членовете ѝ се събират редовно на работни срещи, упражняват лидерски умения и организират благотворителни инициативи в столицата. Обителта приема млади мъже между 14 и 21 години, които искат да израснат като лидери с характер.',
       ),
       foundedAt: '2021-06-05',
       meeting: {

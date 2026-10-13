@@ -19,7 +19,7 @@ describe('ThemeToggle', () => {
     expect(html()).toHaveClass('dark');
     expect(html()).toHaveAttribute('data-theme', 'dark');
     expect(html().style.colorScheme).toBe('dark');
-    expect(themeColor()).toBe('#132136');
+    expect(themeColor()).toBe('#0e1b30');
     expect(window.sessionStorage.getItem('mdb.theme')).toBe('dark');
     expect(screen.getByRole('button', { name: 'Theme: Dark' })).toBeInTheDocument();
   });

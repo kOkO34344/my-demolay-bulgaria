@@ -28,12 +28,12 @@ export default defineConfig({
       ...minimal2023Preset.maskable,
       // Seal stays inside the 80 % maskable safe zone.
       padding: 0.3,
-      resizeOptions: { background: '#152945' },
+      resizeOptions: { background: '#1B365F' },
     },
     apple: {
       ...minimal2023Preset.apple,
       padding: 0.22,
-      resizeOptions: { background: '#152945' },
+      resizeOptions: { background: '#1B365F' },
     },
   },
   images: ['public/app-icon-source.png'],

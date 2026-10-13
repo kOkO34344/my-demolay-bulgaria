@@ -79,9 +79,7 @@ export default function MorePage() {
           >
             <UserAvatar name={member.displayName} seed={member.userId} size="lg" />
             <span className="flex min-w-0 flex-1 flex-col gap-1">
-              <span className="truncate font-heading text-lg font-semibold">
-                {text(member.displayName)}
-              </span>
+              <span className="truncate text-lg font-bold">{text(member.displayName)}</span>
               <span className="flex flex-wrap items-center gap-1.5">
                 <RoleBadge role={subject.role} />
                 {chapterName(member.chapterId) ? (

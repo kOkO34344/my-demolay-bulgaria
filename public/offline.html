@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="robots" content="noindex, nofollow" />
-    <meta name="theme-color" content="#152945" />
+    <meta name="theme-color" content="#1b365f" />
     <meta name="color-scheme" content="light dark" />
     <title>Offline — My DeMolay Bulgaria</title>
     <!--
@@ -15,24 +15,25 @@
     -->
     <style>
       :root {
-        --navy: #152945;
+        /* DI palette, mirrors src/styles/globals.css */
+        --navy: #1b365f;
         --blue: #1e4488;
         --gold: #ffcf00;
-        --bg: #f7f6f2;
+        --bg: #f5f7fa;
         --card: #ffffff;
-        --text: #202733;
-        --muted: #5e677a;
-        --border: #e2dfd7;
+        --text: #1b365f;
+        --muted: #495e7f;
+        --border: #d9dfea;
         color-scheme: light dark;
       }
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #0f1b2e;
-          --card: #16243a;
-          --text: #e8ecf2;
-          --muted: #a6b2c4;
-          --border: #2a3e5c;
-          --blue: #8db0ee;
+          --bg: #0b1728;
+          --card: #0f1e34;
+          --text: #f5f7fa;
+          --muted: #b0b6bf;
+          --border: #1a335a;
+          --blue: #72c7f6;
         }
       }
       * {
@@ -44,8 +45,7 @@
         background: var(--bg);
         color: var(--text);
         font-family:
-          'Sofia Sans Variable', 'Sofia Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial,
-          sans-serif;
+          Lato, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
         line-height: 1.5;
         display: flex;
         flex-direction: column;
@@ -73,7 +73,7 @@
       .brand-sub {
         margin: 0;
         font-size: 0.8125rem;
-        color: #a9b5c8;
+        color: #c4cbd5;
       }
       main {
         flex: 1;
@@ -134,7 +134,7 @@
       }
       @media (prefers-color-scheme: dark) {
         button {
-          color: #0f1b2e;
+          color: #0b1728;
         }
       }
       button:focus-visible {

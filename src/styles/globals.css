@@ -1,15 +1,27 @@
 /*
  * My DeMolay Bulgaria — design tokens & base styles (Tailwind CSS v4, CSS-first).
  *
+ * Source: docs/DESIGN-SYSTEM.md (DeMolay International Brand Center, binding). Every colour is a DI
+ * palette colour, a DI neutral (white, paper, ink, line), or a mix of a DI colour with white/black
+ * (noted inline). No other hues.
+ *
  * Token model (shadcn-compatible):
  *   - Semantic tokens (--background, --primary, --muted-foreground, …) are what components use.
  *   - Status tones come in two forms: a solid tone (--success, used for icons/indicators/large text)
  *     and a soft pair (--success-soft + --success-soft-foreground) for badges/banners with text.
- *   - --gold is the Crown Gold accent. Use it sparingly: active navigation indicator, pinned/featured
- *     badges, small emphasis. shadcn's --accent is a NEUTRAL hover tint, not gold.
- *   - --brand-* are fixed brand fills (logos, decorative blocks). Never use them for body text on
- *     arbitrary surfaces; use the semantic tokens which are contrast-checked per theme.
- * All text/background pairs are documented with WCAG ratios in CONVENTIONS-core.md.
+ *     DI roles: Ruby = errors/urgency, Beacon = warnings/deadlines, Emerald = success,
+ *     Sapphire = information/links.
+ *   - --gold is the Crown Gold accent: active navigation indicator, pinned/featured badges, small
+ *     emphasis. Gold never carries text on white. shadcn's --accent is a NEUTRAL hover tint.
+ *   - --brand-* are the fixed DI fills (logos, decorative blocks, overlays). Never use them for body
+ *     text on arbitrary surfaces; use the semantic tokens, which are contrast-checked per theme.
+ *
+ * WCAG contrast (light): ink/paper 11.3, ink/white 12.1, muted-fg/paper 6.1, muted-fg/accent 5.9,
+ * input/white 3.9 (non-text 3:1), white/primary 9.4, ink/gold 8.2, success-soft 5.9, warning-soft
+ * 4.6, info-soft 6.6, destructive-soft 6.0, white/destructive 6.9, sidebar muted 7.4.
+ * Dark: fg/bg 16.8, muted-fg/card 8.2, primary/card 8.9, gold/card 8.2, destructive/card 5.6, soft
+ * pairs ≥ 4.5. DI defines no dark palette: dark surfaces are Oxford Blue shade mixed with black and
+ * the accents use the DI tints (docs/DECISIONS.md 2026-10-13).
  */
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -19,147 +31,158 @@
 :root {
   --radius: 0.5rem;
 
-  /* Fixed brand palette (DeMolay-inspired). */
-  --brand-blue: #1e4488;
-  --brand-navy: #152945;
+  /* DeMolay International palette (docs/DESIGN-SYSTEM.md §3). */
+  --brand-oxford: #1e4488;
+  --brand-oxford-shade: #1b365f;
   --brand-gold: #ffcf00;
+  --brand-gold-shade: #eaab00;
+  --brand-sapphire: #0076af;
+  --brand-sapphire-tint: #72c7f6;
+  --brand-sapphire-shade: #005695;
   --brand-ruby: #ac242a;
+  --brand-ruby-tint: #ee2633;
+  --brand-ruby-shade: #661d34;
+  --brand-beacon: #ff6727;
+  --brand-beacon-tint: #ff8f29;
+  --brand-beacon-shade: #c7362d;
   --brand-emerald: #3a9144;
-  --brand-ivory: #f7f6f2;
-  --brand-slate: #667085;
+  --brand-emerald-tint: #6cc351;
+  --brand-emerald-shade: #00694b;
+  /* DI neutrals */
+  --brand-paper: #f5f7fa;
+  --brand-ink: #1b365f;
+  --brand-line: #d9dfea;
 
   /* Surfaces & text */
-  --background: #f7f6f2;
-  --foreground: #202733;
+  --background: #f5f7fa; /* paper */
+  --foreground: #1b365f; /* ink */
   --card: #ffffff;
-  --card-foreground: #202733;
+  --card-foreground: #1b365f;
   --popover: #ffffff;
-  --popover-foreground: #202733;
+  --popover-foreground: #1b365f;
 
   /* Actions */
-  --primary: #1e4488;
+  --primary: #1e4488; /* oxford */
   --primary-foreground: #ffffff;
-  --secondary: #eef1f6;
-  --secondary-foreground: #152945;
-  --muted: #f0eee8;
-  /* #667085 (spec) measures 4.25–4.39:1 on tinted surfaces; this one step darker passes everywhere. */
-  --muted-foreground: #5e677a;
-  --accent: #edf1f7;
-  --accent-foreground: #152945;
-  --destructive: #ac242a;
+  --secondary: #eff2f7; /* oxford 7% */
+  --secondary-foreground: #1b365f;
+  --muted: #f5f7fa; /* paper */
+  --muted-foreground: #495e7f; /* ink 80% */
+  --accent: #eff2f7; /* oxford 7% */
+  --accent-foreground: #1b365f;
+  --destructive: #ac242a; /* ruby */
   --destructive-foreground: #ffffff;
 
   /* Lines & focus */
-  --border: #e2dfd7;
-  --input: #838a98;
+  --border: #d9dfea; /* line */
+  --input: #72829c; /* ink 62% */
   --ring: #1e4488;
 
   /* Crown Gold accent */
   --gold: #ffcf00;
-  --gold-foreground: #152945;
-  --gold-soft: #fff4c2;
-  --gold-soft-foreground: #5f4a00;
+  --gold-foreground: #1b365f;
+  --gold-soft: #fff3c2; /* gold 24% */
+  --gold-soft-foreground: #1b365f;
 
   /* Status tones */
-  --success: #3a9144;
+  --success: #3a9144; /* emerald */
   --success-foreground: #ffffff; /* large text / icons only (3.95:1) */
-  --success-soft: #e6f2e7;
-  --success-soft-foreground: #24692e;
-  --warning: #b26a00;
-  --warning-foreground: #ffffff; /* large text / icons only */
-  --warning-soft: #fdf1d3;
-  --warning-soft-foreground: #7a4a00;
-  --info: #1f7391;
+  --success-soft: #e7f2e9; /* emerald 12% */
+  --success-soft-foreground: #00694b; /* emerald shade */
+  --warning: #c7362d; /* beacon shade */
+  --warning-foreground: #ffffff;
+  --warning-soft: #ffede5; /* beacon 12% */
+  --warning-soft-foreground: #c7362d;
+  --info: #0076af; /* sapphire */
   --info-foreground: #ffffff;
-  --info-soft: #e3f0f5;
-  --info-soft-foreground: #155a73;
-  --destructive-soft: #f9e5e5;
-  --destructive-soft-foreground: #9a1f25;
+  --info-soft: #e6f1f7; /* sapphire 10% */
+  --info-soft-foreground: #005695; /* sapphire shade */
+  --destructive-soft: #f8ebec; /* ruby 9% */
+  --destructive-soft-foreground: #ac242a;
 
-  /* Navigation chrome: navy sidebar with gold active indicator (both themes). */
-  --sidebar: #152945;
-  --sidebar-foreground: #e6ebf3;
-  --sidebar-muted-foreground: #a9b5c8;
+  /* Navigation chrome: Oxford Blue shade sidebar with Crown Gold active indicator. */
+  --sidebar: #1b365f;
+  --sidebar-foreground: #ffffff;
+  --sidebar-muted-foreground: #c4cbd5; /* white 74% on oxford shade */
   --sidebar-primary: #ffcf00;
-  --sidebar-primary-foreground: #152945;
-  --sidebar-accent: #1f3658;
+  --sidebar-primary-foreground: #1b365f;
+  --sidebar-accent: #324a6f; /* white 10% on oxford shade */
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #243b5e;
+  --sidebar-border: #3f5679; /* white 16% on oxford shade */
   --sidebar-ring: #ffcf00;
 
   /* Header / meta theme-color (kept in sync by ThemeProvider). */
   --header: #ffffff;
 
-  --shadow-color: 215 40% 18%;
+  --shadow-color: 215 56% 24%;
 }
 
 .dark {
-  --brand-gold: #e3bc3f;
+  /* Surfaces: oxford shade mixed with black (percent = share of oxford shade). */
+  --background: #0b1728; /* 42% */
+  --foreground: #f5f7fa;
+  --card: #0f1e34; /* 55% */
+  --card-foreground: #f5f7fa;
+  --popover: #11213b; /* 62% */
+  --popover-foreground: #f5f7fa;
 
-  --background: #0f1b2e;
-  --foreground: #e8ecf2;
-  --card: #16243a;
-  --card-foreground: #e8ecf2;
-  --popover: #1a2a42;
-  --popover-foreground: #e8ecf2;
+  --primary: #72c7f6; /* sapphire tint */
+  --primary-foreground: #0b1728;
+  --secondary: #132744; /* 72% */
+  --secondary-foreground: #f5f7fa;
+  --muted: #132744;
+  --muted-foreground: #b0b6bf; /* paper 70% on card */
+  --accent: #132744;
+  --accent-foreground: #f5f7fa;
+  --destructive: #f36770; /* ruby tint 70% */
+  --destructive-foreground: #0b1728;
 
-  --primary: #8db0ee;
-  --primary-foreground: #0f1b2e;
-  --secondary: #1d2e47;
-  --secondary-foreground: #e8ecf2;
-  --muted: #1d2e47;
-  --muted-foreground: #a6b2c4;
-  --accent: #22344f;
-  --accent-foreground: #f2f5f9;
-  --destructive: #f2878b;
-  --destructive-foreground: #2a0c0e;
+  --border: #1a335a; /* 95% */
+  --input: #76808d; /* paper 45% on card */
+  --ring: #72c7f6;
 
-  --border: #2a3e5c;
-  --input: #5b7090;
-  --ring: #8db0ee;
+  --gold: #eaab00; /* gold shade */
+  --gold-foreground: #0b1728;
+  --gold-soft: #32352c; /* gold shade 16% on card */
+  --gold-soft-foreground: #eaab00;
 
-  --gold: #e3bc3f;
-  --gold-foreground: #0f1b2e;
-  --gold-soft: #2e2810;
-  --gold-soft-foreground: #f0cf5c;
+  --success: #6cc351; /* emerald tint */
+  --success-foreground: #0b1728;
+  --success-soft: #1e3839;
+  --success-soft-foreground: #6cc351;
+  --warning: #ff8f29; /* beacon tint */
+  --warning-foreground: #0b1728;
+  --warning-soft: #353032;
+  --warning-soft-foreground: #ff8f29;
+  --info: #72c7f6; /* sapphire tint */
+  --info-foreground: #0b1728;
+  --info-soft: #1f3953;
+  --info-soft-foreground: #72c7f6;
+  --destructive-soft: #332a3e;
+  --destructive-soft-foreground: #f36770;
 
-  --success: #5dbb6c;
-  --success-foreground: #0f1b2e;
-  --success-soft: #15301f;
-  --success-soft-foreground: #8ad597;
-  --warning: #e0a43a;
-  --warning-foreground: #0f1b2e;
-  --warning-soft: #33280f;
-  --warning-soft-foreground: #f1c46a;
-  --info: #5fb2d0;
-  --info-foreground: #0f1b2e;
-  --info-soft: #122c38;
-  --info-soft-foreground: #86c8e0;
-  --destructive-soft: #3a171a;
-  --destructive-soft-foreground: #f4a3a6;
-
-  --sidebar: #0b1524;
-  --sidebar-foreground: #e8ecf2;
-  --sidebar-muted-foreground: #a6b2c4;
-  --sidebar-primary: #e3bc3f;
-  --sidebar-primary-foreground: #0f1b2e;
-  --sidebar-accent: #172740;
+  --sidebar: #09111e; /* 32% */
+  --sidebar-foreground: #f5f7fa;
+  --sidebar-muted-foreground: #aeb2b8;
+  --sidebar-primary: #eaab00;
+  --sidebar-primary-foreground: #0b1728;
+  --sidebar-accent: #1c2330;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #1e2f48;
-  --sidebar-ring: #e3bc3f;
+  --sidebar-border: #252d38;
+  --sidebar-ring: #eaab00;
 
-  --header: #132136;
+  --header: #0e1b30; /* 50% */
 
   --shadow-color: 220 60% 3%;
 }
 
 @theme inline {
+  /* docs/DESIGN-SYSTEM.md §4: Lato (interface, body), Crimson Pro (editorial headings), Bebas Neue
+     (display numerals; Latin only — see .font-display:lang(bg)). Self-hosted via @fontsource. */
   --font-sans:
-    'Sofia Sans Variable', 'Sofia Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
-    Roboto, Arial, sans-serif;
-  --font-heading:
-    'Sofia Sans Semi Condensed Variable', 'Sofia Sans Variable', ui-sans-serif, system-ui,
-    sans-serif;
+    'Lato', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-heading: 'Crimson Pro Variable', 'EB Garamond Variable', Georgia, 'Times New Roman', serif;
+  --font-display: 'Bebas Neue', 'Lato', ui-sans-serif, system-ui, sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -202,13 +225,25 @@
   --color-destructive-soft: var(--destructive-soft);
   --color-destructive-soft-foreground: var(--destructive-soft-foreground);
 
-  --color-brand-blue: var(--brand-blue);
-  --color-brand-navy: var(--brand-navy);
+  --color-brand-oxford: var(--brand-oxford);
+  --color-brand-oxford-shade: var(--brand-oxford-shade);
   --color-brand-gold: var(--brand-gold);
+  --color-brand-gold-shade: var(--brand-gold-shade);
+  --color-brand-sapphire: var(--brand-sapphire);
+  --color-brand-sapphire-tint: var(--brand-sapphire-tint);
+  --color-brand-sapphire-shade: var(--brand-sapphire-shade);
   --color-brand-ruby: var(--brand-ruby);
+  --color-brand-ruby-tint: var(--brand-ruby-tint);
+  --color-brand-ruby-shade: var(--brand-ruby-shade);
+  --color-brand-beacon: var(--brand-beacon);
+  --color-brand-beacon-tint: var(--brand-beacon-tint);
+  --color-brand-beacon-shade: var(--brand-beacon-shade);
   --color-brand-emerald: var(--brand-emerald);
-  --color-brand-ivory: var(--brand-ivory);
-  --color-brand-slate: var(--brand-slate);
+  --color-brand-emerald-tint: var(--brand-emerald-tint);
+  --color-brand-emerald-shade: var(--brand-emerald-shade);
+  --color-brand-paper: var(--brand-paper);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-line: var(--brand-line);
 
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -337,14 +372,21 @@
   h3,
   h4 {
     font-family: var(--font-heading);
-    font-weight: 650;
-    letter-spacing: -0.012em;
+    font-weight: 700;
     line-height: 1.2;
     text-wrap: balance;
   }
 
   p {
     text-wrap: pretty;
+  }
+
+  /* Bebas Neue has no Cyrillic: Bulgarian display text uses Lato Black, uppercase, wide tracking. */
+  .font-display:lang(bg) {
+    font-family: var(--font-sans);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 
   :focus-visible {

@@ -69,7 +69,7 @@ export function PermissionDenied({
         data-page-heading={isPage ? '' : undefined}
         className={cn(
           'text-balance text-foreground outline-none',
-          isPage ? 'text-2xl md:text-3xl' : 'font-heading text-lg font-semibold',
+          isPage ? 'text-2xl md:text-3xl' : 'font-heading text-lg font-bold',
         )}
       >
         {title ?? t('common.states.permissionDeniedTitle')}

@@ -1,5 +1,4 @@
-import '@fontsource-variable/sofia-sans';
-import '@fontsource-variable/sofia-sans-semi-condensed';
+import './styles/fonts.css';
 import './styles/globals.css';
 import './i18n';
 

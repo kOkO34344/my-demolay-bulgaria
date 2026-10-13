@@ -32,7 +32,7 @@ function SheetOverlay({
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        'fixed inset-0 z-50 bg-brand-navy/55 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 dark:bg-sidebar/80',
+        'fixed inset-0 z-50 bg-brand-oxford-shade/55 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 dark:bg-sidebar/80',
         className,
       )}
       {...props}
@@ -116,10 +116,7 @@ function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPr
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      className={cn(
-        'font-heading text-xl leading-snug font-semibold tracking-tight text-foreground',
-        className,
-      )}
+      className={cn('font-heading text-xl leading-snug font-bold text-foreground', className)}
       {...props}
     />
   );

@@ -44,3 +44,11 @@ Member area and priorities:
 - The dark theme is the one deviation from DI: DI defines no dark palette, so dark surfaces are darker steps of Oxford Blue shade with Crown Gold shade as the accent.
 - The Bulgarian seal stays in the app chrome until the jurisdictional logo request (DESIGN-SYSTEM.md §11.1) is answered. Switching to the DI lockup plus a Lato wordmark needs product-owner approval.
 - Not built in the prototype yet: signup with verification and consent capture, the administrator verification queue UI, the onboarding questionnaire, payments and dues, helpdesk, mass email and the public website. Their permissions exist and are marked with the phase they belong to.
+
+## 2026-10-13 — Cyrillic coverage of the brand typefaces
+
+- DESIGN-SYSTEM.md §4 says Lato and Crimson Pro ship Cyrillic. The Google Fonts / Fontsource builds of both are Latin only, and Crimson Pro has no Cyrillic in any build.
+- Lato: we self-host the official Lato 2.015 build, which includes Cyrillic, subset to Latin + Cyrillic (`src/assets/fonts/lato`). Licence is OFL 1.1.
+- Crimson Pro: kept for Latin. Cyrillic glyphs fall back to EB Garamond, an OFL Garamond-family serif close to Crimson's proportions. To be confirmed by the product owner; alternatives are a single serif with Cyrillic (Source Serif 4, PT Serif) or Lato Bold for Bulgarian headings.
+- Bebas Neue: handled as the brief specifies (Lato Black, uppercase, wide tracking for Bulgarian).
+- Interface chrome (navigation, toolbars, codes) uses Lato Bold. Page, card and dialog titles use Crimson Pro. Date numerals use Bebas Neue.

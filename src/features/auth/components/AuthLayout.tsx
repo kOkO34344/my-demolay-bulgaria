@@ -53,7 +53,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
                 aria-hidden="true"
                 className="block h-[3px] w-12 rounded-full bg-sidebar-primary"
               />
-              <p className="font-heading text-[2rem] leading-none font-semibold tracking-tight text-white xl:text-[2.375rem]">
+              <p className="font-heading text-[2rem] leading-none font-bold text-white xl:text-[2.375rem]">
                 {t('app.name')}
               </p>
               <p className="text-base text-sidebar-muted-foreground">{t('app.subtitle')}</p>
@@ -71,7 +71,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
       <div className="flex min-h-dvh min-w-0 flex-col">
         <header className="flex items-center justify-between gap-3 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 sm:px-6 lg:justify-end lg:px-10">
           <span className="flex min-w-0 flex-col leading-tight lg:hidden">
-            <span className="truncate font-heading text-base font-semibold">{t('app.name')}</span>
+            <span className="truncate text-base font-bold">{t('app.name')}</span>
             <span className="truncate text-xs text-muted-foreground">{t('app.subtitle')}</span>
           </span>
           <div className="flex items-center gap-1.5">

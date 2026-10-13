@@ -1,8 +1,13 @@
 /**
- * Central registry of brand marks and photos (see RESEARCH.md §5–§6 and docs/ASSET_SOURCES.md).
- * Swap files for officially supplied DeMolay Bulgaria assets here — never hard-code asset paths in
- * components. Rules: never recolour, invert, crop or animate the marks; use `object-fit: contain`;
- * in dark mode place wordmarks on a light "logo plate" or use the seal.
+ * Central registry of brand marks and photos. Rules: docs/DESIGN-SYSTEM.md §2. Swap files for
+ * officially supplied assets here — never hard-code asset paths in components. Never recolour,
+ * stretch, rotate, outline or animate the marks; use `object-fit: contain`; full-colour lockup on
+ * white and light neutrals, white lockup on Oxford Blue and photography.
+ *
+ * Interim: the Bulgarian seal stays in the app chrome until DeMolay International answers the
+ * Bulgaria jurisdictional logo request (DESIGN-SYSTEM.md §11.1). The approved interim mark is the DI
+ * lockup plus a Bulgarian wordmark set in Lato, and favicon/app icon should derive from the DI emblem
+ * (§2) — switching needs product-owner approval (docs/DECISIONS.md 2026-10-13).
  */
 
 export interface BrandAsset {
@@ -35,7 +40,7 @@ export const BRAND_ASSETS = {
     width: 1220,
     height: 393,
   },
-  /** DeMolay International emblem (secondary use, small sizes only). */
+  /** DeMolay International emblem, small sizes (a 1024 px master is in public/brand for icons). */
   emblem: {
     src: '/brand/demolay-emblem-300.png',
     altKey: 'brand.emblemAlt',

@@ -147,10 +147,7 @@ export function DemoRoleSwitcher({
       className={cn('flex flex-col gap-3', className)}
     >
       <div className="flex flex-col gap-1">
-        <Heading
-          id={`${baseId}-title`}
-          className="flex items-center gap-2 font-heading text-base font-semibold"
-        >
+        <Heading id={`${baseId}-title`} className="flex items-center gap-2 text-base font-bold">
           <FlaskConicalIcon aria-hidden="true" className="size-4 text-muted-foreground" />
           {t('shell.demo.switcherTitle')}
         </Heading>

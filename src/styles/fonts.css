@@ -1,0 +1,55 @@
+/*
+ * Self-hosted typefaces (docs/DESIGN-SYSTEM.md §4 — no runtime requests to Google).
+ *   - Lato 2.015 (official build, with Cyrillic): interface and body. See src/assets/fonts/lato.
+ *   - Crimson Pro (Latin only) + EB Garamond (picked up for Cyrillic glyphs): editorial headings.
+ *     Fontsource unicode-ranges mean a browser downloads only the subsets a page uses.
+ *   - Bebas Neue (Latin only): display numerals; Bulgarian display text uses Lato Black instead.
+ */
+@import '@fontsource-variable/crimson-pro/wght.css';
+@import '@fontsource/bebas-neue/latin-400.css';
+@import '@fontsource/bebas-neue/latin-ext-400.css';
+
+/* EB Garamond: Cyrillic subsets only — Crimson Pro covers Latin. Ranges copied from Fontsource. */
+@font-face {
+  font-family: 'EB Garamond Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 800;
+  src: url('@fontsource-variable/eb-garamond/files/eb-garamond-cyrillic-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: 'EB Garamond Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 800;
+  src: url('@fontsource-variable/eb-garamond/files/eb-garamond-cyrillic-ext-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/lato/lato-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../assets/fonts/lato/lato-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('../assets/fonts/lato/lato-900.woff2') format('woff2');
+}

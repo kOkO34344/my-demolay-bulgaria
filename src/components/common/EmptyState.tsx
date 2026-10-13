@@ -68,7 +68,7 @@ export function EmptyState({
           <Icon aria-hidden="true" className="size-5" />
         </span>
       ) : null}
-      <TitleTag className="font-heading text-lg font-semibold text-balance text-foreground">
+      <TitleTag className="font-heading text-lg font-bold text-balance text-foreground">
         {title}
       </TitleTag>
       {description ? (

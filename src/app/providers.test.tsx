@@ -95,7 +95,7 @@ describe('AppProviders + foundation preview', () => {
     expect(document.documentElement.style.colorScheme).toBe('dark');
     expect(window.sessionStorage.getItem('mdb.theme')).toBe('dark');
     expect(document.querySelector('meta[name="theme-color"]')?.getAttribute('content')).toBe(
-      '#132136',
+      '#0e1b30',
     );
   });
 

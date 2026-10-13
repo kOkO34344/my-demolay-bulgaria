@@ -164,7 +164,7 @@ function VerifyStep({
           <p>{t('auth.forgot.simulatedBody')}</p>
           <p className="mt-2 text-foreground">
             {t('demo.simulatedCode')}:{' '}
-            <strong className="font-heading text-lg font-semibold tracking-[0.2em] tabular-nums-lining">
+            <strong className="font-sans text-lg font-bold tracking-[0.2em] tabular-nums-lining">
               {ticket.simulatedCode}
             </strong>{' '}
             <span className="text-muted-foreground">

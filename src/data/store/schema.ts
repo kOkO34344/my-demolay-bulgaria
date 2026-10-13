@@ -7,6 +7,7 @@ import type {
   Event,
   ID,
   InAppMessage,
+  Invitation,
   ISODateTime,
   MemberPrivateFields,
   MemberProfile,
@@ -28,7 +29,7 @@ import type {
  * Bump whenever the seed data or record shapes change: stale sessionStorage snapshots with a
  * different version are discarded and re-seeded on next load.
  */
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 /** Server-side member record (public profile + restricted fields). Never returned to the UI as-is. */
 export interface MemberRecord extends MemberProfile {
@@ -81,6 +82,7 @@ export interface DatabaseCollections {
   syncResults: Record<ID, SyncResultRecord>;
   syncExceptions: Record<ID, SyncException>;
   signupRequests: Record<ID, SignupRequest>;
+  invitations: Record<ID, Invitation>;
 }
 
 export type CollectionName = keyof DatabaseCollections;
@@ -107,6 +109,7 @@ export const COLLECTION_NAMES: CollectionName[] = [
   'syncResults',
   'syncExceptions',
   'signupRequests',
+  'invitations',
 ];
 
 export interface SessionRecord {
@@ -129,7 +132,8 @@ export interface PasswordResetRecord {
 /** Signup details waiting for the email and phone codes (no account exists yet). */
 export interface SignupDraftRecord {
   input: SignupInput;
-  emailCode: string;
+  /** null when signing up from an invitation (the link confirmed the email address). */
+  emailCode: string | null;
   phoneCode: string;
   expiresAt: ISODateTime;
   /** Wrong code pairs so far; the draft is discarded at the limit. */
@@ -181,6 +185,7 @@ export function emptyCollections(): DatabaseCollections {
     syncResults: {},
     syncExceptions: {},
     signupRequests: {},
+    invitations: {},
   };
 }
 

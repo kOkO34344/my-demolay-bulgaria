@@ -92,13 +92,39 @@ export function buildSeedState(now: Date): DatabaseState {
       phoneVerifiedAt: user.createdAt,
       claimedDemId: member.memberType === 'parent' ? null : member.demId,
       childDemId: member.memberType === 'parent' ? (child?.demId ?? null) : null,
+      invitedBy: null,
     };
   }
+
+  // One open invitation from the Sveta Sofia Secretary, so the Invitations page has something to
+  // show. Demo link: /invite/<DEMO_INVITATION_TOKEN>.
+  collections.invitations['inv-demo-1'] = {
+    id: 'inv-demo-1',
+    token: DEMO_INVITATION_TOKEN,
+    email: 'stoyan.marinov@example.org',
+    firstName: 'Stoyan',
+    lastName: 'Marinov',
+    memberType: 'active',
+    chapterId: 'ch-1',
+    demId: 'DEM-BG-10950',
+    childDemId: null,
+    invitedBy: 'u-officer',
+    preApproved: false,
+    createdAt: ago(ctx, { days: 2, hours: 3 }),
+    expiresAt: at(ctx, 12, '18:00'),
+    status: 'pending',
+    acceptedAt: null,
+    acceptedUserId: null,
+    revokedAt: null,
+  };
 
   const meta = defaultMeta(now.toISOString());
   meta.integration = { providerLabel: SYNC_PROVIDER_LABEL, nextScheduledAt: at(ctx, 1, '03:00') };
   return { collections, meta };
 }
+
+/** Link secret of the seeded open invitation (fictional). */
+export const DEMO_INVITATION_TOKEN = '5eed1a7e000000000000000000000001';
 
 export type { SeedContext } from './context';
 export { SEED_IDS } from './ids';

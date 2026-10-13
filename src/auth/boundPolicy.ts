@@ -77,6 +77,8 @@ export function bindPolicy(subject: Subject | null) {
     canViewMemberPrivateFields: (member: MemberRef) =>
       policy.canViewMemberPrivateFields(subject, member),
     canEditMemberProfile: (member: MemberRef) => policy.canEditMemberProfile(subject, member),
+    canInvite: (chapterId: ID) => policy.canInvite(subject, chapterId),
+    canInviteAnywhere: () => policy.canInviteAnywhere(subject),
     canManageMember: (member: MemberRef) => policy.canManageMember(subject, member),
     canViewDirectory: (chapterId: ID) => policy.canViewDirectory(subject, chapterId),
     canViewRoster: (chapterId: ID) => policy.canViewRoster(subject, chapterId),

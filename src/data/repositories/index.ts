@@ -2,6 +2,7 @@ import type { AuditRepository } from './auditRepository';
 import type { AuthRepository } from './authRepository';
 import type { ChapterRepository } from './chapterRepository';
 import type { EventRepository } from './eventRepository';
+import type { InvitationRepository } from './invitationRepository';
 import type { MemberRepository } from './memberRepository';
 import type { NotificationRepository } from './notificationRepository';
 import type { PostRepository } from './postRepository';
@@ -17,6 +18,7 @@ export type {
   AuthRepository,
   ChapterRepository,
   EventRepository,
+  InvitationRepository,
   MemberRepository,
   NotificationRepository,
   PostRepository,
@@ -43,4 +45,5 @@ export interface Repositories {
   translations: TranslationRepository;
   signup: SignupRepository;
   verifications: VerificationRepository;
+  invitations: InvitationRepository;
 }

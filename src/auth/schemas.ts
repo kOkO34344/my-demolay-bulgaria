@@ -131,6 +131,8 @@ const consentFields = {
   consents: z.object({ privacy: z.boolean(), terms: z.boolean(), photo: z.boolean() }),
 };
 
+const invitationField = { invitationToken: z.string().trim().nullable().optional() };
+
 type DetailsValues = z.output<z.ZodObject<typeof detailsFields>>;
 type ConsentValues = z.output<z.ZodObject<typeof consentFields>>;
 
@@ -175,7 +177,7 @@ function checkConsents(value: ConsentValues, ctx: z.RefinementCtx): void {
 
 /** Server-side signup payload. */
 export const signupSchema = z
-  .object({ ...detailsFields, ...accountFields, ...consentFields })
+  .object({ ...detailsFields, ...accountFields, ...consentFields, ...invitationField })
   .superRefine((value, ctx) => {
     checkDetails(value, ctx);
     checkConsents(value, ctx);
@@ -229,7 +231,37 @@ const sixDigits = z
 
 export const signupVerifySchema = z.object({
   signupId: z.string().trim().min(1, { error: 'validation.required' }),
-  emailCode: sixDigits,
+  /** Empty for invitations (the link confirmed the email address). */
+  emailCode: z
+    .string()
+    .trim()
+    .regex(/^(\d{6})?$/, { error: 'validation.invalidCode' }),
   phoneCode: sixDigits,
 });
 export type SignupVerifyFormValues = z.infer<typeof signupVerifySchema>;
+
+// -------------------------------------------------------------------------------------------------
+// Invitations (docs/ROADMAP.md §4)
+// -------------------------------------------------------------------------------------------------
+
+const optionalDemId = z
+  .string()
+  .trim()
+  .transform((value) => value.toUpperCase())
+  .refine((value) => value === '' || DEM_ID_PATTERN.test(value), {
+    error: 'signup.errors.demIdFormat',
+  })
+  .transform((value) => value || null)
+  .nullable();
+
+/** Who to invite. DeM IDs are optional: the invitee can add or correct them when signing up. */
+export const invitationSchema = z.object({
+  email: accountFields.email,
+  firstName: detailsFields.firstName,
+  lastName: detailsFields.lastName,
+  memberType: detailsFields.memberType,
+  chapterId: detailsFields.chapterId,
+  demId: optionalDemId,
+  childDemId: optionalDemId,
+});
+export type InvitationFormValues = z.input<typeof invitationSchema>;

@@ -105,6 +105,11 @@ export const queryKeys = {
     all: [...root, 'verifications'] as const,
     list: () => [...root, 'verifications', 'list'] as const,
   },
+  invitations: {
+    all: [...root, 'invitations'] as const,
+    list: () => [...root, 'invitations', 'list'] as const,
+    preview: (token: string) => [...root, 'invitations', 'preview', token] as const,
+  },
 } as const;
 
 export type QueryDomain = Exclude<keyof typeof queryKeys, 'all'>;

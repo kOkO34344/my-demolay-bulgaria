@@ -88,3 +88,12 @@ Built per BRIEF.md › Login: open signup with email and phone verification and 
 - Verifiers are the holders of account.verify: system administrators, Executive Director, National Representative, National Secretary and National Coordinator. Each new signup notifies them.
 - Rejecting needs a reason and deletes the account and the personal data entered; the audit log keeps the decision and the name. Approving records the DeM ID (or the parent link) and notifies the member.
 - Not yet: invitation by an administrator (the second route in the brief) and the onboarding questionnaire.
+
+## 2026-10-13 — Invitations
+
+The brief's second route in ("invitation by an administrator"; ROADMAP.md §4 maps "Invite friends" to administrator and officer invitations). As built, open to correction by the product owner:
+
+- Who may invite: anyone who manages a chapter's roster or approves new accounts, for the chapters in their scope (Chapter Chairman and Secretary for their chapter; national officers with those rights everywhere). There is no separate "invite" row in the permission matrix, so no new permission was added.
+- The invitation fixes the email, member type and chapter; names and DeM ID are prefilled and editable. Following the link stands in for the email code; the phone is still confirmed by SMS, so both contacts are verified as the brief requires.
+- An invitation from someone who may approve accounts (account.verify) is pre-approved: the account opens on signup. Other invitations end in the verification queue, which shows who invited the person. A pre-approved parent whose child's DeM ID matches nobody still goes to the queue.
+- Links are valid for 14 days and can be revoked. One open invitation per email address; an address that already has an account cannot be invited. The prototype shows the link to share instead of sending email.

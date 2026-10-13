@@ -40,7 +40,7 @@ async function completeSignup(overrides: Partial<SignupInput> = {}) {
   const ticket = await signup.start(input(overrides));
   const result = await signup.verify({
     signupId: ticket.signupId,
-    emailCode: ticket.simulatedEmailCode,
+    emailCode: ticket.simulatedEmailCode ?? '',
     phoneCode: ticket.simulatedPhoneCode,
   });
   return { ticket, result };
@@ -171,7 +171,7 @@ describe('mock signup repository', () => {
     const gone = await signup
       .verify({
         signupId: ticket.signupId,
-        emailCode: ticket.simulatedEmailCode,
+        emailCode: ticket.simulatedEmailCode ?? '',
         phoneCode: ticket.simulatedPhoneCode,
       })
       .catch((e: unknown) => e);

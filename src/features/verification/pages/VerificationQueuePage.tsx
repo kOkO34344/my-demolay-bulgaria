@@ -304,6 +304,12 @@ function ReviewDrawer({
                 ),
               },
               {
+                id: 'invitedBy',
+                label: t('verification.invitedBy'),
+                value: request.invitedBy ? text(request.invitedBy.displayName) : null,
+                hidden: !request.invitedBy,
+              },
+              {
                 id: 'submitted',
                 label: t('verification.submittedOn'),
                 value: <DateTime value={request.submittedAt} format="dateTime" />,

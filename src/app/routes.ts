@@ -42,6 +42,7 @@ export type NavSection =
   | 'officerWorkspace'
   | 'content'
   | 'members'
+  | 'invitations'
   | 'verification'
   | 'admin';
 
@@ -58,6 +59,7 @@ export type FeatureOwner =
   | 'officer'
   | 'content'
   | 'members'
+  | 'invitations'
   | 'verification'
   | 'admin'
   | 'access'
@@ -291,6 +293,17 @@ export const APP_ROUTES: readonly AppRouteDefinition[] = [
     access: { routeId: 'members' },
   },
   {
+    id: 'invitations',
+    path: P.invitations,
+    titleKey: 'nav.invitations',
+    section: 'invitations',
+    owner: 'invitations',
+    file: 'src/features/invitations/pages/InvitationsPage.tsx',
+    load: () => import('@/features/invitations/pages/InvitationsPage'),
+    skeleton: 'list',
+    access: { routeId: 'invitations' },
+  },
+  {
     id: 'verification',
     path: P.verification,
     titleKey: 'nav.verification',
@@ -429,6 +442,16 @@ export const PUBLIC_ROUTES: readonly AppRouteDefinition[] = [
     owner: 'auth',
     file: 'src/features/auth/pages/SignupPage.tsx',
     load: () => import('@/features/auth/pages/SignupPage'),
+    skeleton: 'form',
+  },
+  {
+    id: 'invite',
+    path: P.invite,
+    titleKey: 'invitations.accept.title',
+    section: null,
+    owner: 'auth',
+    file: 'src/features/auth/pages/InvitationSignupPage.tsx',
+    load: () => import('@/features/auth/pages/InvitationSignupPage'),
     skeleton: 'form',
   },
   {

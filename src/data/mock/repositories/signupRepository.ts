@@ -1,6 +1,6 @@
-import { canVerifyAccount } from '@/auth/policy';
+import { canVerifyAccount, invitationIsPreApproved } from '@/auth/policy';
 import { signupSchema, signupVerifySchema } from '@/auth/schemas';
-import { NotFoundError, ValidationError } from '@/data/errors';
+import { ConflictError, NotFoundError, ValidationError } from '@/data/errors';
 import type { SignupRepository } from '@/data/repositories';
 import {
   appendAudit,
@@ -15,9 +15,11 @@ import {
   CONSENT_KINDS,
   type ConsentRecord,
   type ID,
+  type Invitation,
   type LocalizedText,
   type SignupInput,
   type SignupRequest,
+  type SignupResult,
   type SignupTicket,
   type User,
 } from '@/domain';
@@ -28,6 +30,8 @@ import { paths } from '@/lib/routes';
 
 import { msg, oneTimeCode, validateInput } from '../helpers';
 import { defaultNotificationPreferences } from '../seed/demoAccounts';
+import { activateAccount } from '../services/accounts';
+import { liveInvitation } from '../services/invitations';
 import { notifyUsers } from '../services/notify';
 
 /**
@@ -36,6 +40,8 @@ import { notifyUsers } from '../services/notify';
  *     one "texted" (returned for on-screen display — nothing is sent).
  *  2. verify: both codes must match within 30 minutes and 5 attempts. The account is then created
  *     as `pending` with the consents recorded (version + time), and verifiers are notified.
+ * From an invitation link the email code is skipped (the link proved the address); when the
+ * inviter may approve accounts the new account opens at once.
  * An email that already has an account gets the same answers and no second account, so the flow
  * never reveals who is registered (production would email that owner instead).
  */
@@ -57,9 +63,11 @@ function ticketFor(signupId: ID, draft: SignupDraftRecord): SignupTicket {
   };
 }
 
-function freshCodes(): Pick<SignupDraftRecord, 'emailCode' | 'phoneCode' | 'expiresAt'> {
+function freshCodes(
+  withEmailCode: boolean,
+): Pick<SignupDraftRecord, 'emailCode' | 'phoneCode' | 'expiresAt'> {
   return {
-    emailCode: oneTimeCode(),
+    emailCode: withEmailCode ? oneTimeCode() : null,
     phoneCode: oneTimeCode(),
     expiresAt: new Date(clock.now().getTime() + SIGNUP_CODE_TTL_MINUTES * 60_000).toISOString(),
   };
@@ -102,8 +110,11 @@ function verifiersFor(member: Pick<MemberRecord, 'userId' | 'chapterId'>): ID[] 
     .map((u) => u.id);
 }
 
-/** Creates the pending account from a confirmed draft. */
-function createPendingAccount(input: SignupInput): ID {
+/** Creates the account from a confirmed draft: pending, or active for a pre-approved invitation. */
+function createAccount(
+  input: SignupInput,
+  invitation: Invitation | undefined,
+): SignupResult['status'] {
   const now = clock.nowIso();
   const userId = createId('u');
   const firstName = input.firstName.trim();
@@ -153,6 +164,7 @@ function createPendingAccount(input: SignupInput): ID {
     phoneVerifiedAt: now,
     claimedDemId: input.memberType === 'parent' ? null : input.demId,
     childDemId: input.memberType === 'parent' ? input.childDemId : null,
+    invitedBy: invitation?.invitedBy ?? null,
   };
 
   db.transaction(() => {
@@ -173,8 +185,32 @@ function createPendingAccount(input: SignupInput): ID {
       chapterId: input.chapterId,
       scope: 'self',
       summary: msg('messages.audit.signupSubmitted', { name: displayName }),
-      metadata: { memberType: input.memberType },
+      metadata: { memberType: input.memberType, invitationId: invitation?.id ?? null },
     });
+    if (invitation) acceptInvitation(invitation, userId, displayName);
+  });
+
+  if (invitation?.preApproved) {
+    const inviter = subjectForUserRecord(invitation.invitedBy, null, false);
+    if (inviter && invitationIsPreApproved(inviter, input.chapterId)) {
+      try {
+        activateAccount({
+          member,
+          claimedDemId: request.claimedDemId,
+          childDemId: request.childDemId,
+          approver: inviter,
+          approverId: inviter.userId,
+          via: 'invitation',
+        });
+        return 'active';
+      } catch (error) {
+        // A parent whose child is not found waits for a verifier like any signup.
+        if (!(error instanceof ConflictError)) throw error;
+      }
+    }
+  }
+
+  db.transaction(() => {
     const chapter = db.get('chapters', input.chapterId);
     notifyUsers(verifiersFor(member), {
       category: 'approvals',
@@ -186,7 +222,45 @@ function createPendingAccount(input: SignupInput): ID {
       actorId: null,
     });
   });
-  return userId;
+  return 'pending_verification';
+}
+
+function acceptInvitation(invitation: Invitation, userId: ID, name: LocalizedText): void {
+  db.upsert('invitations', {
+    ...invitation,
+    status: 'accepted',
+    acceptedAt: clock.nowIso(),
+    acceptedUserId: userId,
+  });
+  appendAudit(null, {
+    action: 'invitation.accepted',
+    actorId: userId,
+    entityType: 'invitation',
+    entityId: invitation.id,
+    chapterId: invitation.chapterId,
+    scope: 'self',
+    summary: msg('messages.audit.invitationAccepted', { name }),
+  });
+  notifyUsers([invitation.invitedBy], {
+    category: 'approvals',
+    title: msg('messages.notifications.invitationAccepted.title', { name }),
+    body: msg('messages.notifications.invitationAccepted.body'),
+    link: { to: paths.invitations(), entityType: 'invitation', entityId: invitation.id },
+    actorId: null,
+  });
+}
+
+/** The invitation a signup claims, checked against what was submitted. */
+function invitationFor(input: SignupInput): Invitation | undefined {
+  if (!input.invitationToken) return undefined;
+  const invitation = liveInvitation(input.invitationToken);
+  if (!invitation) throw new ValidationError({}, 'invitations.errors.invalidLink');
+  const errors: Record<string, string> = {};
+  if (input.email !== invitation.email) errors.email = 'invitations.errors.emailMismatch';
+  if (input.memberType !== invitation.memberType) errors.memberType = 'invitations.errors.fixed';
+  if (input.chapterId !== invitation.chapterId) errors.chapterId = 'invitations.errors.fixed';
+  if (Object.keys(errors).length > 0) throw new ValidationError(errors);
+  return invitation;
 }
 
 export function createMockSignupRepository(): SignupRepository {
@@ -211,26 +285,39 @@ export function createMockSignupRepository(): SignupRepository {
           ...data,
           demId: data.memberType === 'parent' ? null : data.demId,
           childDemId: data.memberType === 'parent' ? data.childDemId : null,
+          invitationToken: data.invitationToken || null,
         };
+        const invitation = invitationFor(normalized);
         const signupId = createId('signup');
-        const draft: SignupDraftRecord = { input: normalized, failedAttempts: 0, ...freshCodes() };
+        const draft: SignupDraftRecord = {
+          input: normalized,
+          failedAttempts: 0,
+          ...freshCodes(!invitation),
+        };
         saveDraft(signupId, draft);
         return ticketFor(signupId, draft);
       }),
 
     resend: (signupId) =>
       mockCall((): SignupTicket => {
-        const draft = { ...liveDraft(signupId), ...freshCodes(), failedAttempts: 0 };
+        const current = liveDraft(signupId);
+        const draft = {
+          ...current,
+          ...freshCodes(current.emailCode !== null),
+          failedAttempts: 0,
+        };
         saveDraft(signupId, draft);
         return ticketFor(signupId, draft);
       }),
 
     verify: (input) =>
-      mockCall(() => {
+      mockCall((): SignupResult => {
         const data = validateInput(signupVerifySchema, input);
         const draft = liveDraft(data.signupId);
         const errors: Record<string, string> = {};
-        if (data.emailCode !== draft.emailCode) errors.emailCode = 'signup.errors.wrongCode';
+        if (draft.emailCode !== null && data.emailCode !== draft.emailCode) {
+          errors.emailCode = 'signup.errors.wrongCode';
+        }
         if (data.phoneCode !== draft.phoneCode) errors.phoneCode = 'signup.errors.wrongCode';
         if (Object.keys(errors).length > 0) {
           const failedAttempts = draft.failedAttempts + 1;
@@ -243,8 +330,13 @@ export function createMockSignupRepository(): SignupRepository {
         }
 
         saveDraft(data.signupId, null);
-        if (!emailTaken(draft.input.email)) createPendingAccount(draft.input);
-        return { status: 'pending_verification' as const, username: draft.input.email };
+        if (emailTaken(draft.input.email)) {
+          return { status: 'pending_verification', username: draft.input.email };
+        }
+        // The invitation may have been revoked or used while the codes were open.
+        const invitation = draft.input.invitationToken ? invitationFor(draft.input) : undefined;
+        const status = createAccount(draft.input, invitation);
+        return { status, username: draft.input.email };
       }),
   };
 }

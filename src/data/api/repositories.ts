@@ -13,6 +13,8 @@ import type {
   EventView,
   ImportedPositionSummary,
   InAppMessageView,
+  InvitationPreview,
+  InvitationView,
   IntegrationStatus,
   MappingPreview,
   MemberDetail,
@@ -47,6 +49,7 @@ import type {
   AuthRepository,
   ChapterRepository,
   EventRepository,
+  InvitationRepository,
   MemberRepository,
   NotificationRepository,
   PostRepository,
@@ -271,6 +274,15 @@ export function createApiVerificationRepository(api: ApiClient): VerificationRep
   };
 }
 
+export function createApiInvitationRepository(api: ApiClient): InvitationRepository {
+  return {
+    list: () => api.get<InvitationView[]>('/invitations'),
+    create: (input) => api.post<InvitationView>('/invitations', input),
+    revoke: (id) => api.post<InvitationView>(`/invitations/${e(id)}/revoke`),
+    preview: (token) => api.get<InvitationPreview>(`/invitations/by-token/${e(token)}`),
+  };
+}
+
 export function createApiRepositories(api: ApiClient): Repositories {
   return {
     auth: createApiAuthRepository(api),
@@ -286,5 +298,6 @@ export function createApiRepositories(api: ApiClient): Repositories {
     translations: createApiTranslationRepository(api),
     signup: createApiSignupRepository(api),
     verifications: createApiVerificationRepository(api),
+    invitations: createApiInvitationRepository(api),
   };
 }

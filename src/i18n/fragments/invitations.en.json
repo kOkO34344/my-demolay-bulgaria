@@ -1,0 +1,60 @@
+{
+  "invitations": {
+    "description": "Invite people to join your chapter. They get a link to sign up with their details filled in.",
+    "form": {
+      "open": "Invite someone",
+      "title": "Invite someone to join",
+      "description": "They receive a link to sign up with these details filled in.",
+      "submit": "Send invitation",
+      "demIdOptional": "Optional. They can add or correct it when signing up."
+    },
+    "created": {
+      "title": "Invitation ready",
+      "description": "Share this link with {{name}}.",
+      "simulated": "Prototype: no email is sent. Share the link yourself.",
+      "link": "Invitation link",
+      "preApproved": "You can approve accounts, so their account opens as soon as they sign up.",
+      "needsVerification": "After they sign up, an administrator verifies the account."
+    },
+    "copyLink": "Copy link",
+    "copyLinkFor": "Copy link for {{name}}",
+    "linkCopied": "Link copied.",
+    "copyFailed": "Couldn't copy. Select the link and copy it.",
+    "invitedBy": "Invited by {{name}}",
+    "expires": "expires",
+    "filterLabel": "Show invitations",
+    "emptyTitle": "No invitations here",
+    "emptyDescription": "Invitations you send appear here until they are accepted.",
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "revoked": "Revoked",
+      "expired": "Expired"
+    },
+    "revoke": {
+      "action": "Revoke",
+      "title": "Revoke the invitation for {{name}}?",
+      "description": "The link stops working. You can invite them again later.",
+      "done": "Invitation for {{name}} revoked."
+    },
+    "revokeFor": "Revoke the invitation for {{name}}",
+    "accept": {
+      "title": "Accept your invitation",
+      "banner": "{{inviter}} invited you to join {{chapter}}. Membership: {{type}}.",
+      "emailFixed": "The address the invitation was sent to. It becomes your username.",
+      "smsOnly": "The invitation link confirmed your email. In production the code would arrive by SMS; this prototype shows it here.",
+      "readyTitle": "Your account is ready",
+      "readyBody": "You were invited by someone who can approve accounts, so you can sign in now.",
+      "invalidTitle": "This invitation link doesn't work",
+      "invalidBody": "It may have been used already, withdrawn, or expired after 14 days. Ask the person who invited you for a new one, or sign up yourself."
+    },
+    "errors": {
+      "invalidLink": "This invitation link no longer works.",
+      "emailMismatch": "Use the email address the invitation was sent to.",
+      "fixed": "This is set by the invitation.",
+      "alreadyMember": "This email address already belongs to an account.",
+      "alreadyInvited": "This email address already has an open invitation.",
+      "notPending": "Only open invitations can be revoked."
+    }
+  }
+}

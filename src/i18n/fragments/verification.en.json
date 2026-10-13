@@ -49,6 +49,7 @@
       "reasonTooShort": "Give a reason of at least 5 characters.",
       "done": "Signup of {{name}} rejected."
     },
-    "memberType": "Member type"
+    "memberType": "Member type",
+    "invitedBy": "Invited by"
   }
 }

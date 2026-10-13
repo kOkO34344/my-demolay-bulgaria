@@ -4,8 +4,10 @@ import { createMockAuditRepository } from './repositories/auditRepository';
 import { createMockAuthRepository } from './repositories/authRepository';
 import { createMockChapterRepository } from './repositories/chapterRepository';
 import { createMockEventRepository } from './repositories/eventRepository';
+import { createMockInvitationRepository } from './repositories/invitationRepository';
 import { createMockMemberRepository } from './repositories/memberRepository';
 import { createMockNotificationRepository } from './repositories/notificationRepository';
+import { createMockOnboardingRepository } from './repositories/onboardingRepository';
 import { createMockPostRepository } from './repositories/postRepository';
 import { createMockResourceRepository } from './repositories/resourceRepository';
 import { createMockRoleRepository } from './repositories/roleRepository';
@@ -30,5 +32,7 @@ export function createMockRepositories(): Repositories {
     translations: createMockTranslationRepository(),
     signup: createMockSignupRepository(),
     verifications: createMockVerificationRepository(),
+    invitations: createMockInvitationRepository(),
+    onboarding: createMockOnboardingRepository(),
   };
 }

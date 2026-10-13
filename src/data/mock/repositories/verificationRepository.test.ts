@@ -37,7 +37,7 @@ async function signUp(overrides: Partial<SignupInput> = {}): Promise<string> {
   });
   await signup.verify({
     signupId: ticket.signupId,
-    emailCode: ticket.simulatedEmailCode,
+    emailCode: ticket.simulatedEmailCode ?? '',
     phoneCode: ticket.simulatedPhoneCode,
   });
   db.setMeta('session', session);

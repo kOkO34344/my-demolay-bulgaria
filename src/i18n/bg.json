@@ -349,7 +349,8 @@
       "audit": "Одитен журнал",
       "sync": "Синхронизация"
     },
-    "verification": "Проверка на профили"
+    "verification": "Проверка на профили",
+    "invitations": "Покани"
   },
   "chapterTerm": {
     "singular": "Обител",
@@ -851,7 +852,8 @@
     "sync_exception": "Изключение при синхронизация",
     "notification": "Известие",
     "message": "Лично съобщение",
-    "translation": "Превод"
+    "translation": "Превод",
+    "invitation": "Покана"
   },
   "auditActions": {
     "auth": {
@@ -932,6 +934,11 @@
       "signup_submitted": "Регистрация",
       "approved": "Одобрен профил",
       "rejected": "Отхвърлена регистрация"
+    },
+    "invitation": {
+      "created": "Изпратена покана",
+      "revoked": "Оттеглена покана",
+      "accepted": "Приета покана"
     }
   },
   "languages": {

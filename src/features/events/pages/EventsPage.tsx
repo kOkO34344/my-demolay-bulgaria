@@ -23,6 +23,7 @@ import {
 import { labelKeys } from '@/i18n/labels';
 import { toSofiaMonthKey, useFormatters } from '@/i18n/public';
 
+import { AudienceInsightsPanel } from '../components/AudienceInsightsPanel';
 import { EventCard } from '../components/EventCard';
 
 type Tab = 'upcoming' | 'past';
@@ -89,6 +90,7 @@ export default function EventsPage() {
     <>
       <PageHeader title={t('nav.events')} description={t('events.list.description')} />
       <PageStack>
+        <AudienceInsightsPanel />
         <div className="flex flex-col gap-3">
           <SegmentedFilter
             label={t('events.list.whenLabel')}

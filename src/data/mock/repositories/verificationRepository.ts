@@ -1,5 +1,5 @@
 import { can, canVerifyAccount } from '@/auth/policy';
-import { ConflictError, ForbiddenError, NotFoundError } from '@/data/errors';
+import { ForbiddenError, NotFoundError } from '@/data/errors';
 import type { VerificationRepository } from '@/data/repositories';
 import { appendAudit, db, mockCall, requireSubject, type MemberRecord } from '@/data/store';
 import type {
@@ -12,12 +12,10 @@ import type {
 } from '@/domain';
 import { ageOn, signupAgeProblem } from '@/domain/rules/members';
 import { verificationDecisionSchema } from '@/domain/schemas';
-import { toSofiaDateKey } from '@/i18n/format';
 import { clock } from '@/lib/clock';
-import { paths } from '@/lib/routes';
 
 import { msg, personRef, validateInput } from '../helpers';
-import { notifyUsers } from '../services/notify';
+import { activateAccount, memberWithDemId } from '../services/accounts';
 
 /**
  * Verification queue — emulated FastAPI endpoints. Holders of account.verify (national scope:
@@ -27,18 +25,6 @@ import { notifyUsers } from '../services/notify';
  * child's DeM ID belongs to a member. Approving records the DeM ID or the parent link; rejecting
  * deletes the account and its personal data, keeping only the audited decision.
  */
-
-/** A member (not a parent, not a pending signup) holding this DeM ID. */
-function memberWithDemId(demId: string, exceptUserId: ID): MemberRecord | undefined {
-  return db.find(
-    'members',
-    (m) =>
-      m.userId !== exceptUserId &&
-      m.memberType !== 'parent' &&
-      m.demId?.toUpperCase() === demId.toUpperCase() &&
-      db.get('users', m.userId)?.status !== 'pending',
-  )[0];
-}
 
 function checksFor(member: MemberRecord, request: SignupRequest, now: Date): VerificationChecks {
   const holder = request.claimedDemId
@@ -68,6 +54,7 @@ function toView(member: MemberRecord, request: SignupRequest, now: Date): Verifi
     submittedAt: request.submittedAt,
     emailVerifiedAt: request.emailVerifiedAt,
     phoneVerifiedAt: request.phoneVerifiedAt,
+    invitedBy: request.invitedBy ? personRef(request.invitedBy) : null,
     checks: checksFor(member, request, now),
   };
 }
@@ -117,7 +104,6 @@ export function createMockVerificationRepository(): VerificationRepository {
         assertMayVerify(subject);
         const data = validateInput(verificationDecisionSchema, input);
         const { member, request } = pendingRequest(subject, data.userId);
-        const now = clock.nowIso();
         const result: VerificationDecisionResult = {
           userId: member.userId,
           decision: data.decision,
@@ -151,43 +137,13 @@ export function createMockVerificationRepository(): VerificationRepository {
           return result;
         }
 
-        let linkedMemberIds = member.linkedMemberIds;
-        if (member.memberType === 'parent') {
-          const child = request.childDemId
-            ? memberWithDemId(request.childDemId, member.userId)
-            : undefined;
-          if (!child) throw new ConflictError('signup.errors.childNotFound');
-          linkedMemberIds = [...new Set([...member.linkedMemberIds, child.userId])];
-        }
-
-        db.transaction(() => {
-          db.update('users', member.userId, { status: 'active' }, 'user');
-          db.upsert('members', {
-            ...member,
-            demId: member.memberType === 'parent' ? null : request.claimedDemId,
-            linkedMemberIds,
-            joinedAt: toSofiaDateKey(now),
-          });
-          db.remove('signupRequests', member.userId);
-          appendAudit(subject, {
-            action: 'account.approved',
-            entityType: 'member',
-            entityId: member.userId,
-            chapterId: member.chapterId,
-            summary: msg('messages.audit.accountApproved', { name: member.displayName }),
-            metadata: {
-              memberType: member.memberType,
-              demId: request.claimedDemId,
-              linkedMemberIds: linkedMemberIds.join(','),
-            },
-          });
-          notifyUsers([member.userId], {
-            category: 'account',
-            title: msg('messages.notifications.accountVerified.title'),
-            body: msg('messages.notifications.accountVerified.body'),
-            link: { to: paths.home(), entityType: 'member', entityId: member.userId },
-            actorId: subject.userId,
-          });
+        activateAccount({
+          member,
+          claimedDemId: request.claimedDemId,
+          childDemId: request.childDemId,
+          approver: subject,
+          approverId: subject.userId,
+          via: 'verification',
         });
         return result;
       }),

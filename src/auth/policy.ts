@@ -573,6 +573,38 @@ export function canVerifyAccount(
   );
 }
 
+/**
+ * Invite someone to join a chapter (docs/ROADMAP.md §4: "Administrator and officer invitations").
+ * Whoever manages that chapter's roster or approves new accounts may invite.
+ */
+export function canInvite(
+  subject: Subject | null | undefined,
+  chapterId: ID,
+  now: Date = clock.now(),
+): boolean {
+  const target = { chapterId };
+  return (
+    can(subject, 'member.access.manage', target, now) || can(subject, 'account.verify', target, now)
+  );
+}
+
+/** Whether `subject` may invite to any chapter at all (navigation, empty states). */
+export function canInviteAnywhere(
+  subject: Subject | null | undefined,
+  now: Date = clock.now(),
+): boolean {
+  return canAny(subject, ['member.access.manage', 'account.verify'], undefined, now);
+}
+
+/** An invitation from this subject opens the account without a separate verification step. */
+export function invitationIsPreApproved(
+  subject: Subject | null | undefined,
+  chapterId: ID,
+  now: Date = clock.now(),
+): boolean {
+  return can(subject, 'account.verify', { chapterId }, now);
+}
+
 /** Pay dues or event costs for a member: yourself, or (parents) a linked child. Phase 2. */
 export function canPayFor(
   subject: Subject | null | undefined,

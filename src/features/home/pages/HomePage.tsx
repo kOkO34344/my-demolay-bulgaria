@@ -17,6 +17,8 @@ import { useLocalized } from '@/i18n/public';
 import { clock } from '@/lib/clock';
 import { paths } from '@/lib/routes';
 
+import { OnboardingReminder } from '../components/OnboardingReminder';
+
 const KEY_DATES = 4;
 const LATEST_NEWS = 3;
 
@@ -179,6 +181,7 @@ export default function HomePage() {
         documentTitle={t('nav.home')}
         description={chapter ? t('home.chapterLine', { chapter }) : undefined}
       />
+      <OnboardingReminder />
       <div className="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
         {showEvents ? <KeyDates /> : null}
         {showNews ? <LatestNews /> : null}

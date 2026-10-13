@@ -190,6 +190,10 @@
       "accountVerified": {
         "title": "Профилът ви е потвърден",
         "body": "Добре дошли в My DeMolay Bulgaria. Зоната за членове вече е отворена за вас."
+      },
+      "invitationAccepted": {
+        "title": "{{name}} прие поканата ви",
+        "body": "Регистрацията е завършена. Профилите, които не можете да одобрите сами, чакат в „Проверка на профили“."
       }
     },
     "audit": {
@@ -241,7 +245,10 @@
       "roleRemoved": "Прекрати ролята „{{role}}“ на {{name}} ({{scope}}): {{reason}}",
       "signupSubmitted": "{{name}} се регистрира и потвърди имейла и телефона си",
       "accountApproved": "Одобри профила на {{name}}",
-      "accountRejected": "Отхвърли регистрацията на {{name}}: {{reason}}"
+      "accountRejected": "Отхвърли регистрацията на {{name}}: {{reason}}",
+      "invitationCreated": "Покани {{name}} да се присъедини към {{chapter}}",
+      "invitationRevoked": "Оттегли поканата на {{name}}",
+      "invitationAccepted": "{{name}} прие покана"
     }
   }
 }

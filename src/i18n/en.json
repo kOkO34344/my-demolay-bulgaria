@@ -349,7 +349,8 @@
       "audit": "Audit log",
       "sync": "Synchronization"
     },
-    "verification": "Account verification"
+    "verification": "Account verification",
+    "invitations": "Invitations"
   },
   "chapterTerm": {
     "singular": "Chapter",
@@ -851,7 +852,8 @@
     "sync_exception": "Synchronization exception",
     "notification": "Notification",
     "message": "Message",
-    "translation": "Translation"
+    "translation": "Translation",
+    "invitation": "Invitation"
   },
   "auditActions": {
     "auth": {
@@ -932,6 +934,11 @@
       "signup_submitted": "Signed up",
       "approved": "Approved an account",
       "rejected": "Rejected a signup"
+    },
+    "invitation": {
+      "created": "Sent an invitation",
+      "revoked": "Revoked an invitation",
+      "accepted": "Accepted an invitation"
     }
   },
   "languages": {

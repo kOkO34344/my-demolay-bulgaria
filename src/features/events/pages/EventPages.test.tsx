@@ -45,6 +45,27 @@ describe('EventsPage', () => {
     );
   });
 
+  it('shows chapter planners what their members said, as totals', async () => {
+    const { user } = renderWithProviders(<EventsPage />, {
+      route: '/events',
+      path: '/events',
+      persona: 'chapter_chairman',
+    });
+    const summary = await screen.findByText('Your audience: Sveta Sofia Chapter');
+    expect(
+      screen.getByText(/of \d+ members answered the onboarding questions/),
+    ).toBeInTheDocument();
+    await user.click(summary);
+    expect(screen.getByRole('heading', { level: 3, name: 'Top interests' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'Age bands' })).toBeInTheDocument();
+  });
+
+  it('shows no audience panel to members who do not plan events', async () => {
+    renderWithProviders(<EventsPage />, { route: '/events', path: '/events' });
+    await screen.findByRole('link', { name: 'Exam study session' });
+    expect(screen.queryByText(/Your audience/)).not.toBeInTheDocument();
+  });
+
   it('has no axe violations', async () => {
     const { container } = renderWithProviders(<EventsPage />, {
       route: '/events',

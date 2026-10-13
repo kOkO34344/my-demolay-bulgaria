@@ -190,6 +190,10 @@
       "accountVerified": {
         "title": "Your account has been verified",
         "body": "Welcome to My DeMolay Bulgaria. The member area is now open to you."
+      },
+      "invitationAccepted": {
+        "title": "{{name}} accepted your invitation",
+        "body": "They have signed up. Accounts you cannot approve yourself wait in Account verification."
       }
     },
     "audit": {
@@ -241,7 +245,10 @@
       "roleRemoved": "Ended {{name}}’s role “{{role}}” ({{scope}}): {{reason}}",
       "signupSubmitted": "{{name}} signed up and confirmed their email and phone",
       "accountApproved": "Approved the account of {{name}}",
-      "accountRejected": "Rejected the signup of {{name}}: {{reason}}"
+      "accountRejected": "Rejected the signup of {{name}}: {{reason}}",
+      "invitationCreated": "Invited {{name}} to join {{chapter}}",
+      "invitationRevoked": "Revoked the invitation of {{name}}",
+      "invitationAccepted": "{{name}} accepted an invitation"
     }
   }
 }

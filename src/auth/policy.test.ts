@@ -654,13 +654,28 @@ describe('navigation visibility per persona', () => {
   it.each<[DemoPersonaId, string[]]>([
     ['active_member', [...BASE, 'profile']],
     ['parent', ['home', 'news', 'events', 'resources', 'notifications', 'profile']],
-    ['chapter_secretary', [...BASE, 'officerWorkspace', 'members', 'profile']],
-    ['chapter_chairman', [...BASE, 'officerWorkspace', 'content', 'members', 'profile']],
+    ['chapter_secretary', [...BASE, 'officerWorkspace', 'members', 'invitations', 'profile']],
+    [
+      'chapter_chairman',
+      [...BASE, 'officerWorkspace', 'content', 'members', 'invitations', 'profile'],
+    ],
     ['chapter_treasurer', [...BASE, 'profile']],
-    ['national_coordinator', [...BASE, 'officerWorkspace', 'content', 'verification', 'profile']],
+    [
+      'national_coordinator',
+      [...BASE, 'officerWorkspace', 'content', 'invitations', 'verification', 'profile'],
+    ],
     [
       'sysadmin',
-      [...BASE, 'officerWorkspace', 'content', 'members', 'verification', 'admin', 'profile'],
+      [
+        ...BASE,
+        'officerWorkspace',
+        'content',
+        'members',
+        'invitations',
+        'verification',
+        'admin',
+        'profile',
+      ],
     ],
   ])('%s sidebar', (persona, expected) => {
     expect(ids(persona)).toEqual(expected);

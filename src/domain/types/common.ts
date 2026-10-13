@@ -76,6 +76,7 @@ export const ENTITY_TYPES = [
   'event',
   'resource',
   'member',
+  'invitation',
   'user',
   'chapter',
   'role_assignment',

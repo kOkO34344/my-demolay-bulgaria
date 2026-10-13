@@ -22,6 +22,7 @@ export const ROUTE_PATTERNS = {
   login: '/login',
   forgotPassword: '/forgot-password',
   signup: '/signup',
+  invite: '/invite/:token',
   home: '/',
   news: '/news',
   newsDetail: '/news/:postId',
@@ -33,6 +34,7 @@ export const ROUTE_PATTERNS = {
   resources: '/resources',
   notifications: '/notifications',
   profile: '/profile',
+  onboarding: '/onboarding',
   more: '/more',
   officerWorkspace: '/workspace',
   content: '/content',
@@ -40,6 +42,7 @@ export const ROUTE_PATTERNS = {
   contentEdit: '/content/:postId/edit',
   members: '/members',
   verification: '/verification',
+  invitations: '/invitations',
   admin: '/admin',
   adminMembers: '/admin/members',
   adminChapters: '/admin/chapters',
@@ -70,6 +73,7 @@ export const paths = {
   login: (redirectTo?: string) => withQuery(ROUTE_PATTERNS.login, { redirect: redirectTo }),
   forgotPassword: () => ROUTE_PATTERNS.forgotPassword,
   signup: () => ROUTE_PATTERNS.signup,
+  invite: (token: string) => `/invite/${enc(token)}`,
   home: () => ROUTE_PATTERNS.home,
   news: (query?: { feed?: string; q?: string }) => withQuery(ROUTE_PATTERNS.news, query),
   newsDetail: (postId: string) => `/news/${enc(postId)}`,
@@ -85,6 +89,8 @@ export const paths = {
   profile: (section?: string) =>
     section ? `${ROUTE_PATTERNS.profile}#${section}` : ROUTE_PATTERNS.profile,
   more: () => ROUTE_PATTERNS.more,
+  onboarding: (redirectTo?: string) =>
+    withQuery(ROUTE_PATTERNS.onboarding, { redirect: redirectTo }),
   officerWorkspace: () => ROUTE_PATTERNS.officerWorkspace,
   content: (query?: { status?: string }) => withQuery(ROUTE_PATTERNS.content, query),
   contentCreate: () => ROUTE_PATTERNS.contentCreate,
@@ -93,6 +99,7 @@ export const paths = {
   /** Member Management with the profile drawer open. */
   memberDetail: (userId: string) => withQuery(ROUTE_PATTERNS.members, { member: userId }),
   verification: () => ROUTE_PATTERNS.verification,
+  invitations: () => ROUTE_PATTERNS.invitations,
   admin: () => ROUTE_PATTERNS.admin,
   adminSection: (section: AdminSection) => `/admin/${section}`,
 } as const;

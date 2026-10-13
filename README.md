@@ -28,7 +28,8 @@ The four brief documents are imported from the original project repository and s
 | Member directory and chapter pages | Done | Not yet |
 | Administration console and audit log | Done | Not yet |
 | Signup, verification queue, consent capture | Done: email and phone codes (simulated), consents with version and time, automatic checks, approve or reject with audit | Done: `/signup` and `/verification` |
-| Onboarding questionnaire | Not yet | Not yet |
+| Invitations by administrators and officers | Done: link instead of email code, pre-approved when the inviter may approve accounts | Done: `/invitations` and `/invite/<token>` |
+| Onboarding questionnaire | Done: questions by member type, age band from date of birth, totals for planners | Done: `/onboarding` after first sign-in, Home reminder, audience panel on Events for planners |
 | Helpdesk | Not yet. Permission exists | Not yet |
 | Public website | Not yet. Separate project scope; see DECISIONS.md 2026-09-22 | Not yet |
 
@@ -104,7 +105,7 @@ Demo mode (`VITE_DEMO_MODE=true`, the default) shows sign-in cards on the login 
 
 The role switcher lets any signed-in demo account act as one of these personas.
 
-To try signup, choose "Create an account" on the login page; the email and SMS codes are shown on screen. Sign in as `national.officer.demo` or `admin.demo` and open Account verification to approve or reject it. The seed already has two pending accounts, one of them a parent.
+To try signup, choose "Create an account" on the login page; the email and SMS codes are shown on screen. Sign in as `national.officer.demo` or `admin.demo` and open Account verification to approve or reject it. The seed already has two pending accounts, one of them a parent. For invitations, sign in as `officer.demo` and open Invitations; the seeded open invitation's link is `/invite/5eed1a7e000000000000000000000001` (sign out first).
 
 ## Project structure
 

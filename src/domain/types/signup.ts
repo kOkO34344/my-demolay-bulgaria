@@ -43,6 +43,8 @@ export interface SignupInput {
   childDemId: string | null;
   password: string;
   consents: Record<ConsentKind, boolean>;
+  /** Set when signing up from an invitation link (the link proves the email address). */
+  invitationToken?: string | null;
 }
 
 /** Issued after the details are accepted: codes to confirm the email address and phone. */
@@ -52,13 +54,15 @@ export interface SignupTicket {
   phone: string;
   /** The prototype shows the codes on screen instead of sending an email and an SMS. */
   delivery: 'simulated';
-  simulatedEmailCode: string;
+  /** null for invitations: following the emailed link already confirmed the address. */
+  simulatedEmailCode: string | null;
   simulatedPhoneCode: string;
   expiresAt: ISODateTime;
 }
 
 export interface SignupVerifyInput {
   signupId: ID;
+  /** Empty for invitations (no email code is sent). */
   emailCode: string;
   phoneCode: string;
 }
@@ -68,7 +72,8 @@ export interface SignupVerifyInput {
  * owner would be told by email instead), so the response never reveals who is registered.
  */
 export interface SignupResult {
-  status: 'pending_verification';
+  /** "active" only for an invitation from someone who may approve accounts. */
+  status: 'pending_verification' | 'active';
   username: string;
 }
 
@@ -84,6 +89,8 @@ export interface SignupRequest {
   claimedDemId: string | null;
   /** Parents: the child's DeM ID as entered. Resolved to a link on approval. */
   childDemId: string | null;
+  /** Who invited them, when they came through an invitation. */
+  invitedBy: ID | null;
 }
 
 /** Automatic checks shown to the verifier. They inform the decision; they never make it. */
@@ -113,6 +120,7 @@ export interface VerificationRequestView {
   submittedAt: ISODateTime;
   emailVerifiedAt: ISODateTime;
   phoneVerifiedAt: ISODateTime;
+  invitedBy: PersonRef | null;
   checks: VerificationChecks;
 }
 

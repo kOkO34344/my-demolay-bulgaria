@@ -12,7 +12,11 @@ import type {
 
 import { ago, type SeedContext } from './context';
 
-/** Resource library metadata (no real files). All seven categories, EN / BG / bilingual files. */
+/**
+ * Resource library metadata (no real files). Every category, EN / BG / bilingual files. Ritual
+ * entries are placeholders: the real ritual PDFs and the rule for who reads which degree are owed
+ * by the product owner (docs/ROADMAP.md §8).
+ */
 
 interface ResourceSeed {
   id: ID;
@@ -36,6 +40,28 @@ interface ResourceSeed {
 
 const RESOURCES: ResourceSeed[] = [
   {
+    id: 'res-ritual-initiatory',
+    category: 'rituals',
+    language: 'bg',
+    fileType: 'pdf',
+    fileName: 'ritual-initiatory-degree-placeholder.pdf',
+    fileSize: 1_048_576,
+    version: '0.1',
+    uploadedBy: 'u-admin',
+    createdDaysAgo: 40,
+    downloads: 12,
+    en: {
+      title: 'Initiatory Degree — ritual (placeholder)',
+      description:
+        'Placeholder for the ritual text. Restricted to members, advisors and parents; every download is watermarked with the reader’s name.',
+    },
+    bg: {
+      title: 'Посветителна степен – ритуал (заместител)',
+      description:
+        'Заместител на текста на ритуала. Достъпен само за членове, съветници и родители; всяко изтегляне се маркира с името на читателя.',
+    },
+  },
+  {
     id: 'res-welcome-guide',
     category: 'new_members',
     language: 'both',
@@ -50,12 +76,12 @@ const RESOURCES: ResourceSeed[] = [
     en: {
       title: 'New member welcome guide',
       description:
-        'Everything a new member needs in the first months: how the chapter works, the seven cardinal virtues, meetings, offices and who to ask for help.',
+        'Everything a new member needs in the first months: how the chapter works, the seven precepts, meetings, offices and who to ask for help.',
     },
     bg: {
       title: 'Ръководство за нови членове',
       description:
-        'Всичко, от което новият член има нужда през първите месеци: как работи обителта, седемте кардинални добродетели, срещите, длъжностите и към кого да се обърне за помощ.',
+        'Всичко, от което новият член има нужда през първите месеци: как работи обителта, седемте принципа, срещите, длъжностите и към кого да се обърне за помощ.',
     },
   },
   {

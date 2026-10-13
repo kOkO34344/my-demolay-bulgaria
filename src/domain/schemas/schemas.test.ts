@@ -124,7 +124,7 @@ describe('shared command schemas', () => {
       bio: '  Hello  ',
       chapterId: 'ch-4',
       importedPosition: null,
-      role: 'national_admin',
+      role: 'sysadmin',
       scope: { level: 'system' },
     });
     expect(parsed).toEqual({ bio: 'Hello' });
@@ -138,7 +138,7 @@ describe('shared command schemas', () => {
       issues(
         roleAssignmentInputSchema.safeParse({
           userId: 'u-s05',
-          role: 'national_admin',
+          role: 'sysadmin',
           scope: { level: 'chapter', chapterIds: ['ch-1'] },
           reason: 'Promotion for the season',
         }),
@@ -167,7 +167,7 @@ describe('shared command schemas', () => {
     const parsed = positionMappingInputSchema.parse({
       positionCode: ' ch_treasurer ',
       positionTitle: { en: 'Treasurer', bg: 'Ковчежник' },
-      role: 'chapter_officer',
+      role: 'ch_treas',
       scopeLevel: 'chapter',
       priority: 100,
       active: true,

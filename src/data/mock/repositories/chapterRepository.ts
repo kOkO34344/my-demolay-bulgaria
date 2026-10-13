@@ -1,7 +1,7 @@
 import { can, canUpdateChapter } from '@/auth/policy';
 import { ConflictError, ForbiddenError, NotFoundError } from '@/data/errors';
 import type { ChapterRepository } from '@/data/repositories';
-import { appendAudit, assignmentFor, db, mockCall, requireSubject } from '@/data/store';
+import { appendAudit, assignmentsFor, db, mockCall, requireSubject } from '@/data/store';
 import { summarizeChapter } from '@/domain/rules/chapters';
 import { compareDirectoryEntries, isListedInDirectory } from '@/domain/rules/directory';
 import { chapterInputSchema } from '@/domain/schemas';
@@ -52,10 +52,10 @@ function chapterDetail(chapter: Chapter, subject: Subject): ChapterDetail {
   const candidates = db.list('members').filter((m) => {
     if (!activeIds.has(m.userId) || !isListedInDirectory(m, 'active')) return false;
     if (m.chapterId === chapter.id) return true;
-    const scope = assignmentFor(m.userId).scope;
-    return (
-      (scope.level === 'chapter' || scope.level === 'multi_chapter') &&
-      (scope.chapterIds ?? []).includes(chapter.id)
+    return assignmentsFor(m.userId).some(
+      ({ scope }) =>
+        (scope.level === 'chapter' || scope.level === 'multi_chapter') &&
+        (scope.chapterIds ?? []).includes(chapter.id),
     );
   });
   const leaders = candidates

@@ -2,7 +2,7 @@ import { ChevronDownIcon, LogOutIcon, UserRoundIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import { useAuth } from '@/auth';
+import { subjectTitleKey, useAuth } from '@/auth';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { labelKeys, useLocalized } from '@/i18n/public';
+import { useLocalized } from '@/i18n/public';
 import { paths } from '@/lib/routes';
 
 import { useSignOut } from './hooks';
@@ -26,7 +26,7 @@ export function UserMenu() {
   const { signOut, isSigningOut } = useSignOut();
   if (!member || !subject) return null;
   const name = text(member.displayName);
-  const roleLabel = t(labelKeys.role(subject.role));
+  const roleLabel = t(subjectTitleKey(subject));
 
   return (
     <DropdownMenu>

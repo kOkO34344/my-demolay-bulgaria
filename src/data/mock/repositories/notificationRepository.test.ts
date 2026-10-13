@@ -20,7 +20,7 @@ const broadcast = (audience: BroadcastInput['audience']): BroadcastInput => ({
 
 describe('notification repository', () => {
   it('lists only the signed-in user’s notifications, newest first, with filters', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const list = await notifications.list();
     expect(list.length).toBeGreaterThanOrEqual(12);
     expect(list.every((n) => n.userId === 'u-member')).toBe(true);
@@ -34,7 +34,7 @@ describe('notification repository', () => {
   });
 
   it('marks one or all as read; other people’s notifications are invisible', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const [first] = await notifications.list({ filter: 'unread' });
     await notifications.markRead(first?.id ?? '');
     expect(db.get('notifications', first?.id ?? '')?.readAt).not.toBeNull();
@@ -46,7 +46,7 @@ describe('notification repository', () => {
   });
 
   it('validates and stores notification preferences (email is simulated)', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const prefs = await notifications.getPreferences();
     const next: NotificationPreferences = {
       ...prefs,
@@ -71,10 +71,10 @@ describe('notification repository', () => {
         },
       },
     }));
-    signInAs('chapter_officer');
+    signInAs('chapter_chairman');
     const activeInChapter = db
       .find('members', (m) => m.chapterId === 'ch-1')
-      .filter((m) => db.get('users', m.userId)?.status === 'active' && m.userId !== 'u-officer');
+      .filter((m) => db.get('users', m.userId)?.status === 'active' && m.userId !== 'u-advisor');
     const before = notificationsOf('u-s06').length;
     const result = await notifications.broadcast(
       broadcast({ scope: 'chapter', chapterId: 'ch-1' }),
@@ -90,20 +90,20 @@ describe('notification repository', () => {
       notificationsOf(db.find('members', (m) => m.chapterId === 'ch-2')[0]?.userId ?? '')[0]?.title,
     ).not.toEqual(notificationsOf('u-member')[0]?.title);
     expect(auditEntries('notification.broadcast')[0]).toMatchObject({
-      actorId: 'u-officer',
+      actorId: 'u-advisor',
       chapterId: 'ch-1',
     });
   });
 
   it('national broadcasts need notification.send.national', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     await expect(notifications.broadcast(broadcast({ scope: 'national' }))).rejects.toMatchObject({
       permission: 'notification.send.national',
     });
     await expect(
       notifications.broadcast(broadcast({ scope: 'chapter', chapterId: 'ch-2' })),
     ).rejects.toBeInstanceOf(ForbiddenError);
-    signInAs('national_officer');
+    signInAs('national_coordinator');
     const result = await notifications.broadcast(broadcast({ scope: 'national' }));
     expect(result.recipientCount).toBe(
       db.count('users', (u) => u.status === 'active') - 1, // everyone except the sender

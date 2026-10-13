@@ -1,3 +1,4 @@
+import { sortRolesByRank } from '@/auth/roles';
 import type {
   Announcement,
   AttendanceRecord,
@@ -84,7 +85,9 @@ export function seedContent(ctx: SeedContext): ContentSeed {
     allMembers.map((m) => [m.userId, m.displayName]),
   );
   const actors: Record<ID, { role: Role; scope: ScopeLevel; chapterId: ID }> = {};
-  for (const assignment of [...people.roleAssignments, ...demo.roleAssignments]) {
+  // Highest-ranked role per user (people may hold several).
+  for (const assignment of sortRolesByRank([...people.roleAssignments, ...demo.roleAssignments])) {
+    if (actors[assignment.userId]) continue;
     const member = allMembers.find((m) => m.userId === assignment.userId);
     actors[assignment.userId] = {
       role: assignment.role,

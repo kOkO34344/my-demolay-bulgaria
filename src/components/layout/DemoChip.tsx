@@ -1,10 +1,10 @@
 import { FlaskConicalIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import { useAuth } from '@/auth';
+import { personaLabelKey, useAuth } from '@/auth';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { labelKeys } from '@/i18n/public';
+
 import { cn } from '@/lib/utils';
 
 import { DemoRoleSwitcher } from './DemoRoleSwitcher';
@@ -17,7 +17,7 @@ export function DemoChip({ className }: { className?: string }) {
   const { t } = useTranslation();
   const { isDemoMode, demoOverride } = useAuth();
   if (!isDemoMode) return null;
-  const roleName = demoOverride ? t(labelKeys.role(demoOverride.role)) : null;
+  const roleName = demoOverride ? t(personaLabelKey(demoOverride.persona)) : null;
 
   return (
     <Popover>

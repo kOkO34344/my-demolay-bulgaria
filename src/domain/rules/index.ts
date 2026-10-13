@@ -12,3 +12,4 @@ export * from './mappings';
 export * from './directory';
 export * from './chapters';
 export * from './resources';
+export * from './members';

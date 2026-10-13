@@ -1,40 +1,91 @@
-import { demoScopeFor } from '@/auth/subject';
-import type { ID, Role, Scope, SpecialAssignment, Subject } from '@/domain';
+import { DEMO_PERSONA_DEFINITIONS, personaRoles } from '@/auth/demoPersonas';
+import { ROLE_DEFINITIONS, sortRolesByRank } from '@/auth/roles';
+import { chapterScope, NATIONAL_SCOPE, SYSTEM_SCOPE } from '@/auth/scope';
+import { DEMO_USER_IDS } from '@/data/mock/seed/demoAccounts';
+import { DEMO_PERSONAS } from '@/domain';
+import type {
+  AccountStatus,
+  DemoPersonaId,
+  ID,
+  MemberType,
+  Role,
+  Scope,
+  SpecialAssignment,
+  Subject,
+  SubjectRole,
+} from '@/domain';
 
-/** Home chapters of the demo personas (see src/data/mock/seed/demoAccounts.ts). */
-const HOME: Record<Role, { userId: ID; chapterId: ID }> = {
-  member: { userId: 'u-member', chapterId: 'ch-1' },
-  chapter_officer: { userId: 'u-officer', chapterId: 'ch-1' },
-  chapter_advisor: { userId: 'u-advisor', chapterId: 'ch-1' },
-  national_officer: { userId: 'u-national-officer', chapterId: 'ch-2' },
-  national_admin: { userId: 'u-admin', chapterId: 'ch-3' },
+/** Home chapters of the demo accounts (see src/data/mock/seed/demoAccounts.ts). */
+const HOME: Record<DemoPersonaId, ID> = {
+  active_member: 'ch-1',
+  parent: 'ch-1',
+  chapter_secretary: 'ch-1',
+  chapter_chairman: 'ch-1',
+  chapter_treasurer: 'ch-1',
+  national_coordinator: 'ch-2',
+  sysadmin: 'ch-3',
 };
 
+interface SubjectOverrides {
+  userId?: ID;
+  homeChapterId?: ID;
+  memberType?: MemberType;
+  accountStatus?: AccountStatus;
+  linkedMemberIds?: ID[];
+  specialAssignments?: SpecialAssignment[];
+}
+
 /** Pure Subject for policy unit tests (no store needed). */
-export function buildSubjectFor(
-  role: Role,
-  overrides: {
-    scope?: Scope;
-    homeChapterId?: ID;
-    userId?: ID;
-    specialAssignments?: SpecialAssignment[];
-  } = {},
+export function buildSubject(
+  memberType: MemberType,
+  roles: SubjectRole[],
+  overrides: SubjectOverrides = {},
 ): Subject {
-  const home = HOME[role];
-  const homeChapterId = overrides.homeChapterId ?? home.chapterId;
   return {
-    userId: overrides.userId ?? home.userId,
-    role,
-    scope: overrides.scope ?? demoScopeFor(role, homeChapterId),
-    homeChapterId,
+    userId: overrides.userId ?? 'u-test',
+    memberType: overrides.memberType ?? memberType,
+    accountStatus: overrides.accountStatus ?? 'active',
+    homeChapterId: overrides.homeChapterId ?? 'ch-1',
+    linkedMemberIds: overrides.linkedMemberIds ?? [],
+    roles: sortRolesByRank(roles),
     specialAssignments: overrides.specialAssignments ?? [],
   };
 }
 
-export const subjectsByRole = (): Record<Role, Subject> => ({
-  member: buildSubjectFor('member'),
-  chapter_officer: buildSubjectFor('chapter_officer'),
-  chapter_advisor: buildSubjectFor('chapter_advisor'),
-  national_officer: buildSubjectFor('national_officer'),
-  national_admin: buildSubjectFor('national_admin'),
-});
+/** The Subject of a demo persona, as its demo account (ids and home chapters match the seed). */
+export function personaSubject(persona: DemoPersonaId, overrides: SubjectOverrides = {}): Subject {
+  const definition = DEMO_PERSONA_DEFINITIONS[persona];
+  const homeChapterId = overrides.homeChapterId ?? HOME[persona];
+  return buildSubject(definition.memberType, personaRoles(persona, homeChapterId), {
+    userId: DEMO_USER_IDS[persona],
+    linkedMemberIds: [...definition.linkedMemberIds],
+    ...overrides,
+    homeChapterId,
+  });
+}
+
+export const subjectsByPersona = (): Record<DemoPersonaId, Subject> =>
+  Object.fromEntries(DEMO_PERSONAS.map((p) => [p, personaSubject(p)])) as Record<
+    DemoPersonaId,
+    Subject
+  >;
+
+/** Default scope for a role held by someone whose home chapter is `chapterId`. */
+export function defaultScope(role: Role, chapterId: ID = 'ch-1'): Scope {
+  if (role === 'sysadmin') return SYSTEM_SCOPE;
+  return ROLE_DEFINITIONS[role].level === 'national' ? NATIONAL_SCOPE : chapterScope(chapterId);
+}
+
+/**
+ * A subject holding exactly one role (advisor member type for adult offices, active for youth
+ * chapter officers), at its default scope in ch-1.
+ */
+export function roleSubject(role: Role, overrides: SubjectOverrides = {}): Subject {
+  const youth: Role[] = ['ch_mc', 'ch_sc', 'ch_jc', 'ch_sec'];
+  const memberType: MemberType = youth.includes(role) ? 'active' : 'advisor';
+  const home = overrides.homeChapterId ?? 'ch-1';
+  return buildSubject(memberType, [{ role, scope: defaultScope(role, home) }], {
+    userId: `u-${role}`,
+    ...overrides,
+  });
+}

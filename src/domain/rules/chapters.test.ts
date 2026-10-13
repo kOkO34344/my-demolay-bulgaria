@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { summarizeChapter, type ChapterSummaryInput } from './chapters';
 import { matchesResourceLanguage, matchesResourceScope, canDownloadResource } from './resources';
-import { subjectsByRole } from '@/test/subjects';
+import { subjectsByPersona } from '@/test/subjects';
 
 const NOW = new Date('2026-10-12T09:00:00.000Z');
 const day = (offset: number) => new Date(NOW.getTime() + offset * 86_400_000).toISOString();
@@ -112,20 +112,20 @@ describe('resource rules', () => {
   });
 
   it('allows simulated downloads of visible, active resources only', () => {
-    const S = subjectsByRole();
+    const S = subjectsByPersona();
     const active = {
       chapterId: null,
       status: 'active' as const,
       visibility: 'all_members' as const,
     };
-    expect(canDownloadResource(S.member, active, NOW)).toBe(true);
-    expect(canDownloadResource(S.member, { ...active, visibility: 'leadership' }, NOW)).toBe(false);
-    expect(
-      canDownloadResource(S.chapter_officer, { ...active, visibility: 'leadership' }, NOW),
-    ).toBe(true);
-    expect(canDownloadResource(S.national_admin, { ...active, status: 'archived' }, NOW)).toBe(
+    expect(canDownloadResource(S.active_member, active, NOW)).toBe(true);
+    expect(canDownloadResource(S.active_member, { ...active, visibility: 'leadership' }, NOW)).toBe(
       false,
     );
+    expect(
+      canDownloadResource(S.chapter_secretary, { ...active, visibility: 'leadership' }, NOW),
+    ).toBe(true);
+    expect(canDownloadResource(S.sysadmin, { ...active, status: 'archived' }, NOW)).toBe(false);
     expect(canDownloadResource(null, active, NOW)).toBe(false);
   });
 });

@@ -3,15 +3,16 @@ import {
   canAny,
   canEditMemberProfile,
   canManageMember,
+  canVerifyAccount,
   canViewDirectory,
   canViewRoster,
 } from '@/auth/policy';
-import { roleRank } from '@/auth/roles';
+import { maxRoleRank } from '@/auth/roles';
 import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from '@/data/errors';
 import type { MemberRepository } from '@/data/repositories';
 import {
   appendAudit,
-  assignmentFor,
+  assignmentsFor,
   db,
   mockCall,
   requireSubject,
@@ -85,7 +86,11 @@ const STATUS_NOTIFICATION: Record<AccountStatus, string> = {
   active: 'accountActivated',
   suspended: 'accountSuspended',
   pending: 'accountPending',
+  expelled: 'accountExpelled',
 };
+
+/** Suspension and expulsion revoke every role immediately (docs/ROLES-AND-PERMISSIONS.md §5). */
+const REVOKING_STATUSES: readonly AccountStatus[] = ['suspended', 'expelled'];
 
 export function createMockMemberRepository(): MemberRepository {
   return {
@@ -169,7 +174,14 @@ export function createMockMemberRepository(): MemberRepository {
           .filter((s) =>
             matchesSearch(query.search, s.displayName, s.username, s.importedPosition?.title),
           )
-          .filter((s) => !query.role || query.role === 'all' || s.role === query.role)
+          .filter(
+            (s) =>
+              !query.role || query.role === 'all' || s.roles.some((r) => r.role === query.role),
+          )
+          .filter(
+            (s) =>
+              !query.memberType || query.memberType === 'all' || s.memberType === query.memberType,
+          )
           .filter((s) => !query.status || query.status === 'all' || s.status === query.status)
           .sort(
             (a, b) =>
@@ -206,18 +218,29 @@ export function createMockMemberRepository(): MemberRepository {
         const data = validateInput(memberStatusChangeSchema, input);
         const record = visibleMember(subject, data.userId);
         if (record.userId === subject.userId) throw new ForbiddenError('self_action');
-        if (!canManageMember(subject, record)) {
+        const user = db.require('users', record.userId, 'user');
+        // Activating a pending account is the administrator verification step.
+        if (user.status === 'pending' && data.status === 'active') {
+          if (!canVerifyAccount(subject, record)) {
+            throw new ForbiddenError('permission_denied', 'account.verify');
+          }
+        } else if (!canManageMember(subject, record)) {
           throw new ForbiddenError('permission_denied', 'member.access.manage');
         }
-        const targetRole = assignmentFor(record.userId).role;
+        const targetAssignments = assignmentsFor(record.userId);
         const systemManager = can(subject, 'member.access.manage', { level: 'national' });
-        if (!systemManager && roleRank(targetRole) >= roleRank(subject.role)) {
+        if (!systemManager && maxRoleRank(targetAssignments) >= maxRoleRank(subject.roles)) {
           throw new ForbiddenError('role_escalation');
         }
-        const user = db.require('users', record.userId, 'user');
         if (user.status === data.status) return toMemberDetail(record, subject);
+        const at = clock.nowIso();
         db.transaction(() => {
           db.update('users', record.userId, { status: data.status }, 'user');
+          if (REVOKING_STATUSES.includes(data.status)) {
+            for (const assignment of targetAssignments) {
+              db.upsert('roleAssignments', { ...assignment, endedAt: at });
+            }
+          }
           appendAudit(subject, {
             action: 'member.status_changed',
             entityType: 'member',
@@ -228,7 +251,13 @@ export function createMockMemberRepository(): MemberRepository {
               status: accountStatusLabel(data.status),
               reason: data.reason,
             }),
-            metadata: { from: user.status, to: data.status },
+            metadata: {
+              from: user.status,
+              to: data.status,
+              rolesEnded: REVOKING_STATUSES.includes(data.status)
+                ? targetAssignments.map((a) => a.role).join(',')
+                : '',
+            },
           });
           notifyUsers([record.userId], {
             category: 'account',

@@ -16,7 +16,7 @@ function renderLogin(options: { lang?: 'en' | 'bg'; demoMode?: boolean; route?: 
       <Route path="/events" element={<p>Events screen</p>} />
     </Routes>,
     {
-      role: null,
+      persona: null,
       route: options.route ?? '/login',
       lang: options.lang,
       demoMode: options.demoMode,
@@ -95,14 +95,14 @@ describe('LoginPage', () => {
     expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'text');
   });
 
-  it('reveals five demo accounts; choosing one fills the form (no auto-submit) and focuses Sign in', async () => {
+  it('reveals seven demo accounts; choosing one fills the form (no auto-submit) and focuses Sign in', async () => {
     const { user } = renderLogin();
     const disclosure = screen.getByRole('button', { name: 'Demo access' });
     await user.click(disclosure);
     expect(disclosure).toHaveAttribute('aria-expanded', 'true');
     const list = screen.getByRole('list', { name: 'Demo accounts' });
-    expect(within(list).getAllByRole('button')).toHaveLength(5);
-    await user.click(within(list).getByRole('button', { name: /Chapter Advisor/ }));
+    expect(within(list).getAllByRole('button')).toHaveLength(7);
+    await user.click(within(list).getByRole('button', { name: /Chapter Chairman/ }));
     expect(screen.getByLabelText('Username')).toHaveValue('advisor.demo');
     expect(screen.getByLabelText('Password')).toHaveValue('Demo!Advisor2026');
     expect(screen.getByRole('button', { name: 'Sign in' })).toHaveFocus();
@@ -113,7 +113,7 @@ describe('LoginPage', () => {
   it('signs in and continues to the requested page', async () => {
     const { user } = renderLogin({ route: '/login?redirect=%2Fevents' });
     await user.click(screen.getByRole('button', { name: 'Demo access' }));
-    await user.click(screen.getByRole('button', { name: /^Member/ }));
+    await user.click(screen.getByRole('button', { name: /^Active member/ }));
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(await screen.findByText('Events screen')).toBeInTheDocument();
   });
@@ -121,7 +121,7 @@ describe('LoginPage', () => {
   it('ignores unsafe redirect targets', async () => {
     const { user } = renderLogin({ route: '/login?redirect=%2F%2Fevil.example' });
     await user.click(screen.getByRole('button', { name: 'Demo access' }));
-    await user.click(screen.getByRole('button', { name: /^Member/ }));
+    await user.click(screen.getByRole('button', { name: /^Active member/ }));
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(await screen.findByText('Home screen')).toBeInTheDocument();
   });

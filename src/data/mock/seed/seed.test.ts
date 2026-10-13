@@ -58,10 +58,14 @@ const values = <T>(record: Record<string, T>): T[] => Object.values(record);
 function subjectIn(state: DatabaseState, userId: string): Subject {
   const { collections } = state;
   const member = collections.members[userId];
-  const assignment = collections.roleAssignments[`ra-${userId}`];
-  if (!member || !assignment) throw new Error(`no subject for ${userId}`);
+  const user = collections.users[userId];
+  if (!member || !user) throw new Error(`no subject for ${userId}`);
   return buildSubject({
-    assignment,
+    userId,
+    memberType: member.memberType,
+    accountStatus: user.status,
+    linkedMemberIds: member.linkedMemberIds,
+    assignments: values(collections.roleAssignments).filter((a) => a.userId === userId),
     homeChapterId: member.chapterId,
     specialAssignments: values(collections.specialAssignments).filter((s) => s.userId === userId),
     demoOverride: null,
@@ -99,9 +103,9 @@ describe('seed data', () => {
     ).toBeGreaterThanOrEqual(2);
     for (const id of [
       'map-ch-standard-bearer',
-      'map-ch-scribe',
+      'map-ch-secretary',
       'map-ch-advisor',
-      'map-nat-programme-coordinator',
+      'map-nat-coordinator',
     ]) {
       expect(c.positionMappings[id]).toBeDefined();
     }
@@ -224,7 +228,7 @@ describe('seed data', () => {
 
 describe('session persistence and reset', () => {
   it('persists writes for the browser session and resets while keeping the user signed in', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     const created = await createMockPostRepository().create({
       translations: { en: { title: 'Session check', summary: '', body: '' } },
       audience: { scope: 'chapter', chapterIds: ['ch-1'], visibility: 'all_members' },

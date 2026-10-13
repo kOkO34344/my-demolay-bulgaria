@@ -18,9 +18,17 @@ import type {
  *    (ties: most recently updated, then id — deterministic);
  *  - the scope comes from the mapping's scope level: chapter-level → the position's chapter
  *    (or the member's home chapter for national positions); national / system as is;
- *  - a MANUAL role assignment always takes precedence over mappings (sync keeps it);
- *  - a position with no active mapping is "unmapped" → a synchronisation exception.
+ *  - a mapping with `role: null` means the office carries no application role (valid);
+ *  - a position with no active mapping is "unmapped" → a synchronisation exception;
+ *  - the mapping manages only the member's position-derived assignment (`ra-<userId>-pos`).
+ *    Roles assigned manually by a system administrator are separate and never touched.
  */
+
+/** Id of the assignment derived from a member's imported position. */
+export const positionAssignmentId = (userId: ID): ID => `ra-${userId}-pos`;
+
+/** Id of a manual assignment (one per user and role). */
+export const manualAssignmentId = (userId: ID, role: Role): ID => `ra-${userId}-${role}`;
 
 /** Active mappings for a code, best first. */
 export function rankMappings(
@@ -64,8 +72,8 @@ export function scopeForMapping(
 }
 
 export type RoleResolution =
-  | { kind: 'manual_override'; role: Role; scope: Scope; assignmentId: ID }
   | { kind: 'mapped'; role: Role; scope: Scope; mapping: PositionRoleMapping }
+  | { kind: 'no_role'; mapping: PositionRoleMapping }
   | { kind: 'unmapped'; positionCode: string }
   | { kind: 'no_position' };
 
@@ -73,23 +81,15 @@ export interface RoleResolutionInput {
   position: ImportedPosition | null;
   homeChapterId: ID;
   mappings: readonly PositionRoleMapping[];
-  current: Pick<RoleAssignment, 'id' | 'role' | 'scope' | 'source'> | null;
 }
 
-/** Resolves the application role a member should hold (manual override → mapping → unmapped). */
+/** Resolves the role a member's imported position yields (mapping → no role → unmapped). */
 export function resolveMemberRole(input: RoleResolutionInput): RoleResolution {
-  const { position, homeChapterId, mappings, current } = input;
-  if (current?.source === 'manual') {
-    return {
-      kind: 'manual_override',
-      role: current.role,
-      scope: current.scope,
-      assignmentId: current.id,
-    };
-  }
+  const { position, homeChapterId, mappings } = input;
   if (!position) return { kind: 'no_position' };
   const mapping = findMappingForPosition(position.code, mappings);
   if (!mapping) return { kind: 'unmapped', positionCode: position.code };
+  if (mapping.role === null) return { kind: 'no_role', mapping };
   return {
     kind: 'mapped',
     role: mapping.role,
@@ -98,19 +98,16 @@ export function resolveMemberRole(input: RoleResolutionInput): RoleResolution {
   };
 }
 
-/** Does the current assignment differ from the resolved role/scope/mapping? */
+/** Does the current position assignment differ from the resolved role/scope/mapping? */
 export function assignmentNeedsUpdate(
-  current: Pick<RoleAssignment, 'role' | 'scope' | 'source' | 'mappingId'> | null,
+  current: Pick<RoleAssignment, 'role' | 'scope' | 'mappingId' | 'endedAt'> | null,
   role: Role,
   scope: Scope,
   mappingId: ID,
 ): boolean {
-  if (!current) return true;
+  if (!current || current.endedAt !== null) return true;
   return (
-    current.role !== role ||
-    !scopesEqual(current.scope, scope) ||
-    current.source !== 'mapping' ||
-    current.mappingId !== mappingId
+    current.role !== role || !scopesEqual(current.scope, scope) || current.mappingId !== mappingId
   );
 }
 
@@ -127,8 +124,8 @@ export function previewPositionMapping(
     positionCode,
     matchedMapping: matched,
     role: matched?.role ?? null,
-    scopeLevel: matched?.scopeLevel ?? null,
-    exampleScope: matched
+    scopeLevel: matched?.role ? matched.scopeLevel : null,
+    exampleScope: matched?.role
       ? scopeForMapping(
           matched.scopeLevel,
           example?.position ?? null,

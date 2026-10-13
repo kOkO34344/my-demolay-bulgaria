@@ -36,7 +36,7 @@ const chapterInput = (overrides: Partial<AnnouncementInput> = {}): AnnouncementI
 
 describe('post repository — scope filtering', () => {
   it('member feed: published national + own chapter, never leadership or other chapters', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const feed = await posts.list();
     const ids = feed.map((p) => p.id);
     expect(feed.every((p) => p.status === 'published')).toBe(true);
@@ -50,7 +50,7 @@ describe('post repository — scope filtering', () => {
   });
 
   it('feed filters: national, my chapter, unread, pinned and bilingual search', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const national = await posts.list({ feed: 'national' });
     expect(national.every((p) => p.audience.scope === 'national')).toBe(true);
     const chapter = await posts.list({ feed: 'chapter' });
@@ -68,11 +68,11 @@ describe('post repository — scope filtering', () => {
   });
 
   it('leaders see leadership content; national roles see every chapter', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     const officer = (await posts.list()).map((p) => p.id);
     expect(officer).toEqual(expect.arrayContaining([P.chapterLeadership, P.nationalLeadership]));
     expect(officer).not.toContain('ann-ch4-coastal-cleanup');
-    signInAs('national_officer');
+    signInAs('national_coordinator');
     const national = (await posts.list()).map((p) => p.id);
     expect(national).toEqual(
       expect.arrayContaining([P.multiChapter, 'ann-ch4-coastal-cleanup', P.chapterLeadership]),
@@ -80,7 +80,7 @@ describe('post repository — scope filtering', () => {
   });
 
   it('never leaks drafts or submissions to members (404)', async () => {
-    signInAs('member');
+    signInAs('active_member');
     await expect(posts.get(P.officerDraft)).rejects.toBeInstanceOf(NotFoundError);
     await expect(posts.get(P.advisorCanPublish)).rejects.toBeInstanceOf(NotFoundError);
     await expect(posts.get('ann-missing')).rejects.toBeInstanceOf(NotFoundError);
@@ -88,22 +88,22 @@ describe('post repository — scope filtering', () => {
   });
 
   it('management lists follow the subject’s scope', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     const advisor = await posts.listManaged({ status: 'submitted' });
     expect(advisor.map((p) => p.id).sort()).toEqual(
       [P.advisorCanPublish, P.advisorCanPublish2].sort(),
     );
-    signInAs('national_officer');
+    signInAs('national_coordinator');
     const national = await posts.listManaged({ status: 'submitted' });
     expect(national.map((p) => p.id)).toContain(P.nationalSubmitted);
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     const mine = await posts.listManaged({ authoredByMe: true, status: 'draft' });
     expect(mine.map((p) => p.id)).toEqual(expect.arrayContaining([P.officerDraft]));
     expect(mine.every((p) => p.authorId === 'u-officer')).toBe(true);
   });
 
   it('related posts are visible, published items', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const related = await posts.getRelated(P.nationalPinned);
     expect(related.length).toBeGreaterThan(0);
     expect(related.every((p) => p.status === 'published' && p.id !== P.nationalPinned)).toBe(true);
@@ -112,7 +112,7 @@ describe('post repository — scope filtering', () => {
 
 describe('post repository — workflow and side effects', () => {
   it('officer submits → chapter reviewers notified and audited', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     const before = notificationsOf('u-advisor').length;
     const view = await posts.submit(P.officerReturned);
     expect(view.status).toBe('submitted');
@@ -135,7 +135,7 @@ describe('post repository — workflow and side effects', () => {
   });
 
   it('cannot submit a draft whose Bulgarian version is missing', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     const error = await posts.submit(P.officerDraft).catch((e: unknown) => e);
     expect(error).toBeInstanceOf(ValidationError);
     expect((error as ValidationError).fieldErrors).toEqual({
@@ -144,7 +144,7 @@ describe('post repository — workflow and side effects', () => {
   });
 
   it('officers cannot publish, archive or create national content', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     await expect(posts.publish(P.advisorCanPublish)).rejects.toBeInstanceOf(ForbiddenError);
     await expect(posts.archive(P.chapterPinned)).rejects.toBeInstanceOf(ForbiddenError);
     await expect(
@@ -157,12 +157,12 @@ describe('post repository — workflow and side effects', () => {
   });
 
   it('members cannot create announcements', async () => {
-    signInAs('member');
+    signInAs('active_member');
     await expect(posts.create(chapterInput())).rejects.toBeInstanceOf(ForbiddenError);
   });
 
   it('advisor publishes a submission → audience and author notified, audited', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     const memberBefore = notificationsOf('u-member').length;
     const view = await posts.publish(P.advisorCanPublish);
     expect(view).toMatchObject({ status: 'published', reviewerId: 'u-advisor' });
@@ -180,12 +180,12 @@ describe('post repository — workflow and side effects', () => {
       false,
     );
     expect(auditEntries('post.published', P.advisorCanPublish)).toHaveLength(1);
-    signInAs('member');
+    signInAs('active_member');
     expect((await posts.list()).map((p) => p.id)).toContain(P.advisorCanPublish);
   });
 
   it('return to draft requires a note and notifies the author', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     await expect(posts.returnToDraft(P.advisorCanPublish, '  ')).rejects.toBeInstanceOf(
       ValidationError,
     );
@@ -199,12 +199,12 @@ describe('post repository — workflow and side effects', () => {
   });
 
   it('chapter advisors cannot see or publish national submissions', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     await expect(posts.publish(P.nationalSubmitted)).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it('national officer publishes the national draft and the national submission', async () => {
-    signInAs('national_officer');
+    signInAs('national_coordinator');
     expect((await posts.publish(P.nationalDraft)).status).toBe('published');
     expect((await posts.publish(P.nationalSubmitted)).status).toBe('published');
     // National content reaches members of every chapter.
@@ -215,7 +215,7 @@ describe('post repository — workflow and side effects', () => {
   });
 
   it('officer creates a draft, edits it and withdraws a submission', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     const created = await posts.create(chapterInput());
     expect(created).toMatchObject({ status: 'draft', chapterId: 'ch-1', authorId: 'u-officer' });
     expect(created.translationStatus).toEqual({ en: 'needs_review', bg: 'needs_review' });
@@ -231,7 +231,7 @@ describe('post repository — workflow and side effects', () => {
   });
 
   it('pinning requires publish rights; validation errors carry i18n keys', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     await expect(posts.create(chapterInput({ pinned: true }))).rejects.toMatchObject({
       permission: 'post.publish',
     });
@@ -254,11 +254,11 @@ describe('post repository — workflow and side effects', () => {
   });
 
   it('archive / restore by the advisor; archived items leave the feed', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     expect((await posts.archive(P.chapterPinned)).status).toBe('archived');
-    signInAs('member');
+    signInAs('active_member');
     expect((await posts.list()).map((p) => p.id)).not.toContain(P.chapterPinned);
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     const restored = await posts.restore(P.chapterPinned);
     expect(restored).toMatchObject({ status: 'draft', publishedAt: null });
     expect(auditEntries('post.archived', P.chapterPinned)).toHaveLength(1);
@@ -269,7 +269,7 @@ describe('post repository — workflow and side effects', () => {
   });
 
   it('markRead is idempotent and per member', async () => {
-    signInAs('member');
+    signInAs('active_member');
     await posts.markRead(P.nationalPinned);
     await posts.markRead(P.nationalPinned);
     expect((await posts.get(P.nationalPinned)).isRead).toBe(true);
@@ -279,7 +279,7 @@ describe('post repository — workflow and side effects', () => {
         (r) => r.postId === P.nationalPinned && r.userId === 'u-member',
       ),
     ).toBe(1);
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     expect((await posts.get(P.nationalPinned)).isRead).toBe(
       db.get('announcementReads', `${P.nationalPinned}:u-officer`) !== undefined,
     );

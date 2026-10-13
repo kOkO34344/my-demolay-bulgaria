@@ -52,3 +52,17 @@ Member area and priorities:
 - Crimson Pro: kept for Latin. Cyrillic glyphs fall back to EB Garamond, an OFL Garamond-family serif close to Crimson's proportions. To be confirmed by the product owner; alternatives are a single serif with Cyrillic (Source Serif 4, PT Serif) or Lato Bold for Bulgarian headings.
 - Bebas Neue: handled as the brief specifies (Lato Black, uppercase, wide tracking for Bulgarian).
 - Interface chrome (navigation, toolbars, codes) uses Lato Bold. Page, card and dialog titles use Crimson Pro. Date numerals use Bebas Neue.
+
+## 2026-10-13 — Reading the permission matrix (ROLES-AND-PERMISSIONS.md §4)
+
+Where the matrix is silent or ambiguous, the prototype does the following. Each point is open to correction by the product owner.
+
+- "Pay own dues" lists parents only. Following BRIEF.md and ROADMAP.md §3 (dues paid "by active members or by the parent linked to them"), active members, seniors and advisors also pay their own dues; parents pay for their linked children.
+- Publishing a draft event is its approval: `event.approve` gates publishing and cancelling. The Master Councillor creates chapter events as drafts that the Chapter Chairman approves.
+- "Upload chapter minutes" is chapter-level document upload. The National Coordinator uploads national documents only; the National Master Councillor publishes national posts only.
+- Permissions outside the matrix follow the nearest row: attendance with event creation (and the Chapter Secretary), contact data and chapter details with roster management, translations and chapter notifications with publishing, national notifications with mass email, seeing role holders with account approval.
+- The audit log and special (time-boxed) permissions belong to system administrators, because both rows sit with role assignment.
+- The "advisor" role carries no grants beyond the advisor member type; it records the general advisor post.
+- A parent sees no My Chapter page, because that page contains the directory.
+- A position from the member registry yields at most one role; ritual offices (Chaplain, Marshal, Standard Bearer and the like) yield none. System administrators add further roles by hand. Ending a role keeps it as history.
+- Suspension and expulsion end every role immediately; reactivation does not restore them.

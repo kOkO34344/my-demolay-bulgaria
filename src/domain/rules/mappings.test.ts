@@ -13,9 +13,9 @@ import {
 
 function mapping(overrides: Partial<PositionRoleMapping> & { id: string }): PositionRoleMapping {
   return {
-    positionCode: 'CH_SCRIBE',
+    positionCode: 'CH_SECRETARY',
     positionTitle: { en: 'Secretary', bg: 'Секретар' },
-    role: 'chapter_officer',
+    role: 'ch_sec',
     scopeLevel: 'chapter',
     priority: 100,
     active: true,
@@ -40,30 +40,31 @@ function position(code: string, chapterId: string | null): ImportedPosition {
 }
 
 const MAPPINGS: PositionRoleMapping[] = [
-  mapping({ id: 'map-scribe' }),
-  mapping({ id: 'map-scribe-legacy', role: 'member', priority: 500, active: false }),
-  mapping({ id: 'map-scribe-low', role: 'member', priority: 10 }),
+  mapping({ id: 'map-secretary' }),
+  mapping({ id: 'map-secretary-legacy', role: null, priority: 500, active: false }),
+  mapping({ id: 'map-secretary-low', role: null, priority: 10 }),
   mapping({
-    id: 'map-advisor',
-    positionCode: 'CH_ADVISOR',
-    role: 'chapter_advisor',
+    id: 'map-chairman',
+    positionCode: 'CH_CHAIRMAN',
+    role: 'ch_chairman',
     priority: 200,
   }),
   mapping({
     id: 'map-nat',
-    positionCode: 'NAT_PROGRAMME_COORDINATOR',
-    role: 'national_officer',
+    positionCode: 'NAT_COORDINATOR',
+    role: 'nat_coord',
     scopeLevel: 'national',
   }),
+  mapping({ id: 'map-chaplain', positionCode: 'CH_CHAPLAIN', role: null, priority: 50 }),
 ];
 
 describe('mapping resolution', () => {
   it('ignores inactive mappings and ranks by priority', () => {
-    expect(rankMappings('CH_SCRIBE', MAPPINGS).map((m) => m.id)).toEqual([
-      'map-scribe',
-      'map-scribe-low',
+    expect(rankMappings('CH_SECRETARY', MAPPINGS).map((m) => m.id)).toEqual([
+      'map-secretary',
+      'map-secretary-low',
     ]);
-    expect(findMappingForPosition('CH_SCRIBE', MAPPINGS)?.id).toBe('map-scribe');
+    expect(findMappingForPosition('CH_SECRETARY', MAPPINGS)?.id).toBe('map-secretary');
   });
 
   it('breaks priority ties by the most recent update, then id', () => {
@@ -72,7 +73,7 @@ describe('mapping resolution', () => {
       mapping({ id: 'a', priority: 50, updatedAt: '2026-09-01T00:00:00.000Z' }),
       mapping({ id: 'c', priority: 50, updatedAt: '2026-10-01T00:00:00.000Z' }),
     ];
-    expect(rankMappings('CH_SCRIBE', tied).map((m) => m.id)).toEqual(['c', 'a', 'b']);
+    expect(rankMappings('CH_SECRETARY', tied).map((m) => m.id)).toEqual(['c', 'a', 'b']);
   });
 
   it('turns the scope level into a concrete scope', () => {
@@ -91,25 +92,23 @@ describe('mapping resolution', () => {
   it('maps chapter positions to a chapter scope and national positions to national scope', () => {
     expect(
       resolveMemberRole({
-        position: position('CH_SCRIBE', 'ch-1'),
+        position: position('CH_SECRETARY', 'ch-1'),
         homeChapterId: 'ch-1',
         mappings: MAPPINGS,
-        current: null,
       }),
     ).toMatchObject({
       kind: 'mapped',
-      role: 'chapter_officer',
+      role: 'ch_sec',
       scope: { level: 'chapter', chapterIds: ['ch-1'] },
-      mapping: { id: 'map-scribe' },
+      mapping: { id: 'map-secretary' },
     });
     expect(
       resolveMemberRole({
-        position: position('NAT_PROGRAMME_COORDINATOR', null),
+        position: position('NAT_COORDINATOR', null),
         homeChapterId: 'ch-2',
         mappings: MAPPINGS,
-        current: null,
       }),
-    ).toMatchObject({ kind: 'mapped', role: 'national_officer', scope: { level: 'national' } });
+    ).toMatchObject({ kind: 'mapped', role: 'nat_coord', scope: { level: 'national' } });
   });
 
   it('reports unmapped positions (→ synchronisation exception) and members without one', () => {
@@ -118,7 +117,6 @@ describe('mapping resolution', () => {
         position: position('NAT_INSPECTOR', null),
         homeChapterId: 'ch-4',
         mappings: MAPPINGS,
-        current: null,
       }),
     ).toEqual({ kind: 'unmapped', positionCode: 'NAT_INSPECTOR' });
     expect(
@@ -126,62 +124,59 @@ describe('mapping resolution', () => {
         position: null,
         homeChapterId: 'ch-1',
         mappings: MAPPINGS,
-        current: null,
       }),
     ).toEqual({ kind: 'no_position' });
   });
 
-  it('gives a manual assignment precedence over every mapping', () => {
-    const result = resolveMemberRole({
-      position: position('CH_SCRIBE', 'ch-3'),
-      homeChapterId: 'ch-3',
-      mappings: MAPPINGS,
-      current: {
-        id: 'ra-u-v03',
-        role: 'chapter_advisor',
-        scope: { level: 'multi_chapter', chapterIds: ['ch-1', 'ch-3'] },
-        source: 'manual',
-      },
-    });
-    expect(result).toEqual({
-      kind: 'manual_override',
-      role: 'chapter_advisor',
-      scope: { level: 'multi_chapter', chapterIds: ['ch-1', 'ch-3'] },
-      assignmentId: 'ra-u-v03',
-    });
+  it('treats a rule without a role as a valid "no role" outcome, not an exception', () => {
+    expect(
+      resolveMemberRole({
+        position: position('CH_CHAPLAIN', 'ch-1'),
+        homeChapterId: 'ch-1',
+        mappings: MAPPINGS,
+      }),
+    ).toMatchObject({ kind: 'no_role', mapping: { id: 'map-chaplain' } });
   });
 
   it('detects whether a mapped assignment must change', () => {
     const scope = { level: 'chapter' as const, chapterIds: ['ch-1'] };
     const current = {
-      role: 'chapter_officer' as const,
+      role: 'ch_sec' as const,
       scope,
-      source: 'mapping' as const,
-      mappingId: 'map-scribe',
+      mappingId: 'map-secretary',
+      endedAt: null,
     };
-    expect(assignmentNeedsUpdate(current, 'chapter_officer', scope, 'map-scribe')).toBe(false);
-    expect(assignmentNeedsUpdate(current, 'member', scope, 'map-scribe')).toBe(true);
+    expect(assignmentNeedsUpdate(current, 'ch_sec', scope, 'map-secretary')).toBe(false);
+    expect(assignmentNeedsUpdate(current, 'ch_jc', scope, 'map-secretary')).toBe(true);
     expect(
       assignmentNeedsUpdate(
         current,
-        'chapter_officer',
+        'ch_sec',
         { level: 'chapter', chapterIds: ['ch-2'] },
-        'map-scribe',
+        'map-secretary',
       ),
     ).toBe(true);
-    expect(assignmentNeedsUpdate(current, 'chapter_officer', scope, 'map-other')).toBe(true);
-    expect(assignmentNeedsUpdate(null, 'member', scope, 'map-scribe')).toBe(true);
+    expect(assignmentNeedsUpdate(current, 'ch_sec', scope, 'map-other')).toBe(true);
+    expect(
+      assignmentNeedsUpdate(
+        { ...current, endedAt: '2026-01-01T00:00:00.000Z' },
+        'ch_sec',
+        scope,
+        'map-secretary',
+      ),
+    ).toBe(true);
+    expect(assignmentNeedsUpdate(null, 'ch_sec', scope, 'map-secretary')).toBe(true);
   });
 
   it('previews a rule without applying it', () => {
     const holders = [
-      { chapterId: 'ch-2', position: position('CH_ADVISOR', 'ch-2') },
-      { chapterId: 'ch-1', position: position('CH_ADVISOR', 'ch-1') },
+      { chapterId: 'ch-2', position: position('CH_CHAIRMAN', 'ch-2') },
+      { chapterId: 'ch-1', position: position('CH_CHAIRMAN', 'ch-1') },
     ];
-    expect(previewPositionMapping('CH_ADVISOR', MAPPINGS, holders, 'ch-9')).toMatchObject({
-      positionCode: 'CH_ADVISOR',
-      matchedMapping: { id: 'map-advisor' },
-      role: 'chapter_advisor',
+    expect(previewPositionMapping('CH_CHAIRMAN', MAPPINGS, holders, 'ch-9')).toMatchObject({
+      positionCode: 'CH_CHAIRMAN',
+      matchedMapping: { id: 'map-chairman' },
+      role: 'ch_chairman',
       scopeLevel: 'chapter',
       exampleScope: { level: 'chapter', chapterIds: ['ch-2'] },
       affectedMemberCount: 2,

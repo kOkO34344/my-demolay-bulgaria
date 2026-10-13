@@ -22,7 +22,7 @@ const inputFrom = (chapter: ChapterInput): ChapterInput => ({
 
 describe('chapter repository', () => {
   it('lists the five real chapters (fictional members only) for any signed-in member', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const list = await chapters.list();
     expect(list.map((c) => c.id)).toEqual(['ch-1', 'ch-2', 'ch-3', 'ch-4', 'ch-5']);
     expect(list[0]?.name.bg).toBe('Обител „Света София“');
@@ -30,7 +30,7 @@ describe('chapter repository', () => {
   });
 
   it('details include privacy-safe leaders and are scoped', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const detail = await chapters.get('ch-1');
     const leaderIds = detail.leaders.map((l) => l.id);
     expect(leaderIds).toEqual(expect.arrayContaining(['u-officer', 'u-advisor', 'u-s12']));
@@ -41,18 +41,18 @@ describe('chapter repository', () => {
   });
 
   it('summaries cover the chapters in scope', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     const own = await chapters.summaries();
     expect(own.map((s) => s.chapterId)).toEqual(['ch-1']);
     expect(own[0]?.pendingApprovalCount).toBe(2);
-    signInAs('national_officer');
+    signInAs('national_coordinator');
     const all = await chapters.summaries();
     expect(all).toHaveLength(5);
     expect(all.every((s) => s.memberCount >= s.activeMemberCount)).toBe(true);
   });
 
   it('administrators update chapters (audited); others cannot', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const current = await chapters.get('ch-3');
     const updated = await chapters.update('ch-3', {
       ...inputFrom(current),
@@ -71,14 +71,14 @@ describe('chapter repository', () => {
     await expect(
       chapters.update('ch-3', { ...inputFrom(current), name: { en: 'Varna', bg: '' } }),
     ).rejects.toBeInstanceOf(ValidationError);
-    signInAs('chapter_advisor');
+    signInAs('chapter_secretary');
     await expect(
       chapters.update('ch-1', inputFrom(await chapters.get('ch-1'))),
     ).rejects.toBeInstanceOf(ForbiddenError);
   });
 
   it('creates new (demo) chapters with the next id', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const base = inputFrom(await chapters.get('ch-5'));
     const created = await chapters.create({
       ...base,
@@ -89,7 +89,7 @@ describe('chapter repository', () => {
     });
     expect(created).toMatchObject({ id: 'ch-6', isFictional: true, status: 'inactive' });
     expect(auditEntries('chapter.created', 'ch-6')).toHaveLength(1);
-    signInAs('national_officer');
+    signInAs('national_coordinator');
     await expect(chapters.create({ ...base, slug: 'demo-ruse' })).rejects.toBeInstanceOf(
       ForbiddenError,
     );

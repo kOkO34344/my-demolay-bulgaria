@@ -10,6 +10,7 @@ import type {
   SyncJobDetail,
 } from '@/domain';
 import { clock } from '@/lib/clock';
+import { positionAssignmentId } from '@/domain/rules/mappings';
 
 import { chapterName, msg, validateInput } from '../helpers';
 import { roleLabel, scopeLabel } from '../services/labels';
@@ -146,11 +147,11 @@ export function createMockSyncRepository(): SyncRepository {
               appendAudit(subject, {
                 action: 'role.assigned',
                 entityType: 'role_assignment',
-                entityId: `ra-${member.userId}`,
+                entityId: positionAssignmentId(member.userId),
                 chapterId: member.chapterId,
                 summary: msg('messages.audit.roleSynced', {
                   name: member.displayName,
-                  role: roleLabel(change.toRole ?? 'member'),
+                  role: roleLabel(change.toRole),
                   scope: scopeLabel(
                     change.scope ?? { level: 'chapter', chapterIds: [member.chapterId] },
                     chapterName,

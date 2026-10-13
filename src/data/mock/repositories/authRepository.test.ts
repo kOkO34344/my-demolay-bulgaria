@@ -1,3 +1,4 @@
+import { DEMO_PERSONA_DEFINITIONS } from '@/auth/demoPersonas';
 import { describe, expect, it } from 'vitest';
 
 import { DEMO_CREDENTIALS } from '@/auth/demoCredentials';
@@ -15,13 +16,18 @@ import { createMockAuthRepository, LOCKOUT_SECONDS, MAX_FAILED_ATTEMPTS } from '
 const auth = createMockAuthRepository();
 
 describe('mock auth repository', () => {
-  it.each(DEMO_CREDENTIALS.map((c) => [c.role, c.username, c.password, c.userId] as const))(
+  it.each(DEMO_CREDENTIALS.map((c) => [c.persona, c.username, c.password, c.userId] as const))(
     'signs in the %s demo account',
-    async (role, username, password, userId) => {
+    async (persona, username, password, userId) => {
       const session = await auth.login({ username, password, remember: true });
+      const definition = DEMO_PERSONA_DEFINITIONS[persona];
       expect(session.user.id).toBe(userId);
-      expect(session.subject.role).toBe(role);
-      expect(session.member.importedPosition?.isDemoData).toBe(true);
+      expect(session.subject.memberType).toBe(definition.memberType);
+      expect(session.subject.roles.map((r) => r.role).sort()).toEqual(
+        definition.roles.map((r) => r.role).sort(),
+      );
+      expect(session.subject.linkedMemberIds).toEqual(definition.linkedMemberIds);
+      if (persona !== 'parent') expect(session.member.importedPosition?.isDemoData).toBe(true);
       expect(session.member.private.email).toMatch(/@example\.org$/);
       expect(await auth.getSession()).toMatchObject({ user: { id: userId } });
     },

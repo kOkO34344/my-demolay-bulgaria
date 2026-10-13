@@ -1,10 +1,25 @@
-import type { Role, RoleAssignment, Scope, SpecialAssignment } from './access';
+import type { MemberType, Role, RoleAssignment, SpecialAssignment, SubjectRole } from './access';
 import type { ID, ISODate, ISODateTime, LocalizedText, PageQuery } from './common';
 import type { NotificationPreferences } from './notifications';
 import type { ImportedPosition } from './positions';
 
-export const ACCOUNT_STATUSES = ['active', 'suspended', 'pending'] as const;
+/**
+ * pending = signed up, awaiting administrator verification; suspended / expelled = every permission
+ * revoked immediately (docs/ROLES-AND-PERMISSIONS.md §5).
+ */
+export const ACCOUNT_STATUSES = ['active', 'suspended', 'pending', 'expelled'] as const;
 export type AccountStatus = (typeof ACCOUNT_STATUSES)[number];
+
+/** Documents a member signs at signup; version and timestamp are recorded (docs/BRIEF.md › Login). */
+export const CONSENT_KINDS = ['privacy', 'terms', 'photo'] as const;
+export type ConsentKind = (typeof CONSENT_KINDS)[number];
+
+export interface ConsentRecord {
+  kind: ConsentKind;
+  /** Version of the signed document, e.g. "2026-09". */
+  version: string;
+  acceptedAt: ISODateTime;
+}
 
 /** Login account (credentials are never exposed to the client). */
 export interface User {
@@ -32,8 +47,10 @@ export interface PrivacySettings {
 export interface MemberPrivateFields {
   email: string;
   phone: string | null;
+  /** Mandatory for active members (minimum age 14; senior transition at 21). */
   birthDate: ISODate | null;
   address: string | null;
+  consents: ConsentRecord[];
 }
 
 /** Public member profile (no restricted fields). */
@@ -44,6 +61,12 @@ export interface MemberProfile {
   /** Usually "First Last" in each script (Latin for EN, Cyrillic for BG). */
   displayName: LocalizedText;
   avatarUrl: string | null;
+  /** Governs what the person sees (docs/ROLES-AND-PERMISSIONS.md §2). */
+  memberType: MemberType;
+  /** DeMolay International member id — active members, seniors and advisors; null for parents. */
+  demId: string | null;
+  /** Parents: the members they are linked to (their children). Empty for everyone else. */
+  linkedMemberIds: ID[];
   /** Home chapter — managed by synchronisation/administration, not editable by the member. */
   chapterId: ID;
   /** Imported organizational position (demo data) — not editable by the member. */
@@ -95,8 +118,9 @@ export interface MemberSummary {
   avatarUrl: string | null;
   chapterId: ID;
   status: AccountStatus;
-  role: Role;
-  scope: Scope;
+  memberType: MemberType;
+  /** Active roles, highest rank first (may be empty). */
+  roles: SubjectRole[];
   importedPosition: ImportedPosition | null;
   joinedAt: ISODate;
   lastLoginAt: ISODateTime | null;
@@ -105,7 +129,8 @@ export interface MemberSummary {
 /** Full staff view of a member. `private` is null unless the viewer may see restricted fields. */
 export interface MemberDetail extends MemberProfile {
   account: User;
-  roleAssignment: RoleAssignment | null;
+  /** Active role assignments (ended terms excluded). */
+  roleAssignments: RoleAssignment[];
   specialAssignments: SpecialAssignment[];
   private: MemberPrivateFields | null;
 }
@@ -115,6 +140,7 @@ export interface MemberListQuery extends PageQuery {
   /** Omit for all chapters. */
   chapterId?: ID;
   role?: Role | 'all';
+  memberType?: MemberType | 'all';
   status?: AccountStatus | 'all';
 }
 

@@ -23,7 +23,7 @@ function expectNoContactData(value: unknown): void {
 
 describe('member repository — privacy-first directory', () => {
   it('ordinary members only get DirectoryEntry projections', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const entries = await members.directory('ch-1');
     expect(entries.length).toBeGreaterThan(8);
     for (const entry of entries) {
@@ -42,20 +42,20 @@ describe('member repository — privacy-first directory', () => {
   });
 
   it('directories of other chapters are out of scope for members', async () => {
-    signInAs('member');
+    signInAs('active_member');
     await expect(members.directory('ch-2')).rejects.toBeInstanceOf(ForbiddenError);
     await expect(members.directory('ch-404')).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it('members cannot list or open staff member records', async () => {
-    signInAs('member');
+    signInAs('active_member');
     await expect(members.list({})).rejects.toBeInstanceOf(ForbiddenError);
     await expect(members.get('u-s01')).rejects.toBeInstanceOf(NotFoundError);
     expect((await members.getMe()).private.email).toMatch(/@example\.org$/);
   });
 
-  it('officers get a chapter roster without contact data', async () => {
-    signInAs('chapter_officer');
+  it('officers without roster duties get a chapter roster without contact data', async () => {
+    signInAs('chapter_treasurer');
     const page = await members.list({ pageSize: 100 });
     expect(page.items.every((m) => m.chapterId === 'ch-1')).toBe(true);
     expect(page.total).toBe(db.count('members', (m) => m.chapterId === 'ch-1'));
@@ -66,25 +66,28 @@ describe('member repository — privacy-first directory', () => {
   });
 
   it('advisors see restricted fields within their chapter; admins everywhere', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     expect((await members.get('u-s01')).private?.email).toMatch(/@example\.org$/);
     await expect(members.get('u-p01')).rejects.toBeInstanceOf(NotFoundError);
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const all = await members.list({ pageSize: 200 });
     expect(all.total).toBe(db.count('members'));
     expect((await members.get('u-p01')).private).not.toBeNull();
     const suspended = await members.list({ status: 'suspended' });
     expect(suspended.items.every((m) => m.status === 'suspended')).toBe(true);
-    const officers = await members.list({ role: 'chapter_officer', chapterId: 'ch-2' });
-    expect(
-      officers.items.every((m) => m.role === 'chapter_officer' && m.chapterId === 'ch-2'),
-    ).toBe(true);
+    const secretaries = await members.list({ role: 'ch_sec', chapterId: 'ch-2' });
+    expect(secretaries.items.map((m) => m.userId)).toEqual(['u-p03']);
+    const parents = await members.list({ memberType: 'parent' });
+    expect(parents.items.length).toBeGreaterThan(0);
+    expect(parents.items.every((m) => m.memberType === 'parent' && m.roles.length === 0)).toBe(
+      true,
+    );
     const search = await members.list({ search: 'Илиев' });
     expect(search.items.map((m) => m.userId)).toContain('u-s01');
   });
 
   it('national officers get the national roster but never restricted fields', async () => {
-    signInAs('national_officer');
+    signInAs('national_coordinator');
     const roster = await members.list({ pageSize: 200 });
     expect(new Set(roster.items.map((m) => m.chapterId)).size).toBe(5);
     expectNoContactData(roster.items);
@@ -94,7 +97,7 @@ describe('member repository — privacy-first directory', () => {
 
 describe('member repository — account status', () => {
   it('advisor suspends a chapter member → audit + notification to the member', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     const detail = await members.setStatus({
       userId: 'u-s07',
       status: 'suspended',
@@ -113,7 +116,7 @@ describe('member repository — account status', () => {
   });
 
   it('reactivates the suspended account and activates the pending one', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     expect(
       (await members.setStatus({ userId: M.suspended, status: 'active', reason: 'Dues paid.' }))
         .account.status,
@@ -125,7 +128,7 @@ describe('member repository — account status', () => {
   });
 
   it('refuses self-changes, escalation and missing permissions', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     await expect(
       members.setStatus({ userId: 'u-advisor', status: 'suspended', reason: 'Testing myself' }),
     ).rejects.toMatchObject({ reason: 'self_action' });
@@ -139,7 +142,7 @@ describe('member repository — account status', () => {
     await expect(
       members.setStatus({ userId: 'u-s07', status: 'suspended', reason: 'no' }),
     ).rejects.toBeInstanceOf(ValidationError);
-    signInAs('chapter_officer');
+    signInAs('chapter_treasurer');
     await expect(
       members.setStatus({ userId: 'u-s07', status: 'suspended', reason: 'Not my call' }),
     ).rejects.toBeInstanceOf(ForbiddenError);
@@ -148,7 +151,7 @@ describe('member repository — account status', () => {
 
 describe('member repository — own profile and messages', () => {
   it('members can change only bio, avatar, phone and privacy', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const input = {
       bio: 'Robotics and football.',
       phone: '+359 000 000 999',
@@ -171,7 +174,7 @@ describe('member repository — own profile and messages', () => {
   });
 
   it('in-app messages notify the recipient and never expose contact data', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const sent = await members.sendMessage({
       toUserId: 'u-officer',
       subject: 'Bowling night',
@@ -183,7 +186,7 @@ describe('member repository — own profile and messages', () => {
       category: 'chapter',
       link: { entityType: 'message', entityId: sent.id },
     });
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     const inbox = await members.listMyMessages();
     expect(inbox[0]).toMatchObject({ id: sent.id, direction: 'inbound', readAt: null });
     await members.markMessageRead(sent.id);
@@ -191,7 +194,7 @@ describe('member repository — own profile and messages', () => {
   });
 
   it('respects the recipient’s message setting and refuses messages to yourself', async () => {
-    signInAs('member');
+    signInAs('active_member');
     await expect(
       members.sendMessage({ toUserId: M.noMessages, subject: 'Hi', body: 'Hello' }),
     ).rejects.toBeInstanceOf(ConflictError);

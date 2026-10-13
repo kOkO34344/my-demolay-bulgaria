@@ -18,6 +18,9 @@ const RECORD: MemberRecord = {
   lastName: { en: 'Iliev', bg: 'Илиев' },
   displayName: { en: 'Daniel Iliev', bg: 'Даниел Илиев' },
   avatarUrl: null,
+  memberType: 'active',
+  demId: 'DEM-BG-10402',
+  linkedMemberIds: [],
   chapterId: 'ch-1',
   importedPosition: {
     code: 'CH_MASTER_COUNCILOR',
@@ -49,6 +52,7 @@ const RECORD: MemberRecord = {
     phone: '+359 000 000 201',
     birthDate: '2008-03-14',
     address: 'ул. „Примерна“ 21, София (fictional)',
+    consents: [],
   },
 };
 

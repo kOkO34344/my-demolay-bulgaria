@@ -19,7 +19,7 @@ describe('LanguageToggle', () => {
         <LanguageToggle />
         <TranslatedProbe />
       </>,
-      { role: null },
+      { persona: null },
     );
 
     const group = screen.getByRole('radiogroup', { name: 'Language' });
@@ -45,14 +45,14 @@ describe('LanguageToggle', () => {
   });
 
   it('keeps the current language when the active option is pressed again', async () => {
-    const { user } = renderWithProviders(<LanguageToggle />, { role: null });
+    const { user } = renderWithProviders(<LanguageToggle />, { persona: null });
     await user.click(screen.getByRole('radio', { name: /^EN/ }));
     expect(i18n.language).toBe('en');
     expect(screen.getByRole('radio', { name: /^EN/ })).toHaveAttribute('aria-checked', 'true');
   });
 
   it('shows language names (endonyms) in the settings variant', () => {
-    renderWithProviders(<LanguageToggle showNames />, { role: null, lang: 'bg' });
+    renderWithProviders(<LanguageToggle showNames />, { persona: null, lang: 'bg' });
     expect(screen.getByRole('radio', { name: 'English' })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: 'Български' })).toHaveAttribute(
       'aria-checked',

@@ -1,5 +1,5 @@
 import { canViewEventNotes, canViewMemberPrivateFields } from '@/auth/policy';
-import { assignmentFor, db, type MemberRecord } from '@/data/store';
+import { assignmentsFor, db, type MemberRecord } from '@/data/store';
 import { computeParticipantTotals } from '@/domain/rules/events';
 import { toDirectoryEntry } from '@/domain/rules/directory';
 import type {
@@ -70,6 +70,9 @@ export function toMemberProfile(record: MemberRecord): MemberProfile {
     lastName: record.lastName,
     displayName: record.displayName,
     avatarUrl: record.avatarUrl,
+    memberType: record.memberType,
+    demId: record.demId,
+    linkedMemberIds: [...record.linkedMemberIds],
     chapterId: record.chapterId,
     importedPosition: record.importedPosition,
     joinedAt: record.joinedAt,
@@ -90,7 +93,6 @@ export function toCurrentMember(record: MemberRecord): CurrentMember {
 /** Staff roster row — never contains contact data. */
 export function toMemberSummary(record: MemberRecord): MemberSummary {
   const user = db.require('users', record.userId, 'user');
-  const assignment = assignmentFor(record.userId);
   return {
     userId: record.userId,
     username: user.username,
@@ -98,8 +100,8 @@ export function toMemberSummary(record: MemberRecord): MemberSummary {
     avatarUrl: record.avatarUrl,
     chapterId: record.chapterId,
     status: user.status,
-    role: assignment.role,
-    scope: assignment.scope,
+    memberType: record.memberType,
+    roles: assignmentsFor(record.userId).map((a) => ({ role: a.role, scope: a.scope })),
     importedPosition: record.importedPosition,
     joinedAt: record.joinedAt,
     lastLoginAt: user.lastLoginAt,
@@ -112,12 +114,10 @@ export function toMemberDetail(
   subject: Subject,
   now: Date = clock.now(),
 ): MemberDetail {
-  const assignment =
-    db.get('roleAssignments', `ra-${record.userId}`) ?? assignmentFor(record.userId);
   return {
     ...toMemberProfile(record),
     account: db.require('users', record.userId, 'user'),
-    roleAssignment: assignment,
+    roleAssignments: assignmentsFor(record.userId),
     specialAssignments: db
       .find('specialAssignments', (sa) => sa.userId === record.userId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),

@@ -18,6 +18,7 @@ import type {
 import { clock } from '@/lib/clock';
 import { createId } from '@/lib/ids';
 import { paths } from '@/lib/routes';
+import { positionAssignmentId } from '@/domain/rules/mappings';
 
 import { chapterName, msg } from '../helpers';
 import { POSITION_SOURCE } from '../seed/demoAccounts';
@@ -202,7 +203,7 @@ function finishJob(job: SyncJob, now: Date): void {
       }
     }
 
-    // 3. Recalculate roles through the mappings (manual overrides are kept).
+    // 3. Recalculate position-derived roles through the mappings (manual roles are kept).
     const roleChanges: RoleChange[] = [];
     let newExceptions = 0;
     const imported = db
@@ -215,12 +216,12 @@ function finishJob(job: SyncJob, now: Date): void {
         appendAudit(null, {
           action: 'role.assigned',
           entityType: 'role_assignment',
-          entityId: `ra-${member.userId}`,
+          entityId: positionAssignmentId(member.userId),
           chapterId: member.chapterId,
           scope: 'system',
           summary: msg('messages.audit.roleSynced', {
             name: member.displayName,
-            role: roleLabel(change.toRole ?? 'member'),
+            role: roleLabel(change.toRole),
             scope: scopeText(change.scope ?? { level: 'chapter', chapterIds: [member.chapterId] }),
           }),
           metadata: {

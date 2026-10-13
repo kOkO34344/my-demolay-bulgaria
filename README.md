@@ -18,7 +18,7 @@ The four brief documents are imported from the original project repository and s
 
 | Brief, Phase 1 | Prototype |
 |---|---|
-| Roles and permissions | Done: member types plus national and chapter roles, enforced in `src/auth` |
+| Roles and permissions | Done: member types plus national and chapter roles (zero or more per person), enforced in `src/auth` and pinned to the matrix by `src/auth/policy.test.ts` |
 | Feed with approval flow | Done: news, with draft → submitted → published |
 | Calendar | Done: events with RSVP and attendance |
 | Documents and rituals | Done: resources by category, with rituals restricted |
@@ -52,10 +52,14 @@ npm run dev
 
 Demo mode (`VITE_DEMO_MODE=true`, the default) shows sign-in cards on the login page and a role switcher in the app. All people, chapters' meeting details and content are fictional.
 
-| Username | Password | Who |
+| Username | Password | Persona |
 |---|---|---|
-| `member.demo` | `Demo!Member2026` | Member, Sofia |
-| `officer.demo` | `Demo!Officer2026` | Chapter officer, Sofia |
-| `advisor.demo` | `Demo!Advisor2026` | Chapter advisor, Sofia |
-| `national.officer.demo` | `Demo!National2026` | National officer |
-| `admin.demo` | `Demo!Admin2026` | System administrator |
+| `member.demo` | `Demo!Member2026` | Active member, Sofia, no role |
+| `parent.demo` | `Demo!Parent2026` | Parent linked to `member.demo` |
+| `officer.demo` | `Demo!Officer2026` | Chapter Secretary, Sofia |
+| `advisor.demo` | `Demo!Advisor2026` | Chapter Chairman, Sofia |
+| `treasurer.demo` | `Demo!Treasurer2026` | Chapter Treasurer, Sofia |
+| `national.officer.demo` | `Demo!National2026` | National Coordinator |
+| `admin.demo` | `Demo!Admin2026` | National Representative and system administrator |
+
+The role switcher lets any signed-in demo account act as one of these personas.

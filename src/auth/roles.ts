@@ -11,12 +11,28 @@ import { labelKeys } from '@/i18n/labels';
 
 export { ROLES, type Role };
 
-const grant = (permission: Permission, scope: ScopeLevel): PermissionGrant => ({
-  permission,
-  scope,
-});
+/**
+ * Role grants — docs/ROLES-AND-PERMISSIONS.md §4, cell for cell. Matrix legend → grant scope:
+ *   Y (national role) → 'national' (or 'system' for sysadmin); C → 'chapter'; S → post.submit only.
+ * Reading (feed, calendar, documents, rituals, directory) comes from the member type
+ * (src/auth/memberTypes.ts); national roles widen it to every chapter.
+ * Permissions outside the matrix (attendance, translations, notifications, role.read) follow the
+ * nearest matrix row and are noted inline. src/auth/policy.test.ts pins every cell.
+ */
 
-/** Adds/overrides grants by permission (later wins), preserving catalogue order. */
+const grant = (
+  permission: Permission,
+  scope: ScopeLevel,
+  options: Pick<PermissionGrant, 'nationalOnly' | 'linked'> = {},
+): PermissionGrant => ({ permission, scope, ...options });
+
+const grants = (
+  permissions: readonly Permission[],
+  scope: ScopeLevel,
+  options?: Pick<PermissionGrant, 'nationalOnly'>,
+): PermissionGrant[] => permissions.map((p) => grant(p, scope, options));
+
+/** Adds grants by permission (later layers win), preserving catalogue order. */
 function compose(...layers: PermissionGrant[][]): PermissionGrant[] {
   const byPermission = new Map<Permission, PermissionGrant>();
   for (const layer of layers) for (const g of layer) byPermission.set(g.permission, g);
@@ -25,133 +41,210 @@ function compose(...layers: PermissionGrant[][]): PermissionGrant[] {
   );
 }
 
-/**
- * Member — reads authorised news/events/resources, RSVPs for themself, views their own chapter
- * (incl. the privacy-safe directory via chapter.read), manages their own profile and notifications.
- */
-const MEMBER: PermissionGrant[] = [
-  grant('feed.read', 'chapter'),
-  grant('event.read', 'chapter'),
-  grant('event.rsvp', 'self'),
-  grant('resource.read', 'chapter'),
-  grant('chapter.read', 'chapter'),
-  grant('member.profile.read', 'self'),
-  grant('member.profile.update', 'self'),
-  grant('notification.read', 'self'),
+// ---------------------------------------------------------------------------------------------
+// Capabilities = matrix rows
+// ---------------------------------------------------------------------------------------------
+
+/** Read row + "Read member directory", widened to every chapter. */
+const READ_EVERYWHERE: Permission[] = [
+  'feed.read',
+  'event.read',
+  'resource.read',
+  'ritual.read',
+  'chapter.read',
+  'chapter.directory.read',
 ];
 
-/**
- * Chapter Officer — everything a Member can do, plus: draft/edit/submit chapter announcements,
- * create/update chapter events, see participants, record attendance, manage chapter resources,
- * view the chapter roster (no contact data), notify the chapter, write translations.
- */
-const CHAPTER_OFFICER = compose(MEMBER, [
-  grant('post.create', 'chapter'),
-  grant('post.update', 'chapter'),
-  grant('post.submit', 'chapter'),
-  grant('event.create', 'chapter'),
-  grant('event.update', 'chapter'),
-  grant('event.participants.read', 'chapter'),
-  grant('attendance.read', 'chapter'),
-  grant('attendance.manage', 'chapter'),
-  grant('resource.upload', 'chapter'),
-  grant('resource.update', 'chapter'),
-  grant('resource.archive', 'chapter'),
-  grant('chapter.directory.read', 'chapter'),
-  grant('notification.send.chapter', 'chapter'),
-  grant('translation.create', 'chapter'),
+/** "Publish national post" / "Publish chapter post" (+ translations and notifications for it). */
+const PUBLISH: Permission[] = [
+  'post.create',
+  'post.update',
+  'post.submit',
+  'post.publish',
+  'post.archive',
+  'translation.create',
+  'notification.send.chapter',
+];
+
+/** "S": draft and submit for approval only. */
+const SUBMIT: Permission[] = ['post.create', 'post.update', 'post.submit', 'translation.create'];
+
+/** "Approve chapter post" (+ reviewing translations). */
+const APPROVE_POSTS: Permission[] = ['post.approve', 'translation.review'];
+
+/** "Create chapter event" (+ running it: participants and attendance). */
+const CREATE_EVENTS: Permission[] = [
+  'event.create',
+  'event.update',
+  'event.participants.read',
+  'attendance.read',
+  'attendance.manage',
+];
+
+/** "Approve chapter event" (publishing and cancelling). */
+const APPROVE_EVENTS: Permission[] = ['event.approve', 'event.cancel'];
+
+/** "Upload national document" / "Upload chapter minutes". */
+const DOCUMENTS: Permission[] = ['resource.upload', 'resource.update', 'resource.archive'];
+
+/** "Manage chapter roster" (+ contact data and chapter details needed to do it). */
+const ROSTER: Permission[] = ['member.access.manage', 'member.profile.read', 'chapter.update'];
+
+/** "Approve new accounts" (+ seeing who holds which role). */
+const ACCOUNTS: Permission[] = ['account.verify', 'role.read'];
+
+/** "Send mass email" (+ national in-app notifications). */
+const MASS_EMAIL: Permission[] = [
+  'email.send.mass',
+  'notification.send.national',
+  'translation.publish',
+];
+
+/** "View all payments and dues". */
+const ALL_PAYMENTS: Permission[] = ['payment.read.all', 'payment.read.chapter'];
+
+// ---------------------------------------------------------------------------------------------
+// National roles
+// ---------------------------------------------------------------------------------------------
+
+/** Executive Director and National Representative: identical columns in the matrix. */
+const NATIONAL_LEAD = compose(
+  grants(READ_EVERYWHERE, 'national'),
+  grants(PUBLISH, 'national'),
+  grants(APPROVE_POSTS, 'national'),
+  grants(CREATE_EVENTS, 'national'),
+  grants(APPROVE_EVENTS, 'national'),
+  grants(DOCUMENTS, 'national'),
+  grants(ACCOUNTS, 'national'),
+  grants(ALL_PAYMENTS, 'national'),
+  grants(MASS_EMAIL, 'national'),
+  grants(ROSTER, 'national'),
+);
+
+const NAT_SEC = compose(
+  grants(READ_EVERYWHERE, 'national'),
+  grants(PUBLISH, 'national'),
+  grants(APPROVE_POSTS, 'national'),
+  grants(CREATE_EVENTS, 'national'),
+  grants(APPROVE_EVENTS, 'national'),
+  grants(DOCUMENTS, 'national'),
+  grants(ACCOUNTS, 'national'),
+  grants(MASS_EMAIL, 'national'),
+  grants(ROSTER, 'national'),
+);
+
+/** National Coordinator: national documents only — chapter minutes stay with the chapter. */
+const NAT_COORD = compose(
+  grants(READ_EVERYWHERE, 'national'),
+  grants(PUBLISH, 'national'),
+  grants(APPROVE_POSTS, 'national'),
+  grants(CREATE_EVENTS, 'national'),
+  grants(APPROVE_EVENTS, 'national'),
+  grants(DOCUMENTS, 'national', { nationalOnly: true }),
+  grants(ACCOUNTS, 'national'),
+  grants(MASS_EMAIL, 'national'),
+);
+
+/** National Master Councillor: national posts only (no chapter posts, no approvals). */
+const NAT_MC = compose(
+  grants(READ_EVERYWHERE, 'national'),
+  grants(PUBLISH, 'national', { nationalOnly: true }),
+);
+
+const NAT_TREAS = compose(grants(READ_EVERYWHERE, 'national'), grants(ALL_PAYMENTS, 'national'), [
+  grant('payment.record', 'national'),
 ]);
 
-/**
- * Chapter Advisor — everything a Chapter Officer can do, plus: approve/publish/archive chapter
- * content, cancel chapter events, view full member profiles (contact data) and manage member
- * access in the chapter, assign lower roles within the chapter (escalation-limited), review
- * chapter activity (audit) and translations.
- */
-const CHAPTER_ADVISOR = compose(CHAPTER_OFFICER, [
-  grant('post.approve', 'chapter'),
-  grant('post.publish', 'chapter'),
-  grant('post.archive', 'chapter'),
-  grant('event.cancel', 'chapter'),
-  grant('member.profile.read', 'chapter'),
-  grant('member.access.manage', 'chapter'),
-  grant('role.read', 'chapter'),
-  grant('role.assign', 'chapter'),
-  grant('audit.read.chapter', 'chapter'),
-  grant('translation.review', 'chapter'),
-]);
+/** System administrator — every permission at system scope (personal ones stay personal). */
+const SELF_ONLY_PERMISSIONS: readonly Permission[] = [
+  'event.rsvp',
+  'notification.read',
+  'helpdesk.create',
+  'payment.pay',
+];
+const SYSADMIN: PermissionGrant[] = PERMISSIONS.map((permission) =>
+  grant(permission, SELF_ONLY_PERMISSIONS.includes(permission) ? 'self' : 'system'),
+);
 
-/**
- * National Officer — national content and events, national notifications, national resources,
- * multi-chapter summaries (chapter.read/directory at national scope), moderation across chapters.
- * Does NOT manage member accounts, roles, mappings, integration or system settings.
- */
-const NATIONAL_OFFICER: PermissionGrant[] = compose([
-  grant('feed.read', 'national'),
-  grant('post.create', 'national'),
-  grant('post.update', 'national'),
-  grant('post.submit', 'national'),
-  grant('post.approve', 'national'),
-  grant('post.publish', 'national'),
-  grant('post.archive', 'national'),
-  grant('event.read', 'national'),
-  grant('event.create', 'national'),
-  grant('event.update', 'national'),
-  grant('event.cancel', 'national'),
-  grant('event.rsvp', 'self'),
-  grant('event.participants.read', 'national'),
-  grant('attendance.read', 'national'),
-  grant('attendance.manage', 'national'),
-  grant('resource.read', 'national'),
-  grant('resource.upload', 'national'),
-  grant('resource.update', 'national'),
-  grant('resource.archive', 'national'),
-  grant('chapter.read', 'national'),
-  grant('chapter.directory.read', 'national'),
-  grant('member.profile.read', 'self'),
-  grant('member.profile.update', 'self'),
-  grant('notification.read', 'self'),
-  grant('notification.send.chapter', 'national'),
-  grant('notification.send.national', 'national'),
-  grant('role.read', 'national'),
-  grant('translation.create', 'national'),
-  grant('translation.review', 'national'),
-  grant('translation.publish', 'national'),
-  grant('audit.read.chapter', 'national'),
-]);
+// ---------------------------------------------------------------------------------------------
+// Chapter roles
+// ---------------------------------------------------------------------------------------------
 
-/** National Administrator — every permission at system scope (RSVP and notifications stay personal). */
-const NATIONAL_ADMIN: PermissionGrant[] = PERMISSIONS.map((permission) =>
-  grant(
-    permission,
-    permission === 'event.rsvp' || permission === 'notification.read' ? 'self' : 'system',
-  ),
+/** Chapter Chairman — the single advisor point of contact: approves chapter output. */
+const CH_CHAIRMAN = compose(
+  grants(['chapter.directory.read', 'role.read'], 'chapter'),
+  grants(PUBLISH, 'chapter'),
+  grants(APPROVE_POSTS, 'chapter'),
+  grants(CREATE_EVENTS, 'chapter'),
+  grants(APPROVE_EVENTS, 'chapter'),
+  grants(DOCUMENTS, 'chapter'),
+  grants(ROSTER, 'chapter'),
+  [grant('payment.read.chapter', 'chapter')],
+);
+
+/** Chapter Master Councillor: publishes chapter posts and creates events; approvals stay with the Chairman. */
+const CH_MC = compose(
+  [grant('chapter.directory.read', 'chapter')],
+  grants(PUBLISH, 'chapter'),
+  grants(CREATE_EVENTS, 'chapter'),
+);
+
+/** Senior / Junior Councillor: submit posts for approval. */
+const CH_COUNCILLOR = compose(
+  [grant('chapter.directory.read', 'chapter')],
+  grants(SUBMIT, 'chapter'),
+);
+
+/** Chapter Secretary: submits posts, uploads minutes, manages the roster and keeps attendance. */
+const CH_SEC = compose(
+  [grant('chapter.directory.read', 'chapter')],
+  grants(SUBMIT, 'chapter'),
+  grants(DOCUMENTS, 'chapter'),
+  grants(['member.access.manage', 'member.profile.read'], 'chapter'),
+  grants(['event.participants.read', 'attendance.read', 'attendance.manage'], 'chapter'),
+);
+
+const CH_TREAS = compose(
+  [grant('chapter.directory.read', 'chapter')],
+  grants(['payment.read.chapter', 'payment.record'], 'chapter'),
 );
 
 function definition(
   role: Role,
+  level: RoleDefinition['level'],
   rank: number,
   allowedScopeLevels: ScopeLevel[],
-  grants: PermissionGrant[],
+  roleGrants: PermissionGrant[],
 ): RoleDefinition {
   return {
     role,
+    level,
     rank,
     labelKey: labelKeys.role(role),
     descriptionKey: labelKeys.roleDescription(role),
     allowedScopeLevels,
     defaultScopeLevel: allowedScopeLevels[0] ?? 'chapter',
-    grants,
+    grants: roleGrants,
   };
 }
 
 /** Data-driven role behaviour. The UI must never branch on role names — check permissions. */
 export const ROLE_DEFINITIONS: Record<Role, RoleDefinition> = {
-  member: definition('member', 1, ['chapter'], MEMBER),
-  chapter_officer: definition('chapter_officer', 2, ['chapter'], CHAPTER_OFFICER),
-  chapter_advisor: definition('chapter_advisor', 3, ['chapter', 'multi_chapter'], CHAPTER_ADVISOR),
-  national_officer: definition('national_officer', 4, ['national'], NATIONAL_OFFICER),
-  national_admin: definition('national_admin', 5, ['system'], NATIONAL_ADMIN),
+  sysadmin: definition('sysadmin', 'national', 10, ['system'], SYSADMIN),
+  exec_director: definition('exec_director', 'national', 9, ['national'], NATIONAL_LEAD),
+  nat_rep: definition('nat_rep', 'national', 9, ['national'], NATIONAL_LEAD),
+  nat_sec: definition('nat_sec', 'national', 8, ['national'], NAT_SEC),
+  nat_coord: definition('nat_coord', 'national', 7, ['national'], NAT_COORD),
+  nat_mc: definition('nat_mc', 'national', 6, ['national'], NAT_MC),
+  nat_treas: definition('nat_treas', 'national', 6, ['national'], NAT_TREAS),
+  ch_chairman: definition('ch_chairman', 'chapter', 5, ['chapter'], CH_CHAIRMAN),
+  ch_mc: definition('ch_mc', 'chapter', 4, ['chapter'], CH_MC),
+  ch_sc: definition('ch_sc', 'chapter', 3, ['chapter'], CH_COUNCILLOR),
+  ch_jc: definition('ch_jc', 'chapter', 3, ['chapter'], CH_COUNCILLOR),
+  ch_sec: definition('ch_sec', 'chapter', 3, ['chapter'], CH_SEC),
+  ch_treas: definition('ch_treas', 'chapter', 3, ['chapter'], CH_TREAS),
+  /** General advisor, held nationally: reads like any advisor, publishes nothing. */
+  advisor: definition('advisor', 'national', 1, ['national'], []),
 };
 
 export function isRole(value: unknown): value is Role {
@@ -162,7 +255,19 @@ export function roleRank(role: Role): number {
   return ROLE_DEFINITIONS[role].rank;
 }
 
-/** Role definitions in rank order (for tables and pickers). */
+/** Highest rank among roles (0 when none). */
+export function maxRoleRank(roles: ReadonlyArray<{ role: Role }>): number {
+  return roles.reduce((max, r) => Math.max(max, roleRank(r.role)), 0);
+}
+
+/** Roles ordered highest rank first (stable on the matrix order). */
+export function sortRolesByRank<T extends { role: Role }>(roles: readonly T[]): T[] {
+  return [...roles].sort(
+    (a, b) => roleRank(b.role) - roleRank(a.role) || ROLES.indexOf(a.role) - ROLES.indexOf(b.role),
+  );
+}
+
+/** Role definitions in matrix order (for tables and pickers). */
 export function listRoleDefinitions(): RoleDefinition[] {
   return ROLES.map((r) => ROLE_DEFINITIONS[r]);
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Announcement, AnnouncementTranslation, Audience } from '@/domain';
-import { buildSubjectFor, subjectsByRole } from '@/test/subjects';
+import { personaSubject, subjectsByPersona } from '@/test/subjects';
 
 import {
   applyAnnouncementTransition,
@@ -15,7 +15,7 @@ import {
   selectAudience,
 } from './announcements';
 
-const S = subjectsByRole();
+const S = subjectsByPersona();
 const NOW = new Date('2026-10-12T09:00:00.000Z');
 
 const EN: AnnouncementTranslation = {
@@ -106,38 +106,44 @@ describe('audience matching (published content)', () => {
 
   it('chapter content reaches that chapter and national roles only', () => {
     const p = published(audience('chapter', ['ch-1']));
-    expect(isInAudience(S.member, p, NOW)).toBe(true);
-    expect(isInAudience(S.chapter_officer, p, NOW)).toBe(true);
-    expect(isInAudience(S.national_officer, p, NOW)).toBe(true);
-    expect(isInAudience(buildSubjectFor('member', { homeChapterId: 'ch-4' }), p, NOW)).toBe(false);
+    expect(isInAudience(S.active_member, p, NOW)).toBe(true);
+    expect(isInAudience(S.chapter_secretary, p, NOW)).toBe(true);
+    expect(isInAudience(S.national_coordinator, p, NOW)).toBe(true);
+    expect(isInAudience(personaSubject('active_member', { homeChapterId: 'ch-4' }), p, NOW)).toBe(
+      false,
+    );
   });
 
   it('multi-chapter content reaches every addressed chapter', () => {
     const p = published(audience('multi_chapter', ['ch-2', 'ch-4']));
-    expect(isInAudience(buildSubjectFor('member', { homeChapterId: 'ch-2' }), p, NOW)).toBe(true);
-    expect(isInAudience(buildSubjectFor('member', { homeChapterId: 'ch-4' }), p, NOW)).toBe(true);
-    expect(isInAudience(S.member, p, NOW)).toBe(false);
+    expect(isInAudience(personaSubject('active_member', { homeChapterId: 'ch-2' }), p, NOW)).toBe(
+      true,
+    );
+    expect(isInAudience(personaSubject('active_member', { homeChapterId: 'ch-4' }), p, NOW)).toBe(
+      true,
+    );
+    expect(isInAudience(S.active_member, p, NOW)).toBe(false);
   });
 
   it('leadership content is hidden from ordinary members', () => {
     const chapterLeaders = published(audience('chapter', ['ch-1'], 'leadership'));
-    expect(isInAudience(S.member, chapterLeaders, NOW)).toBe(false);
-    expect(isInAudience(S.chapter_officer, chapterLeaders, NOW)).toBe(true);
-    expect(isInAudience(S.chapter_advisor, chapterLeaders, NOW)).toBe(true);
+    expect(isInAudience(S.active_member, chapterLeaders, NOW)).toBe(false);
+    expect(isInAudience(S.chapter_secretary, chapterLeaders, NOW)).toBe(true);
+    expect(isInAudience(S.chapter_chairman, chapterLeaders, NOW)).toBe(true);
     const nationalLeaders = published(audience('national', [], 'leadership'));
-    expect(isInAudience(S.member, nationalLeaders, NOW)).toBe(false);
-    expect(isInAudience(S.chapter_officer, nationalLeaders, NOW)).toBe(true);
-    expect(isInAudience(S.national_admin, nationalLeaders, NOW)).toBe(true);
+    expect(isInAudience(S.active_member, nationalLeaders, NOW)).toBe(false);
+    expect(isInAudience(S.chapter_secretary, nationalLeaders, NOW)).toBe(true);
+    expect(isInAudience(S.sysadmin, nationalLeaders, NOW)).toBe(true);
   });
 
   it('selects recipients among candidates', () => {
     const p = published(audience('chapter', ['ch-1'], 'leadership'));
     const candidates = Object.entries(S).map(([role, subject]) => ({ role, subject }));
     expect(selectAudience(p, candidates, NOW).map((c) => c.role)).toEqual([
-      'chapter_officer',
-      'chapter_advisor',
-      'national_officer',
-      'national_admin',
+      'chapter_secretary',
+      'chapter_chairman',
+      'national_coordinator',
+      'sysadmin',
     ]);
   });
 

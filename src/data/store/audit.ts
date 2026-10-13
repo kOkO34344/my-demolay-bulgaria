@@ -1,3 +1,4 @@
+import { broadestScopeLevel, primaryRole } from '@/auth/subject';
 import type { AuditLogEntry, Subject } from '@/domain';
 import { clock } from '@/lib/clock';
 import { createId } from '@/lib/ids';
@@ -21,8 +22,13 @@ export function appendAudit(subject: Subject | null, input: AuditInput): AuditLo
     id: createId('audit'),
     at: clock.nowIso(),
     actorId: input.actorId !== undefined ? input.actorId : (subject?.userId ?? null),
-    actorRole: input.actorRole !== undefined ? input.actorRole : (subject?.role ?? null),
-    scope: input.scope ?? subject?.scope.level ?? 'system',
+    actorRole:
+      input.actorRole !== undefined
+        ? input.actorRole
+        : subject
+          ? (primaryRole(subject)?.role ?? null)
+          : null,
+    scope: input.scope ?? (subject ? broadestScopeLevel(subject) : 'system'),
     metadata: input.metadata ?? {},
     action: input.action,
     entityType: input.entityType,

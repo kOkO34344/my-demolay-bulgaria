@@ -1,25 +1,16 @@
 import { isLeadershipFor } from '@/auth/policy';
-import { buildSubject } from '@/auth/subject';
-import { assignmentFor, db } from '@/data/store';
+import { db, subjectForUserRecord } from '@/data/store';
 import type { ID, Subject } from '@/domain';
 import { clock } from '@/lib/clock';
 
 /**
  * Server-side subjects for OTHER users (notification recipients, reviewers, directory leaders).
- * Always built from the user's real role assignment — demo role-switcher overrides only affect the
+ * Always built from the user's real member type and role assignments — demo role-switcher overrides only affect the
  * signed-in session's own requests.
  */
 
 export function subjectForUser(userId: ID): Subject | null {
-  const member = db.get('members', userId);
-  if (!member) return null;
-  return buildSubject({
-    assignment: assignmentFor(userId),
-    homeChapterId: member.chapterId,
-    specialAssignments: db.find('specialAssignments', (sa) => sa.userId === userId),
-    demoOverride: null,
-    demoModeEnabled: false,
-  });
+  return subjectForUserRecord(userId, null, false);
 }
 
 export interface UserSubject {

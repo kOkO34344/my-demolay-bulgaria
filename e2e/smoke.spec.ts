@@ -40,7 +40,7 @@ test('member signs in via demo access, lands on Home and signs out', async ({ pa
   await page.goto('/login');
 
   await page.getByRole('button', { name: 'Demo access' }).click();
-  await page.getByRole('button', { name: /^Member/ }).click();
+  await page.getByRole('button', { name: /^Active member/ }).click();
   await expect(page.getByLabel('Username')).toHaveValue('member.demo');
   // Filling never signs in by itself; focus moves to the submit button.
   await expect(page.getByRole('button', { name: 'Sign in' })).toBeFocused();
@@ -96,7 +96,7 @@ test('manifest is installable and every declared icon exists', async ({ request 
     display: 'standalone',
     start_url: '/',
     scope: '/',
-    background_color: '#F7F6F2',
+    background_color: '#F5F7FA',
     theme_color: '#ffffff',
   });
   expect(manifest.icons.map((icon) => icon.sizes)).toEqual(

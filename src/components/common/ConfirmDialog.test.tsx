@@ -18,7 +18,7 @@ function renderDialog(props: Partial<ConfirmDialogProps> = {}) {
       {...props}
       onConfirm={onConfirm}
     />,
-    { role: null },
+    { persona: null },
   );
   return { ...view, onConfirm };
 }
@@ -108,7 +108,7 @@ describe('ConfirmDialog', () => {
         confirmationText="АРХИВ"
         onConfirm={() => undefined}
       />,
-      { role: null, lang: 'bg' },
+      { persona: null, lang: 'bg' },
     );
     await user.click(screen.getByRole('button', { name: 'Отвори' }));
     expect(screen.getByRole('button', { name: 'Отказ' })).toBeInTheDocument();

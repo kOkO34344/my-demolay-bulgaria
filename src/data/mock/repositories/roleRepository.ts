@@ -16,12 +16,17 @@ import {
   type ForbiddenReason,
 } from '@/data/errors';
 import type { RoleRepository } from '@/data/repositories';
-import { appendAudit, assertCan, assignmentFor, db, mockCall, requireSubject } from '@/data/store';
-import { findMappingForPosition, previewPositionMapping } from '@/domain/rules/mappings';
+import { appendAudit, assertCan, assignmentsFor, db, mockCall, requireSubject } from '@/data/store';
+import {
+  findMappingForPosition,
+  manualAssignmentId,
+  previewPositionMapping,
+} from '@/domain/rules/mappings';
 import {
   positionMappingInputSchema,
   revokeSpecialAssignmentSchema,
   roleAssignmentInputSchema,
+  roleRemovalInputSchema,
   specialAssignmentInputSchema,
 } from '@/domain/schemas';
 import type {
@@ -141,6 +146,7 @@ export function createMockRoleRepository(): RoleRepository {
             const member = db.get('members', a.userId);
             if (!member || !can(subject, 'role.read', { chapterId: member.chapterId }))
               return false;
+            if (a.endedAt !== null) return false;
             if (query.role && query.role !== 'all' && a.role !== query.role) return false;
             if (query.chapterId && member.chapterId !== query.chapterId) return false;
             return true;
@@ -155,10 +161,10 @@ export function createMockRoleRepository(): RoleRepository {
         if (!memberInRoleScope(subject, data.userId))
           throw new NotFoundError('member', data.userId);
         assertScopeChaptersExist(data.scope, 'scope.chapterIds');
-        const current = assignmentFor(data.userId);
+        const current = assignmentsFor(data.userId);
         const check = checkAssignRole(subject, data.role, data.scope, {
           userId: data.userId,
-          currentRole: current.role,
+          currentRoles: current.map((a) => a.role),
         });
         if (!check.allowed) {
           throw new ForbiddenError(
@@ -167,16 +173,19 @@ export function createMockRoleRepository(): RoleRepository {
           );
         }
         const member = db.require('members', data.userId, 'member');
+        // Adds a role (a person holds zero or more); re-assigning the same role replaces its scope.
+        const previous = current.find((a) => a.role === data.role) ?? null;
         const assignment: RoleAssignment = {
-          id: `ra-${data.userId}`,
+          id: previous?.id ?? manualAssignmentId(data.userId, data.role),
           userId: data.userId,
           role: data.role,
           scope: data.scope,
-          source: 'manual',
-          mappingId: null,
+          source: previous?.source ?? 'manual',
+          mappingId: previous?.mappingId ?? null,
           assignedBy: subject.userId,
           assignedAt: clock.nowIso(),
           reason: data.reason,
+          endedAt: null,
         };
         db.transaction(() => {
           db.upsert('roleAssignments', assignment);
@@ -193,7 +202,7 @@ export function createMockRoleRepository(): RoleRepository {
             }),
             metadata: {
               userId: data.userId,
-              from: current.role,
+              from: previous?.scope.level ?? null,
               to: data.role,
               scopeLevel: data.scope.level,
               source: 'manual',
@@ -211,6 +220,65 @@ export function createMockRoleRepository(): RoleRepository {
           });
         });
         return assignment;
+      }),
+
+    removeRole: (input) =>
+      mockCall((): RoleAssignment => {
+        const subject = requireSubject();
+        const data = validateInput(roleRemovalInputSchema, input);
+        const assignment = db.get('roleAssignments', data.assignmentId);
+        if (
+          !assignment ||
+          assignment.endedAt !== null ||
+          !memberInRoleScope(subject, assignment.userId)
+        ) {
+          throw new NotFoundError('role_assignment', data.assignmentId);
+        }
+        const check = checkAssignRole(subject, assignment.role, assignment.scope, {
+          userId: assignment.userId,
+          currentRoles: assignmentsFor(assignment.userId)
+            .filter((a) => a.id !== assignment.id)
+            .map((a) => a.role),
+        });
+        if (!check.allowed) {
+          throw new ForbiddenError(
+            DENIAL_REASON[check.reason ?? 'missing_permission'],
+            'role.assign',
+          );
+        }
+        const member = db.require('members', assignment.userId, 'member');
+        const ended: RoleAssignment = { ...assignment, endedAt: clock.nowIso() };
+        db.transaction(() => {
+          db.upsert('roleAssignments', ended);
+          appendAudit(subject, {
+            action: 'role.removed',
+            entityType: 'role_assignment',
+            entityId: assignment.id,
+            chapterId: member.chapterId,
+            summary: msg('messages.audit.roleRemoved', {
+              name: member.displayName,
+              role: roleLabel(assignment.role),
+              scope: scopeLabel(assignment.scope, chapterName),
+              reason: data.reason,
+            }),
+            metadata: {
+              userId: assignment.userId,
+              role: assignment.role,
+              source: assignment.source,
+            },
+          });
+          notifyUsers([assignment.userId], {
+            category: 'account',
+            title: msg('messages.notifications.roleRemoved.title'),
+            body: msg('messages.notifications.roleRemoved.body', {
+              role: roleLabel(assignment.role),
+              scope: scopeLabel(assignment.scope, chapterName),
+            }),
+            link: { to: paths.profile(), entityType: 'role_assignment', entityId: assignment.id },
+            actorId: subject.userId,
+          });
+        });
+        return ended;
       }),
 
     listSpecialAssignments: (query = {}) =>

@@ -40,7 +40,7 @@ function renderTable(props: Partial<DataTableProps<Row>> = {}) {
       caption="Members"
       {...props}
     />,
-    { role: null },
+    { persona: null },
   );
 }
 

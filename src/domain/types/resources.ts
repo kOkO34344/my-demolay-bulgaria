@@ -15,6 +15,7 @@ export const RESOURCE_CATEGORIES = [
   'events',
   'policies',
   'leadership',
+  'rituals',
   'forms',
   'branding',
 ] as const;

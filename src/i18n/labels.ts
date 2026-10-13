@@ -1,4 +1,5 @@
 import type {
+  MemberType,
   AccountStatus,
   AnnouncementStatus,
   AssignmentSource,
@@ -35,6 +36,10 @@ import type {
 export const labelKeys = {
   role: (role: Role) => `roles.${role}.name`,
   roleDescription: (role: Role) => `roles.${role}.description`,
+  /** "No role" — member-type access only. */
+  noRole: 'roleNone',
+  memberType: (type: MemberType) => `memberTypes.${type}.name`,
+  memberTypeDescription: (type: MemberType) => `memberTypes.${type}.description`,
   scopeLevel: (level: ScopeLevel) => `scopes.${level}.name`,
   scopeLevelDescription: (level: ScopeLevel) => `scopes.${level}.description`,
   permission: (permission: Permission) => `permissions.items.${permission}.label`,

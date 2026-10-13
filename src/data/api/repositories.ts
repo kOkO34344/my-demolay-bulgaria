@@ -187,9 +187,13 @@ export function createApiRoleRepository(api: ApiClient): RoleRepository {
     listRoleDefinitions: () => api.get<RoleDefinition[]>('/roles'),
     listAssignments: (query) => api.get<RoleAssignment[]>('/role-assignments', query),
     assignRole: (input) =>
-      api.put<RoleAssignment>(`/members/${e(input.userId)}/role`, {
+      api.post<RoleAssignment>(`/members/${e(input.userId)}/roles`, {
         role: input.role,
         scope: input.scope,
+        reason: input.reason,
+      }),
+    removeRole: (input) =>
+      api.post<RoleAssignment>(`/role-assignments/${e(input.assignmentId)}/end`, {
         reason: input.reason,
       }),
     listSpecialAssignments: (query) => api.get<SpecialAssignment[]>('/special-assignments', query),

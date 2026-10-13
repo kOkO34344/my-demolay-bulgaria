@@ -17,9 +17,16 @@ import type {
 } from '@/domain';
 import { clock } from '@/lib/clock';
 
+import { MEMBER_TYPE_GRANTS } from './memberTypes';
 import { PERMISSION_CATALOGUE } from './permissions';
-import { ROLE_DEFINITIONS, roleRank } from './roles';
-import { normalizeScope, resolveGrantScope, scopeContains, scopeCovers } from './scope';
+import { ROLE_DEFINITIONS, maxRoleRank, roleRank } from './roles';
+import {
+  chapterScope,
+  normalizeScope,
+  resolveGrantScope,
+  scopeContains,
+  scopeCovers,
+} from './scope';
 
 /**
  * Pure authorization policy. Every function takes the acting Subject explicitly so it can be
@@ -51,22 +58,66 @@ export function activeSpecialAssignments(
   );
 }
 
-/** Role grants resolved against the subject's scope, plus active special assignments. */
+/** Accounts that hold no permissions at all (suspension and expulsion revoke everything at once). */
+export function isAccountLocked(subject: Pick<Subject, 'accountStatus'>): boolean {
+  return subject.accountStatus !== 'active';
+}
+
+/**
+ * Member-type grants (at the home chapter) ∪ the grants of every role (each resolved against that
+ * role's scope) ∪ active special assignments. Empty for locked accounts.
+ */
 export function effectivePermissions(subject: Subject, now: Date = clock.now()): EffectiveGrant[] {
-  const definition = ROLE_DEFINITIONS[subject.role];
-  const fromRole: EffectiveGrant[] = definition.grants.map((g) => ({
+  if (isAccountLocked(subject)) return [];
+  const home = chapterScope(subject.homeChapterId);
+  const fromType: EffectiveGrant[] = MEMBER_TYPE_GRANTS[subject.memberType].map((g) => ({
     permission: g.permission,
-    scope: resolveGrantScope(g.scope, subject.scope, subject.homeChapterId),
-    source: 'role',
+    scope: resolveGrantScope(g.scope, home, subject.homeChapterId),
+    ...(g.linked ? { linked: true } : {}),
+    source: 'member_type',
     sourceId: null,
   }));
+  const fromRoles: EffectiveGrant[] = subject.roles.flatMap((held) =>
+    ROLE_DEFINITIONS[held.role].grants.map((g) => ({
+      permission: g.permission,
+      scope: resolveGrantScope(g.scope, held.scope, subject.homeChapterId),
+      ...(g.nationalOnly ? { nationalOnly: true } : {}),
+      ...(g.linked ? { linked: true } : {}),
+      source: 'role' as const,
+      sourceId: null,
+    })),
+  );
   const fromSpecial: EffectiveGrant[] = activeSpecialAssignments(subject, now).map((sa) => ({
     permission: sa.permission,
     scope: normalizeScope(sa.scope),
     source: 'special_assignment',
     sourceId: sa.id,
   }));
-  return [...fromRole, ...fromSpecial];
+  return [...fromType, ...fromRoles, ...fromSpecial];
+}
+
+/** Does the target address chapter-level objects (as opposed to national ones)? */
+function isChapterTarget(target: PolicyTarget | undefined): boolean {
+  if (!target || target.level === 'national') return false;
+  return typeof target.chapterId === 'string' || (target.chapterIds?.length ?? 0) > 0;
+}
+
+/** Does one effective grant cover the target? Adds the nationalOnly and linked rules to scopeCovers. */
+export function grantCovers(
+  grant: EffectiveGrant,
+  target: PolicyTarget | undefined,
+  subject: Pick<Subject, 'userId' | 'linkedMemberIds'>,
+): boolean {
+  if (grant.nationalOnly && isChapterTarget(target)) return false;
+  if (
+    grant.linked &&
+    grant.scope.level === 'self' &&
+    target?.ownerId !== undefined &&
+    subject.linkedMemberIds.includes(target.ownerId)
+  ) {
+    return true;
+  }
+  return scopeCovers(grant.scope, target, subject.userId);
 }
 
 /** Distinct permissions the subject holds at any scope. */
@@ -86,7 +137,7 @@ export function can(
 ): boolean {
   if (!subject) return false;
   return effectivePermissions(subject, now).some(
-    (g) => g.permission === permission && scopeCovers(g.scope, target, subject.userId),
+    (g) => g.permission === permission && grantCovers(g, target, subject),
   );
 }
 
@@ -336,12 +387,13 @@ export function canManageEvent(
   return event.status !== 'cancelled' && can(subject, 'event.update', eventTarget(event), now);
 }
 
+/** Publishing a draft event is its approval (docs/ROLES-AND-PERMISSIONS.md §4 "Approve chapter event"). */
 export function canPublishEvent(
   subject: Subject | null | undefined,
   event: EventLike,
   now: Date = clock.now(),
 ): boolean {
-  return event.status === 'draft' && can(subject, 'event.update', eventTarget(event), now);
+  return event.status === 'draft' && can(subject, 'event.approve', eventTarget(event), now);
 }
 
 export function canCancelEvent(
@@ -423,7 +475,8 @@ export function canViewEventNotes(
 // Resources
 // ---------------------------------------------------------------------------------------------
 
-type ResourceLike = Pick<Resource, 'chapterId' | 'status' | 'visibility'>;
+type ResourceLike = Pick<Resource, 'chapterId' | 'status' | 'visibility'> &
+  Partial<Pick<Resource, 'category'>>;
 
 export function canViewResource(
   subject: Subject | null | undefined,
@@ -436,6 +489,13 @@ export function canViewResource(
   const scope = resource.chapterId === null ? 'national' : 'chapter';
   const chapterIds = resource.chapterId === null ? [] : [resource.chapterId];
   if (!canReadAddressed(subject, 'resource.read', scope, chapterIds, now)) return false;
+  // Rituals are restricted (and watermarked per reader on download in production).
+  if (
+    resource.category === 'rituals' &&
+    !canReadAddressed(subject, 'ritual.read', scope, chapterIds, now)
+  ) {
+    return false;
+  }
   return resource.visibility === 'all_members' || isLeadershipFor(subject, scope, chapterIds, now);
 }
 
@@ -498,6 +558,28 @@ export function canEditMemberProfile(
     { chapterId: member.chapterId, ownerId: member.userId },
     now,
   );
+}
+
+/** Administrator verification of a pending account against the member list (never your own). */
+export function canVerifyAccount(
+  subject: Subject | null | undefined,
+  member: MemberRef,
+  now: Date = clock.now(),
+): boolean {
+  return (
+    !!subject &&
+    member.userId !== subject.userId &&
+    can(subject, 'account.verify', { chapterId: member.chapterId }, now)
+  );
+}
+
+/** Pay dues or event costs for a member: yourself, or (parents) a linked child. Phase 2. */
+export function canPayFor(
+  subject: Subject | null | undefined,
+  memberUserId: ID,
+  now: Date = clock.now(),
+): boolean {
+  return can(subject, 'payment.pay', { ownerId: memberUserId }, now);
 }
 
 /** Activate / suspend an account (never your own). */
@@ -568,8 +650,12 @@ export interface AssignRoleCheck {
 }
 
 function holdsAtScope(subject: Subject, permission: Permission, scope: Scope, now: Date): boolean {
+  const chapterLevel = scope.level === 'chapter' || scope.level === 'multi_chapter';
   return effectivePermissions(subject, now).some(
-    (g) => g.permission === permission && scopeContains(g.scope, scope),
+    (g) =>
+      g.permission === permission &&
+      !(g.nationalOnly && chapterLevel) &&
+      scopeContains(g.scope, scope),
   );
 }
 
@@ -577,14 +663,15 @@ function holdsAtScope(subject: Subject, permission: Permission, scope: Scope, no
  * Can the subject assign `targetRole` at `targetScope`?
  * Prevents privilege escalation: you need role.assign covering the scope, the scope must be valid
  * for the role, every permission the role would grant at that scope must already be yours at an
- * equal or wider scope, the role must rank below yours (unless you hold role.assign at system
- * scope), and you cannot change your own role or the role of someone who outranks you.
+ * equal or wider scope, the role must rank below your highest (unless you hold role.assign at
+ * system scope), and you cannot change your own roles or those of someone who outranks you.
+ * In the brief only system administrators hold role.assign; the checks keep that safe if it changes.
  */
 export function checkAssignRole(
   subject: Subject | null | undefined,
   targetRole: Role,
   targetScope: Scope,
-  targetUser?: { userId: ID; currentRole?: Role | null },
+  targetUser?: { userId: ID; currentRoles?: readonly Role[] },
   now: Date = clock.now(),
 ): AssignRoleCheck {
   if (!subject || !can(subject, 'role.assign', undefined, now))
@@ -609,12 +696,11 @@ export function checkAssignRole(
     return { allowed: false, reason: 'scope_not_covered' };
 
   const systemAssigner = holdsAtScope(subject, 'role.assign', { level: 'system' }, now);
-  const subjectRank = roleRank(subject.role);
+  const subjectRank = maxRoleRank(subject.roles);
   if (!systemAssigner) {
     if (roleRank(targetRole) >= subjectRank) return { allowed: false, reason: 'escalation' };
-    if (targetUser?.currentRole && roleRank(targetUser.currentRole) >= subjectRank) {
-      return { allowed: false, reason: 'target_outranks' };
-    }
+    const targetRank = maxRoleRank((targetUser?.currentRoles ?? []).map((role) => ({ role })));
+    if (targetRank >= subjectRank) return { allowed: false, reason: 'target_outranks' };
   }
   const homeChapter = scope.chapterIds?.[0] ?? subject.homeChapterId;
   const exceeds = definition.grants.some((g) => {
@@ -630,7 +716,7 @@ export function canAssignRole(
   subject: Subject | null | undefined,
   targetRole: Role,
   targetScope: Scope,
-  targetUser?: { userId: ID; currentRole?: Role | null },
+  targetUser?: { userId: ID; currentRoles?: readonly Role[] },
   now: Date = clock.now(),
 ): boolean {
   return checkAssignRole(subject, targetRole, targetScope, targetUser, now).allowed;
@@ -724,7 +810,7 @@ export function allowedScopesFor(
   for (const g of grants) {
     if (g.scope.level === 'national' || g.scope.level === 'system') {
       national = true;
-      allChapterIds.forEach((id) => chapters.add(id));
+      if (!g.nationalOnly) allChapterIds.forEach((id) => chapters.add(id));
     } else if (g.scope.level === 'chapter' || g.scope.level === 'multi_chapter') {
       (g.scope.chapterIds ?? []).forEach((id) => chapters.add(id));
     }

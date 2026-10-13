@@ -10,7 +10,7 @@ const themeColor = () =>
 
 describe('ThemeToggle', () => {
   it('menu variant: choosing Dark applies .dark, color-scheme and the dark theme-color', async () => {
-    const { user } = renderWithProviders(<ThemeToggle />, { role: null, theme: 'light' });
+    const { user } = renderWithProviders(<ThemeToggle />, { persona: null, theme: 'light' });
     expect(html()).not.toHaveClass('dark');
 
     await user.click(screen.getByRole('button', { name: 'Theme: Light' }));
@@ -27,7 +27,7 @@ describe('ThemeToggle', () => {
   it('segmented variant: Light / Dark / System (System follows the OS preference)', async () => {
     mediaState.prefersDark = true;
     const { user } = renderWithProviders(<ThemeToggle variant="segmented" />, {
-      role: null,
+      persona: null,
       theme: 'light',
     });
     const group = screen.getByRole('radiogroup', { name: 'Theme' });
@@ -47,7 +47,7 @@ describe('ThemeToggle', () => {
   });
 
   it('is fully translated in Bulgarian', async () => {
-    const { user } = renderWithProviders(<ThemeToggle />, { role: null, lang: 'bg' });
+    const { user } = renderWithProviders(<ThemeToggle />, { persona: null, lang: 'bg' });
     await user.click(screen.getByRole('button', { name: 'Тема: Светла' }));
     expect(await screen.findByRole('menuitemradio', { name: 'Тъмна' })).toBeInTheDocument();
     expect(screen.getByRole('menuitemradio', { name: 'Като системата' })).toBeInTheDocument();

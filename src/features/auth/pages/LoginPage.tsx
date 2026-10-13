@@ -6,7 +6,13 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 
-import { loginSchema, useAuth, type DemoCredential, type LoginFormValues } from '@/auth';
+import {
+  loginSchema,
+  personaLabelKey,
+  useAuth,
+  type DemoCredential,
+  type LoginFormValues,
+} from '@/auth';
 import { CheckboxField, PasswordField, TextField } from '@/components/common/FormFields';
 import { useDocumentTitleOverride } from '@/components/common/useDocumentTitleOverride';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -14,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Spinner } from '@/components/ui/spinner';
 import { errorMessageKey, isRateLimited } from '@/data/errors';
-import { labelKeys, useLocalized } from '@/i18n/public';
+import { useLocalized } from '@/i18n/public';
 import { paths } from '@/lib/routes';
 
 import { AuthLayout } from '../components/AuthLayout';
@@ -89,7 +95,7 @@ export default function LoginPage() {
     setFailure(null);
     form.setValue('username', credential.username, { shouldDirty: true });
     form.setValue('password', credential.password, { shouldDirty: true });
-    setFilledRole(t(labelKeys.role(credential.role)));
+    setFilledRole(t(personaLabelKey(credential.persona)));
     submitRef.current?.focus();
   };
 

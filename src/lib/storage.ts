@@ -48,7 +48,7 @@ export const sessionStore = {
   },
 };
 
-/** Every sessionStorage key used by the app (keep in sync with CONVENTIONS). */
+/** Every sessionStorage key used by the app (keep in sync with index.html). */
 export const STORAGE_KEYS = {
   language: 'mdb.lang',
   theme: 'mdb.theme',

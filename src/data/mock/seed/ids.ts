@@ -1,5 +1,5 @@
 /**
- * Seed ids worth knowing for demos and E2E tests (see CONVENTIONS-data.md). Stable across reseeds;
+ * Seed ids worth knowing for demos and E2E tests. Stable across reseeds;
  * dates are relative to the seed time.
  */
 export const SEED_IDS = {

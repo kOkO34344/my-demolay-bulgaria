@@ -5,7 +5,7 @@ import { isDemoModeEnabled } from './subject';
 /**
  * Fictional demo credentials (prototype only). These are the ONLY accounts that can sign in.
  * The login page's "Demo access" cards read them via `getDemoCredentials()`, which returns an
- * empty list when demo mode is off. Documented in docs/DEMO_ACCOUNTS.md.
+ * empty list when demo mode is off. Listed in README.md › Demo accounts.
  */
 export interface DemoCredential {
   userId: ID;

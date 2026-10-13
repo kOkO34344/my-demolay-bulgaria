@@ -1,6 +1,5 @@
 /**
- * Shared application building blocks (owned by the shell team). Documented with props and examples in
- * CONVENTIONS-shell.md. Import from '@/components/common'.
+ * Shared application building blocks (owned by the shell team). Import from '@/components/common'.
  */
 export { PageHeader, type PageHeaderProps, type PageHeaderBreadcrumb } from './PageHeader';
 export { Section, SectionCard, PageStack } from './Section';

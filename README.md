@@ -30,6 +30,21 @@ The four brief documents are imported from the original project repository and s
 
 The brief's production stack (Next.js, Supabase in Frankfurt, Vercel, Stripe, Resend) applies to the real backend. Here, `VITE_DATA_SOURCE=mock` selects the in-memory repositories in `src/data/mock`.
 
+## Tech stack
+
+| Area | Tools |
+|---|---|
+| Framework | React 19, TypeScript, Vite |
+| Routing | React Router (data router, lazy-loaded pages) |
+| Data fetching / state | TanStack Query |
+| UI | Tailwind CSS 4, shadcn/ui on Radix UI, lucide-react icons, Sonner toasts, Vaul drawers |
+| Forms and validation | React Hook Form, Zod |
+| Internationalization | i18next, react-i18next, date-fns (with time zone support) |
+| PWA | vite-plugin-pwa, Workbox (installable, offline page, update prompt) |
+| Testing | Vitest, Testing Library, jsdom, Playwright, axe-core |
+| Code quality | ESLint (incl. jsx-a11y, react-hooks), Prettier |
+| Hosting | Vercel (`vercel.json`) |
+
 ## Getting started
 
 Requires Node 22.12 or later.
@@ -40,13 +55,32 @@ cp .env.example .env.local   # optional
 npm run dev
 ```
 
+Vite prints the local URL (usually http://localhost:5173).
+
+### Environment variables
+
+Only `VITE_*` variables reach the browser, so never put secrets in them. See `.env.example`.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `VITE_DEMO_MODE` | `true` | Shows the demo login cards and the role switcher. Set to `false` for a production-like preview. |
+| `VITE_DATA_SOURCE` | `mock` | `mock` uses the in-memory repositories; `api` uses the placeholder API client. |
+| `VITE_API_BASE_URL` | empty | Base URL of a future backend (unused while the data source is `mock`). |
+| `VITE_MOCK_LATENCY_MS` | `250-450` | Simulated network latency for mock data, as a number or a range. `0` makes it instant. |
+
+### Scripts
+
 | Script | Purpose |
 |---|---|
 | `npm run dev` | Vite dev server |
-| `npm run build` | Typecheck and production build |
+| `npm run build` | Typecheck and production build to `dist/` |
+| `npm run preview` | Serve the production build locally |
+| `npm run typecheck` | Run the TypeScript compiler |
+| `npm run lint` / `lint:fix` | ESLint (no warnings allowed) / auto-fix |
+| `npm run format` / `format:check` | Prettier write / check |
 | `npm test` | Unit and component tests (Vitest) |
-| `npm run test:e2e` | Playwright smoke tests (`npm run e2e:install` first) |
-| `npm run lint` / `npm run format:check` | ESLint / Prettier |
+| `npm run test:watch` / `test:coverage` | Vitest in watch mode / with coverage |
+| `npm run test:e2e` / `test:e2e:ui` | Playwright smoke tests (`npm run e2e:install` first) / with the UI runner |
 
 ## Demo accounts
 
@@ -63,3 +97,41 @@ Demo mode (`VITE_DEMO_MODE=true`, the default) shows sign-in cards on the login 
 | `admin.demo` | `Demo!Admin2026` | National Representative and system administrator |
 
 The role switcher lets any signed-in demo account act as one of these personas.
+
+## Project structure
+
+```
+├── docs/                   Project brief and local decisions
+├── e2e/                    Playwright end-to-end tests
+├── public/                 Static assets: brand logos, images, favicon, offline page
+├── src/
+│   ├── app/                Providers, query client, route table and router
+│   ├── auth/               Auth provider, roles, permissions, policy and route guards
+│   ├── components/
+│   │   ├── common/         Shared app components (tables, dialogs, form fields, states)
+│   │   ├── layout/         App shell: header, sidebar, mobile nav, protected routes
+│   │   └── ui/             shadcn/ui primitives
+│   ├── data/
+│   │   ├── api/            Placeholder API client and repositories
+│   │   ├── hooks/          TanStack Query hooks
+│   │   ├── mock/           Mock repositories, seed data, services and sync engine
+│   │   ├── repositories/   Repository interfaces
+│   │   └── store/          In-memory database persisted to sessionStorage
+│   ├── domain/             Types, Zod schemas and business rules
+│   ├── features/           Feature pages: home, news, events, chapter, resources,
+│   │                       notifications, profile, officer, content, members,
+│   │                       admin, access, sync, auth, shell
+│   ├── i18n/               Bulgarian and English translations and helpers
+│   ├── lib/                Routes, env, theme, storage and utilities
+│   ├── styles/             Global styles
+│   └── test/               Test setup
+├── .env.example            Documented environment variables
+├── vite.config.ts          Vite + PWA configuration
+├── vitest.config.ts        Unit test configuration
+├── playwright.config.ts    End-to-end test configuration
+└── vercel.json             Vercel build, rewrites and security headers
+```
+
+## Deployment
+
+The project is set up for [Vercel](https://vercel.com): `vercel.json` runs `npm ci` and `npm run build`, serves `dist/`, rewrites client-side routes to `index.html`, and sets cache and security headers. The site is marked `noindex, nofollow` while it is a prototype.

@@ -119,7 +119,11 @@
       "never": "Never",
       "unknown": "Unknown",
       "updatedAt": "Updated {{date}}",
-      "lastUpdated": "Last updated"
+      "lastUpdated": "Last updated",
+      "notTranslated": {
+        "en": "Not translated yet. Showing the English version.",
+        "bg": "Not translated yet. Showing the Bulgarian version."
+      }
     },
     "errors": {
       "generic": "Something went wrong. Try again.",

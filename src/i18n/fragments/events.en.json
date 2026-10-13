@@ -1,0 +1,50 @@
+{
+  "events": {
+    "flags": {
+      "startingSoon": "Starting soon",
+      "registrationCloses": "Registration closes {{when}}",
+      "full": "Full",
+      "spotsLeft_one": "{{count}} place left",
+      "spotsLeft_other": "{{count}} places left"
+    },
+    "list": {
+      "description": "National and chapter events. Reply so organisers know who is coming.",
+      "whenLabel": "Show events",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "searchLabel": "Search events",
+      "searchPlaceholder": "Search events…",
+      "allScopes": "All",
+      "allCategories": "All categories",
+      "resultCount_one": "{{count}} event",
+      "resultCount_other": "{{count}} events",
+      "noMatches": "No events match these filters.",
+      "emptyTitle": "No upcoming events",
+      "emptyDescription": "When an event is published for your chapter or nationally, it will appear here.",
+      "emptyPastTitle": "No past events",
+      "emptyPastDescription": "Events you could attend will be listed here once they have taken place."
+    },
+    "rsvp": {
+      "title": "Will you attend?",
+      "prompt": "Your reply helps the organisers plan seats and catering. You can change it until registration closes.",
+      "fullHint": "This event is full. You can still reply \"Maybe\" or \"Not going\".",
+      "saved": "Reply saved: {{status}}",
+      "yourReply": "Your reply:"
+    },
+    "detail": {
+      "back": "Back to events",
+      "when": "When",
+      "replies": "Replies",
+      "goingCount_one": "{{count}} going",
+      "goingCount_other": "{{count}} going",
+      "maybeCount_one": "{{count}} maybe",
+      "maybeCount_other": "{{count}} maybe",
+      "noLimit": "No limit on places",
+      "capacityLeft": "{{left}} of {{capacity}} places left",
+      "cancelledTitle": "This event has been cancelled",
+      "participants": "Who is coming",
+      "notes": "Organiser notes",
+      "notesHint": "Visible to organisers and officers only."
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "news": {
+    "pinned": "Закачено",
+    "unread": "Непрочетено",
+    "attachmentCount_one": "{{count}} прикачен файл",
+    "attachmentCount_other": "{{count}} прикачени файла",
+    "feed": {
+      "description": "Публикации от вашата обител и от DeMolay България.",
+      "feedLabel": "Покажи публикации от",
+      "feeds": {
+        "all": "Всички",
+        "national": "Национални",
+        "chapter": "Моята обител"
+      },
+      "searchLabel": "Търсене в новините",
+      "searchPlaceholder": "Търсене в новините…",
+      "unreadOnly": "Само непрочетени",
+      "resultCount_one": "{{count}} публикация",
+      "resultCount_other": "{{count}} публикации",
+      "allRead": "Прочели сте всички публикации тук.",
+      "emptyFeed": "Тук все още няма публикации.",
+      "emptyTitle": "Все още няма новини",
+      "emptyDescription": "Когато вашата обител или националното ръководство публикува нещо, то ще се появи тук."
+    },
+    "detail": {
+      "back": "Обратно към новините",
+      "related": "Свързани публикации"
+    }
+  }
+}

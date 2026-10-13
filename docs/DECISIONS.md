@@ -66,3 +66,11 @@ Where the matrix is silent or ambiguous, the prototype does the following. Each 
 - A parent sees no My Chapter page, because that page contains the directory.
 - A position from the member registry yields at most one role; ritual offices (Chaplain, Marshal, Standard Bearer and the like) yield none. System administrators add further roles by hand. Ending a role keeps it as history.
 - Suspension and expulsion end every role immediately; reactivation does not restore them.
+
+## 2026-10-13 — Member screens: feed, calendar and Home first
+
+- The Phase 1 foundation built the mock backend and the app shell; the feature pages were placeholders. Screens are now built in the order the 2026-09-22 review set: publications (feed) and the calendar, with Home built on the draft's "key dates" idea.
+- Built: Home (greeting, next four key dates with how many still need a reply, three latest posts), the news feed and post page, the events list and event page with RSVP and add to calendar.
+- Event items follow DESIGN-SYSTEM.md §6: Oxford left border by default, Ruby when the event starts within 24 hours, Beacon when an explicit registration deadline closes within 72 hours. Each flag is also written out in text.
+- Bilingual content missing in the reader's language falls back to the other language with a visible "Not translated yet" note and the correct `lang` attribute.
+- Not yet: the seven obligatory days in the calendar (the dates are not in the brief and are not invented here), "posts from Europe" as a feed scope, and the post and event editors.

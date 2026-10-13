@@ -1,0 +1,20 @@
+{
+  "home": {
+    "greeting": {
+      "morning": "Good morning, {{name}}",
+      "afternoon": "Good afternoon, {{name}}",
+      "evening": "Good evening, {{name}}"
+    },
+    "chapterLine": "Here is what is coming up in {{chapter}} and across DeMolay Bulgaria.",
+    "keyDates": {
+      "title": "Key dates",
+      "viewAll": "All events",
+      "awaitingReply_one": "{{count}} event is waiting for your reply.",
+      "awaitingReply_other": "{{count}} events are waiting for your reply."
+    },
+    "news": {
+      "title": "Latest news",
+      "viewAll": "All news"
+    }
+  }
+}

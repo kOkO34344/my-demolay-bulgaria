@@ -49,7 +49,9 @@ test('member signs in via demo access, lands on Home and signs out', async ({ pa
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole('heading', { level: 1, name: 'Home' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: /^Good (morning|afternoon|evening), Martin$/ }),
+  ).toBeVisible();
   await expect(page).toHaveTitle('Home · My DeMolay Bulgaria');
   await expect(page.getByText('Welcome, Martin.')).toBeVisible();
 
@@ -74,6 +76,36 @@ test('member signs in via demo access, lands on Home and signs out', async ({ pa
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
   await expect(page.getByText("You've signed out.")).toBeVisible();
+  expect(problems).toEqual([]);
+});
+
+test('member reads a post and changes an event reply', async ({ page }) => {
+  const problems = collectConsoleProblems(page);
+  await page.goto('/login');
+  await page.getByLabel('Username').fill('member.demo');
+  await page.getByRole('textbox', { name: 'Password' }).fill('Demo!Member2026');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page).toHaveURL(/\/$/);
+
+  const latestNews = page.getByRole('region', { name: 'Latest news' });
+  await latestNews.getByRole('link', { name: 'Installation of officers: save the date' }).click();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Installation of officers: save the date' }),
+  ).toBeVisible();
+  await expect(page).toHaveTitle('Installation of officers: save the date · My DeMolay Bulgaria');
+
+  await page.goto('/events');
+  await page.getByRole('link', { name: 'Working meeting: public speaking' }).click();
+  await expect(page.getByRole('button', { name: 'Going', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.getByRole('button', { name: 'Not going' }).click();
+  await expect(page.getByText('Reply saved: Not going')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Not going' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   expect(problems).toEqual([]);
 });
 

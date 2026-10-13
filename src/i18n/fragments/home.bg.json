@@ -1,0 +1,20 @@
+{
+  "home": {
+    "greeting": {
+      "morning": "Добро утро, {{name}}",
+      "afternoon": "Добър ден, {{name}}",
+      "evening": "Добър вечер, {{name}}"
+    },
+    "chapterLine": "Ето какво предстои в {{chapter}} и в DeMolay България.",
+    "keyDates": {
+      "title": "Важни дати",
+      "viewAll": "Всички събития",
+      "awaitingReply_one": "{{count}} събитие очаква вашия отговор.",
+      "awaitingReply_other": "{{count}} събития очакват вашия отговор."
+    },
+    "news": {
+      "title": "Последни новини",
+      "viewAll": "Всички новини"
+    }
+  }
+}

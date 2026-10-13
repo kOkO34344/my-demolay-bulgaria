@@ -71,7 +71,11 @@ describe('route guards', () => {
     const { router } = renderApp('/login', 'active_member');
     await waitFor(() => expect(router.state.location.pathname).toBe('/'));
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Home' }, PAGE_LOAD),
+      await screen.findByRole(
+        'heading',
+        { level: 1, name: /^Good (morning|afternoon|evening), / },
+        PAGE_LOAD,
+      ),
     ).toBeInTheDocument();
   });
 

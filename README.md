@@ -16,17 +16,22 @@ The four brief documents are imported from the original project repository and s
 
 ## Brief vs. prototype
 
-| Brief, Phase 1 | Prototype |
-|---|---|
-| Roles and permissions | Done: member types plus national and chapter roles (zero or more per person), enforced in `src/auth` and pinned to the matrix by `src/auth/policy.test.ts` |
-| Feed with approval flow | Done: news, with draft → submitted → published |
-| Calendar | Done: events with RSVP and attendance |
-| Documents and rituals | Done: resources by category, with rituals restricted |
-| Member directory and chapter pages | Done |
-| Administration console and audit log | Done |
-| Signup, verification queue, consent capture, onboarding | Not yet. The data model carries member type, DeM ID, consents and linked children |
-| Helpdesk | Not yet. Permission exists |
-| Public website | Not yet. Separate project scope; see DECISIONS.md 2026-09-22 |
+"Backend" is the mock repository layer in `src/data/mock` (the contract a real API will implement) with its React Query hooks. "Screens" are the pages a member uses.
+
+| Brief, Phase 1 | Backend | Screens |
+|---|---|---|
+| Roles and permissions | Done: member types plus national and chapter roles (zero or more per person), enforced in `src/auth` and pinned to the matrix by `src/auth/policy.test.ts` | Navigation and route guards; role administration screens not yet |
+| Home | n/a | Done: greeting, key dates, latest news |
+| Feed with approval flow | Done: draft → submitted → published | Reading done (feed, post). Editor and approval queue not yet |
+| Calendar | Done: events with RSVP and attendance | Reading and RSVP done (list, event, add to calendar). Editor and attendance sheet not yet |
+| Documents and rituals | Done: resources by category, with rituals restricted | Not yet |
+| Member directory and chapter pages | Done | Not yet |
+| Administration console and audit log | Done | Not yet |
+| Signup, verification queue, consent capture, onboarding | Not yet. The data model carries member type, DeM ID, consents and linked children | Not yet |
+| Helpdesk | Not yet. Permission exists | Not yet |
+| Public website | Not yet. Separate project scope; see DECISIONS.md 2026-09-22 | Not yet |
+
+Pages that are not built yet show a "being built" placeholder.
 
 The brief's production stack (Next.js, Supabase in Frankfurt, Vercel, Stripe, Resend) applies to the real backend. Here, `VITE_DATA_SOURCE=mock` selects the in-memory repositories in `src/data/mock`.
 

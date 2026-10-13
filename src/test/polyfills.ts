@@ -62,4 +62,6 @@ export function installPolyfills(): void {
     Element.prototype.setPointerCapture = () => undefined;
     Element.prototype.releasePointerCapture = () => undefined;
   }
+  // input-otp probes for password-manager badges; jsdom has no layout.
+  if (typeof document.elementFromPoint !== 'function') document.elementFromPoint = () => null;
 }

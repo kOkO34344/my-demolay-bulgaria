@@ -1,0 +1,94 @@
+{
+  "signup": {
+    "title": "Create an account",
+    "prompt": "New to My DeMolay?",
+    "promptLink": "Create an account",
+    "backToSignIn": "Back to sign in",
+    "createAccount": "Create account",
+    "stages": {
+      "details": {
+        "title": "About you",
+        "description": "Tell us who you are in DeMolay. An administrator checks this against the member list."
+      },
+      "account": {
+        "title": "Your account",
+        "description": "Your email address becomes your username. We confirm both your email and your phone."
+      },
+      "consent": {
+        "title": "Consent",
+        "description": "Read and accept the documents below. Your choices are recorded with the date and the document version."
+      },
+      "verify": {
+        "title": "Confirm your email and phone",
+        "description": "Enter the code sent to each."
+      },
+      "done": {
+        "title": "Almost there",
+        "description": "We have your details."
+      }
+    },
+    "memberTypes": {
+      "active": "Aged 14 to 21, with a DeM ID.",
+      "senior": "21 or over, a former active member, with a DeM ID.",
+      "advisor": "An adult who advises a chapter, with a DeM ID.",
+      "parent": "The parent of a member. You will need your child's DeM ID."
+    },
+    "fields": {
+      "memberType": "I am joining as",
+      "birthDateHint": "Members must be at least 14.",
+      "chapter": "Chapter",
+      "childChapter": "Your child's chapter",
+      "chapterPlaceholder": "Choose a chapter",
+      "demId": "DeM ID",
+      "demIdHint": "Your DeMolay International member number. Your chapter Secretary can tell you.",
+      "childDemId": "Your child's DeM ID",
+      "childDemIdHint": "Used to link your account to your child.",
+      "emailHint": "This becomes your username.",
+      "phoneHint": "Include the country code, e.g. +359.",
+      "confirmPassword": "Confirm password"
+    },
+    "consent": {
+      "placeholderDocuments": "Prototype: the privacy notice, terms and photo consent are still being written. Use fictional details only.",
+      "privacy": "I have read and accept the privacy notice",
+      "privacyHint": "How Foundation DeMolay Bulgaria uses your personal data. Required.",
+      "terms": "I accept the terms of use",
+      "termsHint": "The rules of the member area. Required.",
+      "photo": "Photos of me may be shown in the member area",
+      "photoHint": "Optional: you can join without it. Photos of members never appear on public pages.",
+      "version": "Version {{version}}."
+    },
+    "verify": {
+      "simulatedTitle": "Simulated codes",
+      "simulatedBody": "In production the first code would arrive by email and the second by SMS. This prototype shows them here.",
+      "emailCode": "Email code",
+      "phoneCode": "SMS code",
+      "codesExpire": "Valid until {{time}}.",
+      "emailCodeLabel": "Code sent to {{email}}",
+      "phoneCodeLabel": "Code sent to {{phone}}",
+      "confirm": "Confirm",
+      "resend": "Send new codes",
+      "startAgain": "Start again"
+    },
+    "done": {
+      "confirmation": "Your account is waiting for verification",
+      "next": "An administrator will check your details against the DeMolay International member list and we will email you when your account is ready. Until then you cannot sign in.",
+      "username": "Your username will be {{username}}."
+    },
+    "errors": {
+      "tooYoung": "Members must be at least 14 years old.",
+      "adultRequired": "Advisors and parents must be at least 18.",
+      "demIdRequired": "Enter your DeM ID.",
+      "childDemIdRequired": "Enter your child's DeM ID.",
+      "demIdFormat": "Use letters, digits and hyphens only, e.g. DEM-BG-10421.",
+      "consentRequired": "You need to accept this to create an account.",
+      "wrongCode": "This code is not correct.",
+      "tooManyAttempts": "Too many wrong codes. Start again to get new ones.",
+      "expired": "These codes have expired. Start again to get new ones.",
+      "childNotFound": "No member has this DeM ID, so the parent cannot be linked yet."
+    },
+    "checks": {
+      "activeTooOld": "Aged {{age}}: active members are under 21. Should this be a senior account?",
+      "seniorTooYoung": "Aged {{age}}: seniors are 21 or over. Should this be an active member?"
+    }
+  }
+}

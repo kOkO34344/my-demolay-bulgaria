@@ -64,7 +64,9 @@ describe('route guards', () => {
     expect(router.state.location.pathname).toBe('/login');
     expect(router.state.location.search).toBe('');
     expect(await screen.findByText("You've signed out.")).toBeInTheDocument();
-    expect(screen.getByText('Use your member username and password.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Use your username, or the email you signed up with, and your password.'),
+    ).toBeInTheDocument();
   });
 
   it('sends signed-in users away from /login to Home', async () => {

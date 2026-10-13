@@ -184,6 +184,16 @@ export default function LoginPage() {
         </form>
       </Form>
 
+      <p className="mt-6 text-sm text-muted-foreground">
+        {t('signup.prompt')}{' '}
+        <Link
+          to={paths.signup()}
+          className="rounded-sm font-medium text-primary underline decoration-primary/40 underline-offset-4 focus-ring hover:decoration-primary"
+        >
+          {t('signup.promptLink')}
+        </Link>
+      </p>
+
       <DemoAccessPanel enabled={isDemoMode} onSelect={fillDemoAccount} />
     </AuthLayout>
   );

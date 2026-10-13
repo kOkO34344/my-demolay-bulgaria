@@ -1,6 +1,7 @@
 import type {
   AnnouncementView,
   AttendanceEntry,
+  AudienceInsights,
   AuditLogEntryView,
   CalendarExport,
   Chapter,
@@ -13,12 +14,15 @@ import type {
   EventView,
   ImportedPositionSummary,
   InAppMessageView,
+  InvitationPreview,
+  InvitationView,
   IntegrationStatus,
   MappingPreview,
   MemberDetail,
   MemberSummary,
   Notification,
   NotificationPreferences,
+  OnboardingStatus,
   BroadcastResult,
   Paginated,
   Participant,
@@ -30,11 +34,16 @@ import type {
   RoleDefinition,
   RSVP,
   Session,
+  SignupOptions,
+  SignupResult,
+  SignupTicket,
   SpecialAssignment,
   SyncException,
   SyncJob,
   SyncJobDetail,
   TranslationTask,
+  VerificationDecisionResult,
+  VerificationRequestView,
 } from '@/domain';
 
 import type {
@@ -42,14 +51,18 @@ import type {
   AuthRepository,
   ChapterRepository,
   EventRepository,
+  InvitationRepository,
   MemberRepository,
   NotificationRepository,
+  OnboardingRepository,
   PostRepository,
   Repositories,
   ResourceRepository,
   RoleRepository,
+  SignupRepository,
   SyncRepository,
   TranslationRepository,
+  VerificationRepository,
 } from '../repositories';
 
 import { ApiUnavailableError } from '../errors';
@@ -240,6 +253,51 @@ export function createApiTranslationRepository(api: ApiClient): TranslationRepos
   };
 }
 
+export function createApiSignupRepository(api: ApiClient): SignupRepository {
+  return {
+    options: () => api.get<SignupOptions>('/signup/options'),
+    start: (input) => api.post<SignupTicket>('/signup', input),
+    resend: (signupId) => api.post<SignupTicket>(`/signup/${e(signupId)}/resend`),
+    verify: (input) =>
+      api.post<SignupResult>(`/signup/${e(input.signupId)}/verify`, {
+        emailCode: input.emailCode,
+        phoneCode: input.phoneCode,
+      }),
+  };
+}
+
+export function createApiVerificationRepository(api: ApiClient): VerificationRepository {
+  return {
+    list: () => api.get<VerificationRequestView[]>('/verifications'),
+    decide: (input) =>
+      api.post<VerificationDecisionResult>(`/verifications/${e(input.userId)}/decision`, {
+        decision: input.decision,
+        reason: input.reason,
+      }),
+  };
+}
+
+export function createApiInvitationRepository(api: ApiClient): InvitationRepository {
+  return {
+    list: () => api.get<InvitationView[]>('/invitations'),
+    create: (input) => api.post<InvitationView>('/invitations', input),
+    revoke: (id) => api.post<InvitationView>(`/invitations/${e(id)}/revoke`),
+    preview: (token) => api.get<InvitationPreview>(`/invitations/by-token/${e(token)}`),
+  };
+}
+
+export function createApiOnboardingRepository(api: ApiClient): OnboardingRepository {
+  return {
+    mine: () => api.get<OnboardingStatus>('/onboarding/me'),
+    submit: (answers) => api.put<OnboardingStatus>('/onboarding/me', answers),
+    skip: () => api.post<OnboardingStatus>('/onboarding/me/skip'),
+    insights: (query) =>
+      api.get<AudienceInsights>('/onboarding/insights', {
+        chapter_id: query.chapterId ?? undefined,
+      }),
+  };
+}
+
 export function createApiRepositories(api: ApiClient): Repositories {
   return {
     auth: createApiAuthRepository(api),
@@ -253,5 +311,9 @@ export function createApiRepositories(api: ApiClient): Repositories {
     roles: createApiRoleRepository(api),
     sync: createApiSyncRepository(api),
     translations: createApiTranslationRepository(api),
+    signup: createApiSignupRepository(api),
+    verifications: createApiVerificationRepository(api),
+    invitations: createApiInvitationRepository(api),
+    onboarding: createApiOnboardingRepository(api),
   };
 }

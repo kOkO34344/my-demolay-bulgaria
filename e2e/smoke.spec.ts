@@ -109,6 +109,67 @@ test('member reads a post and changes an event reply', async ({ page }) => {
   expect(problems).toEqual([]);
 });
 
+test('a new member signs up, is verified by a coordinator and signs in', async ({ page }) => {
+  const problems = collectConsoleProblems(page);
+  const year = new Date().getFullYear() - 16;
+
+  await page.goto('/login');
+  await page.getByRole('link', { name: 'Create an account' }).click();
+  await page.getByRole('radio', { name: /Active member/ }).click();
+  await page.getByLabel('First name').fill('Kalin');
+  await page.getByLabel('Last name').fill('Petrov');
+  await page.getByLabel('Date of birth').fill(`${year}-03-20`);
+  await page.getByRole('combobox', { name: 'Chapter' }).click();
+  await page.getByRole('option', { name: 'Sveta Sofia Chapter' }).click();
+  await page.getByRole('textbox', { name: 'DeM ID', exact: true }).fill('DEM-BG-20001');
+  await page.getByRole('button', { name: 'Continue' }).click();
+
+  await page.getByLabel('Email').fill('kalin.petrov@example.org');
+  await page.getByLabel('Phone').fill('+359 888 000 111');
+  await page.getByRole('textbox', { name: 'Password', exact: true }).fill('Test!Signup2026');
+  await page.getByRole('textbox', { name: 'Confirm password' }).fill('Test!Signup2026');
+  await page.getByRole('button', { name: 'Continue' }).click();
+
+  await page.getByRole('checkbox', { name: /privacy notice/ }).click();
+  await page.getByRole('checkbox', { name: /terms of use/ }).click();
+  await page.getByRole('button', { name: 'Create account' }).click();
+
+  const notice = page.getByText('Simulated codes').locator('..').locator('..');
+  const codes = await notice.getByText(/^\d{6}$/).allTextContents();
+  expect(codes).toHaveLength(2);
+  await page.getByLabel(/Code sent to kalin/).fill(codes[0] ?? '');
+  await page.getByLabel(/Code sent to \+359/).fill(codes[1] ?? '');
+  await page.getByRole('button', { name: 'Confirm' }).click();
+  await expect(page.getByText('Your account is waiting for verification')).toBeVisible();
+
+  await page.getByRole('link', { name: 'Go to sign in' }).click();
+  await page.getByLabel('Username').fill('national.officer.demo');
+  await page.getByRole('textbox', { name: 'Password' }).fill('Demo!National2026');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await page.goto('/verification');
+  await page.getByRole('button', { name: 'Review Kalin Petrov' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Approve' }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Approve' }).click();
+  await expect(page.getByText('Kalin Petrov approved.')).toBeVisible();
+
+  await page.goto('/more');
+  await page.getByRole('main').getByRole('button', { name: 'Sign out' }).click();
+  await page.getByLabel('Username').fill('kalin.petrov@example.org');
+  await page.getByRole('textbox', { name: 'Password' }).fill('Test!Signup2026');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  // First sign-in: the onboarding questions, then Home.
+  await expect(page.getByRole('heading', { level: 1, name: 'Welcome, Kalin' })).toBeVisible();
+  await page.getByRole('checkbox', { name: 'Sports' }).check();
+  await page.getByRole('checkbox', { name: 'Saturdays' }).check();
+  await page.getByRole('button', { name: 'Save answers' }).click();
+  await expect(
+    page.getByRole('heading', { level: 1, name: /^Good (morning|afternoon|evening), Kalin$/ }),
+  ).toBeVisible();
+  expect(problems).toEqual([]);
+});
+
 test('manifest is installable and every declared icon exists', async ({ request }) => {
   const response = await request.get('/manifest.webmanifest');
   expect(response.ok()).toBe(true);

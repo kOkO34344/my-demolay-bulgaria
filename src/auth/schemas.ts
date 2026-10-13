@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+import { MEMBER_TYPES, REQUIRED_CONSENTS } from '@/domain';
+import { signupAgeProblem } from '@/domain/rules/members';
+import { requiredText } from '@/domain/schemas/common';
+import { PHONE_PATTERN } from '@/domain/schemas/members';
+import { clock } from '@/lib/clock';
+
 /**
  * Auth form schemas shared by the UI (react-hook-form + zodResolver) and the mock repository
  * (server-side validation). Messages are i18n keys — see src/i18n/validation.ts.
@@ -74,3 +80,188 @@ export function zodFieldErrors(error: z.ZodError): Record<string, string> {
   }
   return fieldErrors;
 }
+
+// -------------------------------------------------------------------------------------------------
+// Signup (docs/BRIEF.md › Login)
+// -------------------------------------------------------------------------------------------------
+
+/** DeMolay International member id as entered: letters, digits and hyphens, stored upper-case. */
+export const DEM_ID_PATTERN = /^[A-Z0-9][A-Z0-9-]{2,29}$/;
+export const NAME_MAX_LENGTH = 60;
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Cross-field checks run even while other fields are invalid, so every error shows at once. */
+const ALWAYS = { when: () => true } as const;
+
+const demIdField = z
+  .string()
+  .trim()
+  .transform((value) => value.toUpperCase())
+  .nullable();
+
+/** Step 1 of the form: who you are. */
+const detailsFields = {
+  memberType: z.enum(MEMBER_TYPES, { error: 'validation.selectOption' }),
+  firstName: requiredText(NAME_MAX_LENGTH),
+  lastName: requiredText(NAME_MAX_LENGTH),
+  birthDate: z
+    .string()
+    .trim()
+    .min(1, { error: 'validation.required' })
+    .pipe(z.iso.date({ error: 'validation.invalidDate' })),
+  chapterId: z.string().trim().min(1, { error: 'validation.selectOption' }),
+  demId: demIdField,
+  childDemId: demIdField,
+};
+
+/** Step 2: how you sign in and how we reach you. */
+const accountFields = {
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email({ error: 'validation.invalidEmail' })),
+  phone: z.string().trim().regex(PHONE_PATTERN, { error: 'messages.validation.phoneFormat' }),
+  password: passwordPolicySchema,
+};
+
+/** Step 3: the signed documents. */
+const consentFields = {
+  consents: z.object({ privacy: z.boolean(), terms: z.boolean(), photo: z.boolean() }),
+};
+
+const invitationField = { invitationToken: z.string().trim().nullable().optional() };
+
+type DetailsValues = z.output<z.ZodObject<typeof detailsFields>>;
+type ConsentValues = z.output<z.ZodObject<typeof consentFields>>;
+
+/** Age fits the member type; the right DeM ID (own, or the child's for parents) is present. */
+function checkDetails(value: DetailsValues, ctx: z.RefinementCtx): void {
+  // Runs even when other fields are invalid (ALWAYS), so guard against half-filled values.
+  const typeChosen = (MEMBER_TYPES as readonly unknown[]).includes(value.memberType);
+  const birthDateValid = typeof value.birthDate === 'string' && ISO_DATE.test(value.birthDate);
+  const ageProblem =
+    typeChosen && birthDateValid
+      ? signupAgeProblem(value.memberType, value.birthDate, clock.now())
+      : null;
+  if (ageProblem?.blocking) {
+    ctx.addIssue({ code: 'custom', path: ['birthDate'], message: ageProblem.key });
+  }
+
+  const field = value.memberType === 'parent' ? 'childDemId' : 'demId';
+  const entered = typeof value[field] === 'string' ? value[field] : null;
+  if (!entered) {
+    ctx.addIssue({
+      code: 'custom',
+      path: [field],
+      message:
+        field === 'demId' ? 'signup.errors.demIdRequired' : 'signup.errors.childDemIdRequired',
+    });
+  } else if (!DEM_ID_PATTERN.test(entered)) {
+    ctx.addIssue({ code: 'custom', path: [field], message: 'signup.errors.demIdFormat' });
+  }
+}
+
+function checkConsents(value: ConsentValues, ctx: z.RefinementCtx): void {
+  for (const kind of REQUIRED_CONSENTS) {
+    if (!value.consents[kind]) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['consents', kind],
+        message: 'signup.errors.consentRequired',
+      });
+    }
+  }
+}
+
+/** Server-side signup payload. */
+export const signupSchema = z
+  .object({ ...detailsFields, ...accountFields, ...consentFields, ...invitationField })
+  .superRefine((value, ctx) => {
+    checkDetails(value, ctx);
+    checkConsents(value, ctx);
+  });
+
+/**
+ * The form validates one step at a time (zod runs cross-field rules only once every field of an
+ * object is valid, so a single whole-form schema could not explain an age problem on step 1).
+ */
+export const signupStepSchemas = {
+  details: z.object(detailsFields).superRefine(checkDetails, ALWAYS),
+  account: z
+    .object({
+      ...accountFields,
+      confirmPassword: z.string().min(1, { error: 'validation.required' }),
+    })
+    .superRefine((value, ctx) => {
+      if (value.password !== value.confirmPassword) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['confirmPassword'],
+          message: 'validation.passwordsDontMatch',
+        });
+      }
+    }, ALWAYS),
+  consent: z.object(consentFields).superRefine(checkConsents, ALWAYS),
+} as const;
+export type SignupStep = keyof typeof signupStepSchemas;
+export const SIGNUP_STEPS = Object.keys(signupStepSchemas) as SignupStep[];
+
+/** Every value the signup form holds (as typed; schemas trim and normalise on submit). */
+export interface SignupFormValues {
+  memberType: z.input<typeof detailsFields.memberType> | '';
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  chapterId: string;
+  demId: string;
+  childDemId: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+  consents: { privacy: boolean; terms: boolean; photo: boolean };
+}
+
+const sixDigits = z
+  .string()
+  .trim()
+  .regex(/^\d{6}$/, { error: 'validation.invalidCode' });
+
+export const signupVerifySchema = z.object({
+  signupId: z.string().trim().min(1, { error: 'validation.required' }),
+  /** Empty for invitations (the link confirmed the email address). */
+  emailCode: z
+    .string()
+    .trim()
+    .regex(/^(\d{6})?$/, { error: 'validation.invalidCode' }),
+  phoneCode: sixDigits,
+});
+export type SignupVerifyFormValues = z.infer<typeof signupVerifySchema>;
+
+// -------------------------------------------------------------------------------------------------
+// Invitations (docs/ROADMAP.md §4)
+// -------------------------------------------------------------------------------------------------
+
+const optionalDemId = z
+  .string()
+  .trim()
+  .transform((value) => value.toUpperCase())
+  .refine((value) => value === '' || DEM_ID_PATTERN.test(value), {
+    error: 'signup.errors.demIdFormat',
+  })
+  .transform((value) => value || null)
+  .nullable();
+
+/** Who to invite. DeM IDs are optional: the invitee can add or correct them when signing up. */
+export const invitationSchema = z.object({
+  email: accountFields.email,
+  firstName: detailsFields.firstName,
+  lastName: detailsFields.lastName,
+  memberType: detailsFields.memberType,
+  chapterId: detailsFields.chapterId,
+  demId: optionalDemId,
+  childDemId: optionalDemId,
+});
+export type InvitationFormValues = z.input<typeof invitationSchema>;

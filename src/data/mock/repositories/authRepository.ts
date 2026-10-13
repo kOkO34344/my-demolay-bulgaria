@@ -35,6 +35,8 @@ import type {
 } from '@/domain';
 import { clock } from '@/lib/clock';
 
+import { oneTimeCode } from '../helpers';
+
 /**
  * Mock authentication (OWNED BY THE CORE TEAM).
  *  - Username/password checked against the session-scoped credential store (demo accounts only).
@@ -150,14 +152,6 @@ function assertStrongPassword(value: string, field: string): void {
   }
 }
 
-function generateResetCode(): string {
-  const value =
-    typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function'
-      ? (crypto.getRandomValues(new Uint32Array(1))[0] ?? 0)
-      : Math.floor(Math.random() * 1_000_000);
-  return String(value % 1_000_000).padStart(6, '0');
-}
-
 export function createMockAuthRepository(): AuthRepository {
   return {
     async login(input) {
@@ -252,7 +246,7 @@ export function createMockAuthRepository(): AuthRepository {
       if (!parsed.success) throw new ValidationError(zodFieldErrors(parsed.error));
       const identifier = normalize(parsed.data.identifier);
       const credential = findCredentialByUsername(identifier);
-      const code = generateResetCode();
+      const code = oneTimeCode();
       const expiresAt = new Date(
         clock.now().getTime() + RESET_CODE_TTL_MINUTES * 60_000,
       ).toISOString();

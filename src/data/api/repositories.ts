@@ -1,6 +1,7 @@
 import type {
   AnnouncementView,
   AttendanceEntry,
+  AudienceInsights,
   AuditLogEntryView,
   CalendarExport,
   Chapter,
@@ -21,6 +22,7 @@ import type {
   MemberSummary,
   Notification,
   NotificationPreferences,
+  OnboardingStatus,
   BroadcastResult,
   Paginated,
   Participant,
@@ -52,6 +54,7 @@ import type {
   InvitationRepository,
   MemberRepository,
   NotificationRepository,
+  OnboardingRepository,
   PostRepository,
   Repositories,
   ResourceRepository,
@@ -283,6 +286,18 @@ export function createApiInvitationRepository(api: ApiClient): InvitationReposit
   };
 }
 
+export function createApiOnboardingRepository(api: ApiClient): OnboardingRepository {
+  return {
+    mine: () => api.get<OnboardingStatus>('/onboarding/me'),
+    submit: (answers) => api.put<OnboardingStatus>('/onboarding/me', answers),
+    skip: () => api.post<OnboardingStatus>('/onboarding/me/skip'),
+    insights: (query) =>
+      api.get<AudienceInsights>('/onboarding/insights', {
+        chapter_id: query.chapterId ?? undefined,
+      }),
+  };
+}
+
 export function createApiRepositories(api: ApiClient): Repositories {
   return {
     auth: createApiAuthRepository(api),
@@ -299,5 +314,6 @@ export function createApiRepositories(api: ApiClient): Repositories {
     signup: createApiSignupRepository(api),
     verifications: createApiVerificationRepository(api),
     invitations: createApiInvitationRepository(api),
+    onboarding: createApiOnboardingRepository(api),
   };
 }

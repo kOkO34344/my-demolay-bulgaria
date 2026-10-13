@@ -45,6 +45,15 @@
       "participants": "Who is coming",
       "notes": "Organiser notes",
       "notesHint": "Visible to organisers and officers only."
+    },
+    "audience": {
+      "title": "Your audience: {{scope}}",
+      "everyone": "all chapters",
+      "respondents_one": "{{count}} of {{members}} member answered the onboarding questions",
+      "respondents_other": "{{count}} of {{members}} members answered the onboarding questions",
+      "topInterests": "Top interests",
+      "availability": "When they are free",
+      "ageBands": "Age bands"
     }
   }
 }

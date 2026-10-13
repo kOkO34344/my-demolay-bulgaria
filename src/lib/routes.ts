@@ -34,6 +34,7 @@ export const ROUTE_PATTERNS = {
   resources: '/resources',
   notifications: '/notifications',
   profile: '/profile',
+  onboarding: '/onboarding',
   more: '/more',
   officerWorkspace: '/workspace',
   content: '/content',
@@ -88,6 +89,8 @@ export const paths = {
   profile: (section?: string) =>
     section ? `${ROUTE_PATTERNS.profile}#${section}` : ROUTE_PATTERNS.profile,
   more: () => ROUTE_PATTERNS.more,
+  onboarding: (redirectTo?: string) =>
+    withQuery(ROUTE_PATTERNS.onboarding, { redirect: redirectTo }),
   officerWorkspace: () => ROUTE_PATTERNS.officerWorkspace,
   content: (query?: { status?: string }) => withQuery(ROUTE_PATTERNS.content, query),
   contentCreate: () => ROUTE_PATTERNS.contentCreate,

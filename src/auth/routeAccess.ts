@@ -36,6 +36,7 @@ export const ROUTE_ACCESS: Record<RouteId, RouteAccessRule> = {
   resources: { allOf: ['resource.read'] },
   notifications: { allOf: ['notification.read'] },
   profile: AUTHENTICATED,
+  onboarding: AUTHENTICATED,
   more: AUTHENTICATED,
   officerWorkspace: {
     anyOf: ['post.create', 'event.create', 'attendance.manage', 'resource.upload'],

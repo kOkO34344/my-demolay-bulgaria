@@ -227,6 +227,17 @@ export const APP_ROUTES: readonly AppRouteDefinition[] = [
     access: { routeId: 'profile' },
   },
   {
+    id: 'onboarding',
+    path: P.onboarding,
+    titleKey: 'onboarding.title',
+    section: 'profile',
+    owner: 'profile',
+    file: 'src/features/onboarding/pages/OnboardingPage.tsx',
+    load: () => import('@/features/onboarding/pages/OnboardingPage'),
+    skeleton: 'form',
+    access: { routeId: 'onboarding' },
+  },
+  {
     id: 'more',
     path: P.more,
     titleKey: 'nav.more',

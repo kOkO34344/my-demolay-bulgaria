@@ -158,6 +158,12 @@ test('a new member signs up, is verified by a coordinator and signs in', async (
   await page.getByLabel('Username').fill('kalin.petrov@example.org');
   await page.getByRole('textbox', { name: 'Password' }).fill('Test!Signup2026');
   await page.getByRole('button', { name: 'Sign in' }).click();
+
+  // First sign-in: the onboarding questions, then Home.
+  await expect(page.getByRole('heading', { level: 1, name: 'Welcome, Kalin' })).toBeVisible();
+  await page.getByRole('checkbox', { name: 'Sports' }).check();
+  await page.getByRole('checkbox', { name: 'Saturdays' }).check();
+  await page.getByRole('button', { name: 'Save answers' }).click();
   await expect(
     page.getByRole('heading', { level: 1, name: /^Good (morning|afternoon|evening), Kalin$/ }),
   ).toBeVisible();

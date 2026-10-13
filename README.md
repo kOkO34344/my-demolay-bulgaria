@@ -29,7 +29,7 @@ The four brief documents are imported from the original project repository and s
 | Administration console and audit log | Done | Not yet |
 | Signup, verification queue, consent capture | Done: email and phone codes (simulated), consents with version and time, automatic checks, approve or reject with audit | Done: `/signup` and `/verification` |
 | Invitations by administrators and officers | Done: link instead of email code, pre-approved when the inviter may approve accounts | Done: `/invitations` and `/invite/<token>` |
-| Onboarding questionnaire | Not yet | Not yet |
+| Onboarding questionnaire | Done: questions by member type, age band from date of birth, totals for planners | Done: `/onboarding` after first sign-in, Home reminder, audience panel on Events for planners |
 | Helpdesk | Not yet. Permission exists | Not yet |
 | Public website | Not yet. Separate project scope; see DECISIONS.md 2026-09-22 | Not yet |
 

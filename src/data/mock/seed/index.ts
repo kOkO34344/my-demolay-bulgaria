@@ -11,6 +11,7 @@ import { seedChapters } from './chapters';
 import { seedContent } from './content';
 import { ago, at, type SeedContext } from './context';
 import { seedDemoAccounts } from './demoAccounts';
+import { seedOnboarding } from './onboarding';
 import { SYNC_PROVIDER_LABEL, lastSeededSyncFinishedAt, seededJobFinishedAt } from './sync';
 
 /**
@@ -117,6 +118,14 @@ export function buildSeedState(now: Date): DatabaseState {
     acceptedUserId: null,
     revokedAt: null,
   };
+
+  for (const record of seedOnboarding(
+    collections.users,
+    collections.members,
+    ago(ctx, { days: 20 }),
+  )) {
+    collections.onboarding[record.id] = record;
+  }
 
   const meta = defaultMeta(now.toISOString());
   meta.integration = { providerLabel: SYNC_PROVIDER_LABEL, nextScheduledAt: at(ctx, 1, '03:00') };

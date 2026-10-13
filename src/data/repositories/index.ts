@@ -5,6 +5,7 @@ import type { EventRepository } from './eventRepository';
 import type { InvitationRepository } from './invitationRepository';
 import type { MemberRepository } from './memberRepository';
 import type { NotificationRepository } from './notificationRepository';
+import type { OnboardingRepository } from './onboardingRepository';
 import type { PostRepository } from './postRepository';
 import type { ResourceRepository } from './resourceRepository';
 import type { RoleRepository } from './roleRepository';
@@ -21,6 +22,7 @@ export type {
   InvitationRepository,
   MemberRepository,
   NotificationRepository,
+  OnboardingRepository,
   PostRepository,
   ResourceRepository,
   RoleRepository,
@@ -46,4 +48,5 @@ export interface Repositories {
   signup: SignupRepository;
   verifications: VerificationRepository;
   invitations: InvitationRepository;
+  onboarding: OnboardingRepository;
 }

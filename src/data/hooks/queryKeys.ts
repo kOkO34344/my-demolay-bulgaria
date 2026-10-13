@@ -1,5 +1,6 @@
 import type {
   AnnouncementFeedQuery,
+  AudienceInsightsQuery,
   AuditQuery,
   EntityType,
   EventListQuery,
@@ -109,6 +110,11 @@ export const queryKeys = {
     all: [...root, 'invitations'] as const,
     list: () => [...root, 'invitations', 'list'] as const,
     preview: (token: string) => [...root, 'invitations', 'preview', token] as const,
+  },
+  onboarding: {
+    all: [...root, 'onboarding'] as const,
+    mine: () => [...root, 'onboarding', 'mine'] as const,
+    insights: (query: AudienceInsightsQuery) => [...root, 'onboarding', 'insights', query] as const,
   },
 } as const;
 

@@ -19,3 +19,4 @@ export * from './demo';
 export * from './signup';
 export * from './verifications';
 export * from './invitations';
+export * from './onboarding';

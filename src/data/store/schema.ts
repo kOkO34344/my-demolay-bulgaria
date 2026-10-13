@@ -12,6 +12,7 @@ import type {
   MemberPrivateFields,
   MemberProfile,
   Notification,
+  OnboardingRecord,
   PositionRoleMapping,
   Resource,
   RoleAssignment,
@@ -29,7 +30,7 @@ import type {
  * Bump whenever the seed data or record shapes change: stale sessionStorage snapshots with a
  * different version are discarded and re-seeded on next load.
  */
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 /** Server-side member record (public profile + restricted fields). Never returned to the UI as-is. */
 export interface MemberRecord extends MemberProfile {
@@ -83,6 +84,7 @@ export interface DatabaseCollections {
   syncExceptions: Record<ID, SyncException>;
   signupRequests: Record<ID, SignupRequest>;
   invitations: Record<ID, Invitation>;
+  onboarding: Record<ID, OnboardingRecord>;
 }
 
 export type CollectionName = keyof DatabaseCollections;
@@ -110,6 +112,7 @@ export const COLLECTION_NAMES: CollectionName[] = [
   'syncExceptions',
   'signupRequests',
   'invitations',
+  'onboarding',
 ];
 
 export interface SessionRecord {
@@ -186,6 +189,7 @@ export function emptyCollections(): DatabaseCollections {
     syncExceptions: {},
     signupRequests: {},
     invitations: {},
+    onboarding: {},
   };
 }
 

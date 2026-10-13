@@ -97,3 +97,13 @@ The brief's second route in ("invitation by an administrator"; ROADMAP.md §4 ma
 - The invitation fixes the email, member type and chapter; names and DeM ID are prefilled and editable. Following the link stands in for the email code; the phone is still confirmed by SMS, so both contacts are verified as the brief requires.
 - An invitation from someone who may approve accounts (account.verify) is pre-approved: the account opens on signup. Other invitations end in the verification queue, which shows who invited the person. A pre-approved parent whose child's DeM ID matches nobody still goes to the queue.
 - Links are valid for 14 days and can be revoked. One open invitation per email address; an address that already has an account cannot be invited. The prototype shows the link to share instead of sending email.
+
+## 2026-10-13 — Onboarding questionnaire
+
+BRIEF.md › Login: "An onboarding questionnaire follows, varying by member type, and feeds event planning"; ROADMAP.md §3: "interests, age band and availability". As built, open to correction by the product owner:
+
+- Three questions: interests, when people are usually free, and how they could help. Active members and seniors must pick at least one interest and one time; advisors are asked which activities they could help run (optional) and when they are free; parents are not asked about interests, only (optionally) about time and help such as driving or fundraising. The option lists are a first proposal for the product owner to edit.
+- Age band is not asked: it is derived from the date of birth already on file (14–17, 18–20, 21–29, 30+).
+- After the first sign-in each person is sent to the questionnaire once and back to the page they wanted. "Later" stops the redirect and leaves a reminder on Home. Answers can be changed at any time.
+- Event planners (event.create; chapter planners for their chapter, national planners for all) see totals on the Events page: how many answered, top interests, free times and age bands. Nobody sees another person's answers.
+- Seeded accounts already have answers so the demo is not interrupted; new signups and invitees get the questionnaire.

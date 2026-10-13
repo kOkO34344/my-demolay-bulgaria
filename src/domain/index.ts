@@ -17,3 +17,4 @@ export * from './types/translations';
 export * from './types/auth';
 export * from './types/signup';
 export * from './types/invitations';
+export * from './types/onboarding';

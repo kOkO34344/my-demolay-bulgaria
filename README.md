@@ -27,7 +27,8 @@ The four brief documents are imported from the original project repository and s
 | Documents and rituals | Done: resources by category, with rituals restricted | Not yet |
 | Member directory and chapter pages | Done | Not yet |
 | Administration console and audit log | Done | Not yet |
-| Signup, verification queue, consent capture, onboarding | Not yet. The data model carries member type, DeM ID, consents and linked children | Not yet |
+| Signup, verification queue, consent capture | Done: email and phone codes (simulated), consents with version and time, automatic checks, approve or reject with audit | Done: `/signup` and `/verification` |
+| Onboarding questionnaire | Not yet | Not yet |
 | Helpdesk | Not yet. Permission exists | Not yet |
 | Public website | Not yet. Separate project scope; see DECISIONS.md 2026-09-22 | Not yet |
 
@@ -102,6 +103,8 @@ Demo mode (`VITE_DEMO_MODE=true`, the default) shows sign-in cards on the login 
 | `admin.demo` | `Demo!Admin2026` | National Representative and system administrator |
 
 The role switcher lets any signed-in demo account act as one of these personas.
+
+To try signup, choose "Create an account" on the login page; the email and SMS codes are shown on screen. Sign in as `national.officer.demo` or `admin.demo` and open Account verification to approve or reject it. The seed already has two pending accounts, one of them a parent.
 
 ## Project structure
 

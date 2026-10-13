@@ -103,3 +103,12 @@ export function assertNoFieldErrors(errors: Record<string, string>, formErrorKey
 export function byNewest<T>(pick: (item: T) => string): (a: T, b: T) => number {
   return (a, b) => pick(b).localeCompare(pick(a));
 }
+
+/** Six-digit one-time code (password reset, signup email and phone confirmation). */
+export function oneTimeCode(): string {
+  const value =
+    typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function'
+      ? (crypto.getRandomValues(new Uint32Array(1))[0] ?? 0)
+      : Math.floor(Math.random() * 1_000_000);
+  return String(value % 1_000_000).padStart(6, '0');
+}

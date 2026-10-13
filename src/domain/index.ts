@@ -15,3 +15,4 @@ export * from './types/audit';
 export * from './types/sync';
 export * from './types/translations';
 export * from './types/auth';
+export * from './types/signup';

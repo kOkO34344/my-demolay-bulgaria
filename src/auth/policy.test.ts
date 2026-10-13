@@ -657,8 +657,11 @@ describe('navigation visibility per persona', () => {
     ['chapter_secretary', [...BASE, 'officerWorkspace', 'members', 'profile']],
     ['chapter_chairman', [...BASE, 'officerWorkspace', 'content', 'members', 'profile']],
     ['chapter_treasurer', [...BASE, 'profile']],
-    ['national_coordinator', [...BASE, 'officerWorkspace', 'content', 'profile']],
-    ['sysadmin', [...BASE, 'officerWorkspace', 'content', 'members', 'admin', 'profile']],
+    ['national_coordinator', [...BASE, 'officerWorkspace', 'content', 'verification', 'profile']],
+    [
+      'sysadmin',
+      [...BASE, 'officerWorkspace', 'content', 'members', 'verification', 'admin', 'profile'],
+    ],
   ])('%s sidebar', (persona, expected) => {
     expect(ids(persona)).toEqual(expected);
   });
@@ -686,6 +689,9 @@ describe('navigation visibility per persona', () => {
     expect(canAccessRoute(S.chapter_secretary, 'content', NOW)).toBe(false);
     expect(canAccessRoute(S.parent, 'chapter', NOW)).toBe(false);
     expect(canAccessRoute(S.national_coordinator, 'members', NOW)).toBe(false);
+    expect(canAccessRoute(S.national_coordinator, 'verification', NOW)).toBe(true);
+    expect(canAccessRoute(S.chapter_chairman, 'verification', NOW)).toBe(false);
+    expect(canAccessRoute(null, 'signup', NOW)).toBe(true);
     expect(canAccessRoute(null, 'login', NOW)).toBe(true);
     expect(canAccessRoute(null, 'home', NOW)).toBe(false);
     expect(visibleAdminTabs(S.sysadmin, NOW)).toHaveLength(10);

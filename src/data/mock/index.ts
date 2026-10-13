@@ -9,8 +9,10 @@ import { createMockNotificationRepository } from './repositories/notificationRep
 import { createMockPostRepository } from './repositories/postRepository';
 import { createMockResourceRepository } from './repositories/resourceRepository';
 import { createMockRoleRepository } from './repositories/roleRepository';
+import { createMockSignupRepository } from './repositories/signupRepository';
 import { createMockSyncRepository } from './repositories/syncRepository';
 import { createMockTranslationRepository } from './repositories/translationRepository';
+import { createMockVerificationRepository } from './repositories/verificationRepository';
 
 /** All mock repositories backed by the session-scoped store (src/data/store). */
 export function createMockRepositories(): Repositories {
@@ -26,5 +28,7 @@ export function createMockRepositories(): Repositories {
     roles: createMockRoleRepository(),
     sync: createMockSyncRepository(),
     translations: createMockTranslationRepository(),
+    signup: createMockSignupRepository(),
+    verifications: createMockVerificationRepository(),
   };
 }

@@ -182,6 +182,14 @@
       "roleRemoved": {
         "title": "A role has ended",
         "body": "You no longer hold the role {{role}} ({{scope}})."
+      },
+      "signupSubmitted": {
+        "title": "New account to verify: {{name}}",
+        "body": "Someone signed up for {{chapter}}. Check them against the member list."
+      },
+      "accountVerified": {
+        "title": "Your account has been verified",
+        "body": "Welcome to My DeMolay Bulgaria. The member area is now open to you."
       }
     },
     "audit": {
@@ -230,7 +238,10 @@
       "translationUpdatedBg": "Updated the Bulgarian version of “{{title}}”",
       "translationReviewedEn": "Reviewed the English version of “{{title}}”",
       "translationReviewedBg": "Reviewed the Bulgarian version of “{{title}}”",
-      "roleRemoved": "Ended {{name}}’s role “{{role}}” ({{scope}}): {{reason}}"
+      "roleRemoved": "Ended {{name}}’s role “{{role}}” ({{scope}}): {{reason}}",
+      "signupSubmitted": "{{name}} signed up and confirmed their email and phone",
+      "accountApproved": "Approved the account of {{name}}",
+      "accountRejected": "Rejected the signup of {{name}}: {{reason}}"
     }
   }
 }

@@ -74,3 +74,17 @@ Where the matrix is silent or ambiguous, the prototype does the following. Each 
 - Event items follow DESIGN-SYSTEM.md §6: Oxford left border by default, Ruby when the event starts within 24 hours, Beacon when an explicit registration deadline closes within 72 hours. Each flag is also written out in text.
 - Bilingual content missing in the reader's language falls back to the other language with a visible "Not translated yet" note and the correct `lang` attribute.
 - Not yet: the seven obligatory days in the calendar (the dates are not in the brief and are not invented here), "posts from Europe" as a feed scope, and the post and event editors.
+
+## 2026-10-13 — Signup and the verification queue
+
+Built per BRIEF.md › Login: open signup with email and phone verification and consent capture, then the administrator verification queue. Points the brief leaves open, each open to correction by the product owner:
+
+- The email address is the username. One code by email and one by SMS, valid 30 minutes, five wrong attempts discard the signup. The prototype shows the codes on screen.
+- An email that already has an account gets the same answers and no second account, so signup never reveals who is registered. Production would email the owner instead.
+- Privacy notice and terms are required. Photo consent is a free choice (consent tied to a service is not freely given), recorded only when given. Each consent stores its document version and time; the documents themselves are still owed by the Executive Director (ROADMAP.md §8), so version `2026-09` is a placeholder.
+- Ages: nobody under 14, advisors and parents 18 or over. An "active member" of 21+ or a "senior" under 21 is not blocked; the verifier sees it flagged, because the move to senior is actioned by a person.
+- A parent enters their child's DeM ID. Approval links them to the member holding it; a parent whose child is not found cannot be approved yet.
+- The member list itself (the DeMolay International export) is not in the system yet (ROADMAP.md §8), so verification is a human comparison. The automatic checks only help: age against member type, a DeM ID already held by another account, and the parent's child.
+- Verifiers are the holders of account.verify: system administrators, Executive Director, National Representative, National Secretary and National Coordinator. Each new signup notifies them.
+- Rejecting needs a reason and deletes the account and the personal data entered; the audit log keeps the decision and the name. Approving records the DeM ID (or the parent link) and notifies the member.
+- Not yet: invitation by an administrator (the second route in the brief) and the onboarding questionnaire.

@@ -30,11 +30,16 @@ import type {
   RoleDefinition,
   RSVP,
   Session,
+  SignupOptions,
+  SignupResult,
+  SignupTicket,
   SpecialAssignment,
   SyncException,
   SyncJob,
   SyncJobDetail,
   TranslationTask,
+  VerificationDecisionResult,
+  VerificationRequestView,
 } from '@/domain';
 
 import type {
@@ -48,8 +53,10 @@ import type {
   Repositories,
   ResourceRepository,
   RoleRepository,
+  SignupRepository,
   SyncRepository,
   TranslationRepository,
+  VerificationRepository,
 } from '../repositories';
 
 import { ApiUnavailableError } from '../errors';
@@ -240,6 +247,30 @@ export function createApiTranslationRepository(api: ApiClient): TranslationRepos
   };
 }
 
+export function createApiSignupRepository(api: ApiClient): SignupRepository {
+  return {
+    options: () => api.get<SignupOptions>('/signup/options'),
+    start: (input) => api.post<SignupTicket>('/signup', input),
+    resend: (signupId) => api.post<SignupTicket>(`/signup/${e(signupId)}/resend`),
+    verify: (input) =>
+      api.post<SignupResult>(`/signup/${e(input.signupId)}/verify`, {
+        emailCode: input.emailCode,
+        phoneCode: input.phoneCode,
+      }),
+  };
+}
+
+export function createApiVerificationRepository(api: ApiClient): VerificationRepository {
+  return {
+    list: () => api.get<VerificationRequestView[]>('/verifications'),
+    decide: (input) =>
+      api.post<VerificationDecisionResult>(`/verifications/${e(input.userId)}/decision`, {
+        decision: input.decision,
+        reason: input.reason,
+      }),
+  };
+}
+
 export function createApiRepositories(api: ApiClient): Repositories {
   return {
     auth: createApiAuthRepository(api),
@@ -253,5 +284,7 @@ export function createApiRepositories(api: ApiClient): Repositories {
     roles: createApiRoleRepository(api),
     sync: createApiSyncRepository(api),
     translations: createApiTranslationRepository(api),
+    signup: createApiSignupRepository(api),
+    verifications: createApiVerificationRepository(api),
   };
 }

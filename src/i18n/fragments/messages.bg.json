@@ -182,6 +182,14 @@
       "roleRemoved": {
         "title": "Роля е прекратена",
         "body": "Вече не изпълнявате ролята {{role}} ({{scope}})."
+      },
+      "signupSubmitted": {
+        "title": "Нов профил за проверка: {{name}}",
+        "body": "Нова регистрация в {{chapter}}. Проверете я спрямо списъка на членовете."
+      },
+      "accountVerified": {
+        "title": "Профилът ви е потвърден",
+        "body": "Добре дошли в My DeMolay Bulgaria. Зоната за членове вече е отворена за вас."
       }
     },
     "audit": {
@@ -230,7 +238,10 @@
       "translationUpdatedBg": "Обнови българската версия на „{{title}}“",
       "translationReviewedEn": "Прегледа английската версия на „{{title}}“",
       "translationReviewedBg": "Прегледа българската версия на „{{title}}“",
-      "roleRemoved": "Прекрати ролята „{{role}}“ на {{name}} ({{scope}}): {{reason}}"
+      "roleRemoved": "Прекрати ролята „{{role}}“ на {{name}} ({{scope}}): {{reason}}",
+      "signupSubmitted": "{{name}} се регистрира и потвърди имейла и телефона си",
+      "accountApproved": "Одобри профила на {{name}}",
+      "accountRejected": "Отхвърли регистрацията на {{name}}: {{reason}}"
     }
   }
 }

@@ -9,6 +9,7 @@ import {
   LandmarkIcon,
   NewspaperIcon,
   Settings2Icon,
+  UserRoundCheckIcon,
   UserRoundIcon,
   UsersIcon,
   type LucideIcon,
@@ -29,6 +30,7 @@ export const NAV_ICONS: Record<NavSection, LucideIcon> = {
   officerWorkspace: ClipboardListIcon,
   content: FileTextIcon,
   members: UsersIcon,
+  verification: UserRoundCheckIcon,
   admin: Settings2Icon,
 };
 

@@ -79,6 +79,22 @@ export function buildSeedState(now: Date): DatabaseState {
   const petko = collections.roleAssignments['ra-u-b03'];
   if (petko) petko.assignedAt = at(ctx, -21, '10:40');
 
+  // Pending accounts came through open signup: give each its verification request.
+  for (const user of Object.values(collections.users)) {
+    const member = collections.members[user.id];
+    if (user.status !== 'pending' || !member) continue;
+    const child = member.linkedMemberIds[0] ? collections.members[member.linkedMemberIds[0]] : null;
+    collections.signupRequests[user.id] = {
+      id: user.id,
+      userId: user.id,
+      submittedAt: user.createdAt,
+      emailVerifiedAt: user.createdAt,
+      phoneVerifiedAt: user.createdAt,
+      claimedDemId: member.memberType === 'parent' ? null : member.demId,
+      childDemId: member.memberType === 'parent' ? (child?.demId ?? null) : null,
+    };
+  }
+
   const meta = defaultMeta(now.toISOString());
   meta.integration = { providerLabel: SYNC_PROVIDER_LABEL, nextScheduledAt: at(ctx, 1, '03:00') };
   return { collections, meta };

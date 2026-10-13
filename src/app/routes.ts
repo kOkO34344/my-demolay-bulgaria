@@ -42,6 +42,7 @@ export type NavSection =
   | 'officerWorkspace'
   | 'content'
   | 'members'
+  | 'verification'
   | 'admin';
 
 export type FeatureOwner =
@@ -57,6 +58,7 @@ export type FeatureOwner =
   | 'officer'
   | 'content'
   | 'members'
+  | 'verification'
   | 'admin'
   | 'access'
   | 'sync';
@@ -289,6 +291,17 @@ export const APP_ROUTES: readonly AppRouteDefinition[] = [
     access: { routeId: 'members' },
   },
   {
+    id: 'verification',
+    path: P.verification,
+    titleKey: 'nav.verification',
+    section: 'verification',
+    owner: 'verification',
+    file: 'src/features/verification/pages/VerificationQueuePage.tsx',
+    load: () => import('@/features/verification/pages/VerificationQueuePage'),
+    skeleton: 'list',
+    access: { routeId: 'verification' },
+  },
+  {
     id: 'admin',
     path: P.admin,
     titleKey: 'nav.administration',
@@ -406,6 +419,16 @@ export const PUBLIC_ROUTES: readonly AppRouteDefinition[] = [
     owner: 'auth',
     file: 'src/features/auth/pages/LoginPage.tsx',
     load: () => import('@/features/auth/pages/LoginPage'),
+    skeleton: 'form',
+  },
+  {
+    id: 'signup',
+    path: P.signup,
+    titleKey: 'signup.title',
+    section: null,
+    owner: 'auth',
+    file: 'src/features/auth/pages/SignupPage.tsx',
+    load: () => import('@/features/auth/pages/SignupPage'),
     skeleton: 'form',
   },
   {

@@ -45,3 +45,41 @@ export function needsAdultApprovalForPublic(authorBirthDate: ISODate | null, now
   const age = ageOn(authorBirthDate, now);
   return age === null || age < ADULT_AGE;
 }
+
+/** Oldest plausible age; anything above is a typing mistake. */
+const MAXIMUM_PLAUSIBLE_AGE = 110;
+
+export interface SignupAgeProblem {
+  /** i18n key (fragment `signup` or `validation`). */
+  key: string;
+  /** Blocks signup. Non-blocking problems are shown to the verifier, who decides. */
+  blocking: boolean;
+}
+
+/**
+ * Whether a date of birth fits the member type chosen at signup (null when it does):
+ *  - blocking: no date, an implausible date, anyone under 14 (docs/BRIEF.md › Constraints 1), and
+ *    advisors or parents under 18;
+ *  - for the verifier only: an "active member" aged 21 or more, or a "senior" under 21. The move
+ *    to senior at 21 is actioned by a person, so signup does not decide it.
+ */
+export function signupAgeProblem(
+  memberType: MemberType,
+  birthDate: ISODate | null,
+  now: Date,
+): SignupAgeProblem | null {
+  const age = ageOn(birthDate, now);
+  const block = (key: string): SignupAgeProblem => ({ key, blocking: true });
+  const flag = (key: string): SignupAgeProblem => ({ key, blocking: false });
+  if (age === null) return block('validation.required');
+  if (age < 0 || age > MAXIMUM_PLAUSIBLE_AGE) return block('validation.invalidDate');
+  if (age < MINIMUM_MEMBER_AGE) return block('signup.errors.tooYoung');
+  if ((memberType === 'advisor' || memberType === 'parent') && age < ADULT_AGE) {
+    return block('signup.errors.adultRequired');
+  }
+  if (memberType === 'active' && age >= SENIOR_TRANSITION_AGE)
+    return flag('signup.checks.activeTooOld');
+  if (memberType === 'senior' && age < SENIOR_TRANSITION_AGE)
+    return flag('signup.checks.seniorTooYoung');
+  return null;
+}

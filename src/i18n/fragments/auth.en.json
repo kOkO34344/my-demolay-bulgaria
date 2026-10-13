@@ -10,7 +10,7 @@
     },
     "login": {
       "title": "Sign in",
-      "subtitle": "Use your member username and password.",
+      "subtitle": "Use your username, or the email you signed up with, and your password.",
       "subtitleRedirect": "Sign in to continue to the page you asked for.",
       "rememberMe": "Remember me",
       "forgotPassword": "Forgot password?",

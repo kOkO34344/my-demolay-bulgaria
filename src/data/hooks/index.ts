@@ -16,3 +16,5 @@ export * from './roles';
 export * from './sync';
 export * from './translations';
 export * from './demo';
+export * from './signup';
+export * from './verifications';

@@ -14,6 +14,7 @@ export const SECTION_META: Record<NavSection, { labelKey: string; path: string }
   officerWorkspace: { labelKey: 'nav.officerWorkspace', path: ROUTE_PATTERNS.officerWorkspace },
   content: { labelKey: 'nav.contentManagement', path: ROUTE_PATTERNS.content },
   members: { labelKey: 'nav.memberManagement', path: ROUTE_PATTERNS.members },
+  verification: { labelKey: 'nav.verification', path: ROUTE_PATTERNS.verification },
   admin: { labelKey: 'nav.administration', path: ROUTE_PATTERNS.admin },
 };
 

@@ -1,0 +1,54 @@
+{
+  "verification": {
+    "description": "New accounts wait here until someone checks them against the DeMolay International member list. The automatic checks help; the decision is yours.",
+    "count_one": "{{count}} account is waiting.",
+    "count_other": "{{count}} accounts are waiting.",
+    "emptyTitle": "No accounts are waiting",
+    "emptyDescription": "New signups appear here once they have confirmed their email and phone.",
+    "submitted": "Signed up",
+    "submittedOn": "Signed up on",
+    "review": "Review",
+    "reviewNamed": "Review {{name}}",
+    "drawerDescription": "Check these details against the member list before deciding.",
+    "details": "Details",
+    "consents": "Consent",
+    "confirmed": "confirmed",
+    "ageYears_one": "{{count}} year",
+    "ageYears_other": "{{count}} years",
+    "consentKinds": {
+      "privacy": "Privacy notice",
+      "terms": "Terms of use",
+      "photo": "Photo consent"
+    },
+    "consentGiven": "Accepted, version {{version}},",
+    "consentNotGiven": "Not given",
+    "checks": {
+      "title": "Automatic checks",
+      "ok": "OK",
+      "attention": "Needs attention",
+      "ageOk": "Aged {{age}}, which fits the member type.",
+      "demIdFree": "No other account uses this DeM ID.",
+      "demIdInUse": "This DeM ID already belongs to {{name}}.",
+      "childFound": "Child found: {{name}}, same chapter.",
+      "childOtherChapter": "Child found: {{name}}, but in {{chapter}}.",
+      "childNotFound": "No member has this child's DeM ID."
+    },
+    "approve": {
+      "action": "Approve",
+      "title": "Approve {{name}}?",
+      "description": "The account opens and DeM ID {{demId}} is recorded. The member is notified.",
+      "descriptionParent": "The account opens and is linked to {{child}}. The parent is notified.",
+      "needsChild": "A parent can be approved once their child's DeM ID matches a member.",
+      "done": "{{name}} approved."
+    },
+    "reject": {
+      "action": "Reject",
+      "title": "Reject {{name}}?",
+      "description": "The account and the personal data entered are deleted. The reason is kept in the audit log.",
+      "reasonHint": "At least 5 characters. Recorded in the audit log.",
+      "reasonTooShort": "Give a reason of at least 5 characters.",
+      "done": "Signup of {{name}} rejected."
+    },
+    "memberType": "Member type"
+  }
+}

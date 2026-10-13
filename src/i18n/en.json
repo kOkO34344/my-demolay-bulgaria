@@ -138,7 +138,7 @@
       "rateLimited_one": "Too many sign-in attempts. Try again in {{count}} second.",
       "rateLimited_other": "Too many sign-in attempts. Try again in {{count}} seconds.",
       "accountSuspended": "This account is suspended. Contact your Chapter Chairman.",
-      "accountPending": "This account isn't active yet. Contact your Chapter Chairman.",
+      "accountPending": "This account is waiting for verification. We'll email you when an administrator has checked it.",
       "notImplemented": "This action isn't available in the prototype yet.",
       "apiUnavailable": "The live API isn't available in this prototype.",
       "demoModeDisabled": "Demo tools are turned off.",
@@ -348,7 +348,8 @@
       "translations": "Translations",
       "audit": "Audit log",
       "sync": "Synchronization"
-    }
+    },
+    "verification": "Account verification"
   },
   "chapterTerm": {
     "singular": "Chapter",
@@ -926,6 +927,11 @@
     "demo": {
       "role_switched": "Switched demo role",
       "data_reset": "Reset demo data"
+    },
+    "account": {
+      "signup_submitted": "Signed up",
+      "approved": "Approved an account",
+      "rejected": "Rejected a signup"
     }
   },
   "languages": {

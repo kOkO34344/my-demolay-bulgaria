@@ -97,6 +97,14 @@ export const queryKeys = {
     all: [...root, 'translations'] as const,
     tasks: (query: TranslationTaskQuery) => [...root, 'translations', 'tasks', query] as const,
   },
+  signup: {
+    all: [...root, 'signup'] as const,
+    options: () => [...root, 'signup', 'options'] as const,
+  },
+  verifications: {
+    all: [...root, 'verifications'] as const,
+    list: () => [...root, 'verifications', 'list'] as const,
+  },
 } as const;
 
 export type QueryDomain = Exclude<keyof typeof queryKeys, 'all'>;

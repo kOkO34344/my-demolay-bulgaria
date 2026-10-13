@@ -15,6 +15,8 @@ import type {
   Resource,
   RoleAssignment,
   RSVP,
+  SignupInput,
+  SignupRequest,
   SpecialAssignment,
   SyncException,
   SyncJob,
@@ -26,7 +28,7 @@ import type {
  * Bump whenever the seed data or record shapes change: stale sessionStorage snapshots with a
  * different version are discarded and re-seeded on next load.
  */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /** Server-side member record (public profile + restricted fields). Never returned to the UI as-is. */
 export interface MemberRecord extends MemberProfile {
@@ -78,6 +80,7 @@ export interface DatabaseCollections {
   syncJobs: Record<ID, SyncJob>;
   syncResults: Record<ID, SyncResultRecord>;
   syncExceptions: Record<ID, SyncException>;
+  signupRequests: Record<ID, SignupRequest>;
 }
 
 export type CollectionName = keyof DatabaseCollections;
@@ -103,6 +106,7 @@ export const COLLECTION_NAMES: CollectionName[] = [
   'syncJobs',
   'syncResults',
   'syncExceptions',
+  'signupRequests',
 ];
 
 export interface SessionRecord {
@@ -122,6 +126,16 @@ export interface PasswordResetRecord {
   expiresAt: ISODateTime;
 }
 
+/** Signup details waiting for the email and phone codes (no account exists yet). */
+export interface SignupDraftRecord {
+  input: SignupInput;
+  emailCode: string;
+  phoneCode: string;
+  expiresAt: ISODateTime;
+  /** Wrong code pairs so far; the draft is discarded at the limit. */
+  failedAttempts: number;
+}
+
 export interface IntegrationConfig {
   providerLabel: string;
   nextScheduledAt: ISODateTime | null;
@@ -133,6 +147,8 @@ export interface DatabaseMeta {
   authThrottle: AuthThrottleState;
   /** Keyed by normalised identifier (username). */
   passwordResets: Record<string, PasswordResetRecord>;
+  /** Keyed by signup id. */
+  signupDrafts: Record<string, SignupDraftRecord>;
   integration: IntegrationConfig;
   /** ISO time the data was seeded (seeds may compute relative dates from it). */
   seededAt: ISODateTime;
@@ -164,6 +180,7 @@ export function emptyCollections(): DatabaseCollections {
     syncJobs: {},
     syncResults: {},
     syncExceptions: {},
+    signupRequests: {},
   };
 }
 
@@ -172,6 +189,7 @@ export function defaultMeta(seededAt: ISODateTime): DatabaseMeta {
     session: null,
     authThrottle: { failedAttempts: 0, lockedUntil: null },
     passwordResets: {},
+    signupDrafts: {},
     integration: { providerLabel: 'Demo member registry', nextScheduledAt: null },
     seededAt,
   };

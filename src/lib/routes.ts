@@ -21,6 +21,7 @@ export type AdminSection = (typeof ADMIN_SECTIONS)[number];
 export const ROUTE_PATTERNS = {
   login: '/login',
   forgotPassword: '/forgot-password',
+  signup: '/signup',
   home: '/',
   news: '/news',
   newsDetail: '/news/:postId',
@@ -38,6 +39,7 @@ export const ROUTE_PATTERNS = {
   contentCreate: '/content/new',
   contentEdit: '/content/:postId/edit',
   members: '/members',
+  verification: '/verification',
   admin: '/admin',
   adminMembers: '/admin/members',
   adminChapters: '/admin/chapters',
@@ -67,6 +69,7 @@ function withQuery(path: string, query?: Record<string, string | undefined>): st
 export const paths = {
   login: (redirectTo?: string) => withQuery(ROUTE_PATTERNS.login, { redirect: redirectTo }),
   forgotPassword: () => ROUTE_PATTERNS.forgotPassword,
+  signup: () => ROUTE_PATTERNS.signup,
   home: () => ROUTE_PATTERNS.home,
   news: (query?: { feed?: string; q?: string }) => withQuery(ROUTE_PATTERNS.news, query),
   newsDetail: (postId: string) => `/news/${enc(postId)}`,
@@ -89,6 +92,7 @@ export const paths = {
   members: (query?: { member?: string }) => withQuery(ROUTE_PATTERNS.members, query),
   /** Member Management with the profile drawer open. */
   memberDetail: (userId: string) => withQuery(ROUTE_PATTERNS.members, { member: userId }),
+  verification: () => ROUTE_PATTERNS.verification,
   admin: () => ROUTE_PATTERNS.admin,
   adminSection: (section: AdminSection) => `/admin/${section}`,
 } as const;

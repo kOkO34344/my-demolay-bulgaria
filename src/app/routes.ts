@@ -42,6 +42,8 @@ export type NavSection =
   | 'officerWorkspace'
   | 'content'
   | 'members'
+  | 'invitations'
+  | 'verification'
   | 'admin';
 
 export type FeatureOwner =
@@ -57,6 +59,8 @@ export type FeatureOwner =
   | 'officer'
   | 'content'
   | 'members'
+  | 'invitations'
+  | 'verification'
   | 'admin'
   | 'access'
   | 'sync';
@@ -223,6 +227,17 @@ export const APP_ROUTES: readonly AppRouteDefinition[] = [
     access: { routeId: 'profile' },
   },
   {
+    id: 'onboarding',
+    path: P.onboarding,
+    titleKey: 'onboarding.title',
+    section: 'profile',
+    owner: 'profile',
+    file: 'src/features/onboarding/pages/OnboardingPage.tsx',
+    load: () => import('@/features/onboarding/pages/OnboardingPage'),
+    skeleton: 'form',
+    access: { routeId: 'onboarding' },
+  },
+  {
     id: 'more',
     path: P.more,
     titleKey: 'nav.more',
@@ -287,6 +302,28 @@ export const APP_ROUTES: readonly AppRouteDefinition[] = [
     load: () => import('@/features/members/pages/MemberManagementPage'),
     skeleton: 'table',
     access: { routeId: 'members' },
+  },
+  {
+    id: 'invitations',
+    path: P.invitations,
+    titleKey: 'nav.invitations',
+    section: 'invitations',
+    owner: 'invitations',
+    file: 'src/features/invitations/pages/InvitationsPage.tsx',
+    load: () => import('@/features/invitations/pages/InvitationsPage'),
+    skeleton: 'list',
+    access: { routeId: 'invitations' },
+  },
+  {
+    id: 'verification',
+    path: P.verification,
+    titleKey: 'nav.verification',
+    section: 'verification',
+    owner: 'verification',
+    file: 'src/features/verification/pages/VerificationQueuePage.tsx',
+    load: () => import('@/features/verification/pages/VerificationQueuePage'),
+    skeleton: 'list',
+    access: { routeId: 'verification' },
   },
   {
     id: 'admin',
@@ -406,6 +443,26 @@ export const PUBLIC_ROUTES: readonly AppRouteDefinition[] = [
     owner: 'auth',
     file: 'src/features/auth/pages/LoginPage.tsx',
     load: () => import('@/features/auth/pages/LoginPage'),
+    skeleton: 'form',
+  },
+  {
+    id: 'signup',
+    path: P.signup,
+    titleKey: 'signup.title',
+    section: null,
+    owner: 'auth',
+    file: 'src/features/auth/pages/SignupPage.tsx',
+    load: () => import('@/features/auth/pages/SignupPage'),
+    skeleton: 'form',
+  },
+  {
+    id: 'invite',
+    path: P.invite,
+    titleKey: 'invitations.accept.title',
+    section: null,
+    owner: 'auth',
+    file: 'src/features/auth/pages/InvitationSignupPage.tsx',
+    load: () => import('@/features/auth/pages/InvitationSignupPage'),
     skeleton: 'form',
   },
   {

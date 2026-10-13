@@ -37,6 +37,37 @@ export function isRegistrationOpen(event: Timing, now: Date): boolean {
   return now.getTime() < ms(registrationClosesAt(event));
 }
 
+/** Window in which an explicit registration deadline is flagged (Beacon in the design system). */
+export const DEADLINE_SOON_HOURS = 72;
+/** Window in which an upcoming event is flagged as time-critical (Ruby in the design system). */
+export const STARTING_SOON_HOURS = 24;
+
+const HOUR_MS = 3_600_000;
+
+/**
+ * Registration is still open but an explicit deadline (one before the start) closes it within
+ * `withinHours`. Events without a deadline close at the start and are covered by isStartingSoon.
+ */
+export function isRegistrationClosingSoon(
+  event: Timing,
+  now: Date,
+  withinHours: number = DEADLINE_SOON_HOURS,
+): boolean {
+  const closesAt = registrationClosesAt(event);
+  if (closesAt === event.startsAt || !isRegistrationOpen(event, now)) return false;
+  return ms(closesAt) - now.getTime() <= withinHours * HOUR_MS;
+}
+
+/** Not started yet and starting within `withinHours`. */
+export function isStartingSoon(
+  event: Pick<Event, 'startsAt'>,
+  now: Date,
+  withinHours: number = STARTING_SOON_HOURS,
+): boolean {
+  const untilStart = ms(event.startsAt) - now.getTime();
+  return untilStart > 0 && untilStart <= withinHours * HOUR_MS;
+}
+
 /** Number of "going" replies, optionally ignoring one user (their own reply when they change it). */
 export function countGoing(
   rsvps: ReadonlyArray<Pick<RSVP, 'userId' | 'status'>>,
@@ -118,18 +149,46 @@ const reject = (reason: RsvpRejectionReason): RsvpDecision => ({ allowed: false,
 export function evaluateRsvp(context: RsvpContext, requested: RsvpStatus): RsvpDecision {
   const { event, actorUserId, targetUserId, rsvps, now } = context;
   if (actorUserId !== targetUserId) return reject('rsvp.not_self');
+  return decideOwnRsvp(
+    {
+      event,
+      current: rsvps.find((r) => r.userId === targetUserId)?.status ?? null,
+      othersGoing: countGoing(rsvps, targetUserId),
+      now,
+    },
+    requested,
+  );
+}
+
+/** A member's own reply, from counts rather than the full reply list (what the UI has). */
+export interface OwnRsvpContext {
+  event: RsvpContext['event'];
+  /** The member's current reply. */
+  current: RsvpStatus | null;
+  /** "Going" replies from everyone else. */
+  othersGoing: number;
+  now: Date;
+}
+
+function decideOwnRsvp(context: OwnRsvpContext, requested: RsvpStatus): RsvpDecision {
+  const { event, current, othersGoing, now } = context;
   if (event.status === 'draft') return reject('event.not_published');
   if (event.status === 'cancelled') return reject('event.cancelled');
   if (hasEventStarted(event, now)) return reject('event.past');
   if (!isRegistrationOpen(event, now)) return reject('event.deadline_passed');
-  if (requested === 'going') {
-    const current = rsvps.find((r) => r.userId === targetUserId);
-    if (current?.status === 'going') return ALLOWED;
-    if (event.capacity !== null && countGoing(rsvps, targetUserId) >= event.capacity) {
-      return reject('event.full');
-    }
+  if (requested === 'going' && current !== 'going') {
+    if (event.capacity !== null && othersGoing >= event.capacity) return reject('event.full');
   }
   return ALLOWED;
+}
+
+/** Decision for every reply option of the signed-in member (event detail page). */
+export function ownRsvpOptions(context: OwnRsvpContext): Record<RsvpStatus, RsvpDecision> {
+  return {
+    going: decideOwnRsvp(context, 'going'),
+    maybe: decideOwnRsvp(context, 'maybe'),
+    not_going: decideOwnRsvp(context, 'not_going'),
+  };
 }
 
 /** Decision for every reply option (UI: enable/disable the segmented control with a reason). */

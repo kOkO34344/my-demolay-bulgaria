@@ -13,3 +13,4 @@ export * from './directory';
 export * from './chapters';
 export * from './resources';
 export * from './members';
+export * from './onboarding';

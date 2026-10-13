@@ -11,7 +11,10 @@ import {
   evaluateRsvp,
   hasEventEnded,
   hasEventStarted,
+  isRegistrationClosingSoon,
   isRegistrationOpen,
+  isStartingSoon,
+  ownRsvpOptions,
   isUpcomingEvent,
   registrationClosesAt,
   remainingSeats,
@@ -70,6 +73,26 @@ describe('event timing', () => {
     expect(registrationClosesAt(event())).toBe(inDays(5));
     // A deadline after the start is ignored (the start closes registration).
     expect(registrationClosesAt(event({ registrationDeadline: inDays(9) }))).toBe(inDays(5));
+  });
+});
+
+describe('deadline and start flags', () => {
+  it('flags an explicit deadline closing within 72 hours while registration is open', () => {
+    expect(isRegistrationClosingSoon(event({ registrationDeadline: inDays(2) }), NOW)).toBe(true);
+    expect(isRegistrationClosingSoon(event({ registrationDeadline: inDays(3) }), NOW)).toBe(true);
+    expect(isRegistrationClosingSoon(event({ registrationDeadline: inDays(4) }), NOW)).toBe(false);
+    // Already closed, or no deadline of its own (closes at the start).
+    expect(isRegistrationClosingSoon(event({ registrationDeadline: inDays(-1) }), NOW)).toBe(false);
+    expect(
+      isRegistrationClosingSoon(event({ startsAt: inDays(1), endsAt: inDays(1.1) }), NOW),
+    ).toBe(false);
+  });
+
+  it('flags events starting within 24 hours, but not ones already running', () => {
+    expect(isStartingSoon({ startsAt: inDays(0.5) }, NOW)).toBe(true);
+    expect(isStartingSoon({ startsAt: inDays(1) }, NOW)).toBe(true);
+    expect(isStartingSoon({ startsAt: inDays(1.5) }, NOW)).toBe(false);
+    expect(isStartingSoon({ startsAt: inDays(-0.1) }, NOW)).toBe(false);
   });
 });
 
@@ -178,6 +201,31 @@ describe('evaluateRsvp', () => {
     for (const reason of RSVP_REJECTION_REASONS) {
       expect(RSVP_REJECTION_MESSAGE_KEYS[reason]).toMatch(/^messages\.errors\./);
     }
+  });
+});
+
+describe('ownRsvpOptions', () => {
+  it('matches evaluateRsvp when given counts instead of the reply list', () => {
+    const full = event({ capacity: 2 });
+    expect(ownRsvpOptions({ event: full, current: null, othersGoing: 2, now: NOW }).going).toEqual({
+      allowed: false,
+      reason: 'event.full',
+    });
+    // Your own "going" never counts against you.
+    expect(
+      ownRsvpOptions({ event: full, current: 'going', othersGoing: 2, now: NOW }).going.allowed,
+    ).toBe(true);
+    expect(ownRsvpOptions({ event: full, current: null, othersGoing: 2, now: NOW }).maybe).toEqual({
+      allowed: true,
+    });
+    const closed = ownRsvpOptions({
+      event: event({ registrationDeadline: inDays(-1) }),
+      current: null,
+      othersGoing: 0,
+      now: NOW,
+    });
+    expect(Object.values(closed).every((o) => !o.allowed)).toBe(true);
+    expect(closed.not_going).toEqual({ allowed: false, reason: 'event.deadline_passed' });
   });
 });
 

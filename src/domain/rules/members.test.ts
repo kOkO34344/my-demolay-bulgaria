@@ -5,6 +5,7 @@ import {
   isDueForSeniorTransition,
   meetsMinimumAge,
   needsAdultApprovalForPublic,
+  signupAgeProblem,
 } from './members';
 
 const NOW = new Date('2026-10-13T10:00:00.000Z');
@@ -39,5 +40,40 @@ describe('membership age rules', () => {
     expect(needsAdultApprovalForPublic('2009-01-01', NOW)).toBe(true);
     expect(needsAdultApprovalForPublic('2008-10-13', NOW)).toBe(false);
     expect(needsAdultApprovalForPublic(null, NOW)).toBe(true);
+  });
+});
+
+describe('signupAgeProblem', () => {
+  it('blocks anyone under 14, and advisors and parents under 18', () => {
+    expect(signupAgeProblem('active', '2012-10-13', NOW)).toBeNull();
+    expect(signupAgeProblem('active', '2012-10-14', NOW)).toEqual({
+      key: 'signup.errors.tooYoung',
+      blocking: true,
+    });
+    expect(signupAgeProblem('advisor', '2008-10-13', NOW)).toBeNull();
+    expect(signupAgeProblem('parent', '2009-01-01', NOW)).toEqual({
+      key: 'signup.errors.adultRequired',
+      blocking: true,
+    });
+    expect(signupAgeProblem('parent', '2015-01-01', NOW)?.key).toBe('signup.errors.tooYoung');
+  });
+
+  it('only flags the type for the verifier around the senior transition at 21', () => {
+    expect(signupAgeProblem('active', '2005-10-14', NOW)).toBeNull();
+    expect(signupAgeProblem('active', '2005-10-13', NOW)).toEqual({
+      key: 'signup.checks.activeTooOld',
+      blocking: false,
+    });
+    expect(signupAgeProblem('senior', '2005-10-13', NOW)).toBeNull();
+    expect(signupAgeProblem('senior', '2006-01-01', NOW)).toEqual({
+      key: 'signup.checks.seniorTooYoung',
+      blocking: false,
+    });
+  });
+
+  it('blocks a missing or implausible date', () => {
+    expect(signupAgeProblem('active', null, NOW)?.key).toBe('validation.required');
+    expect(signupAgeProblem('advisor', '1900-01-01', NOW)?.key).toBe('validation.invalidDate');
+    expect(signupAgeProblem('active', '2030-01-01', NOW)?.key).toBe('validation.invalidDate');
   });
 });

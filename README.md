@@ -16,17 +16,24 @@ The four brief documents are imported from the original project repository and s
 
 ## Brief vs. prototype
 
-| Brief, Phase 1 | Prototype |
-|---|---|
-| Roles and permissions | Done: member types plus national and chapter roles (zero or more per person), enforced in `src/auth` and pinned to the matrix by `src/auth/policy.test.ts` |
-| Feed with approval flow | Done: news, with draft → submitted → published |
-| Calendar | Done: events with RSVP and attendance |
-| Documents and rituals | Done: resources by category, with rituals restricted |
-| Member directory and chapter pages | Done |
-| Administration console and audit log | Done |
-| Signup, verification queue, consent capture, onboarding | Not yet. The data model carries member type, DeM ID, consents and linked children |
-| Helpdesk | Not yet. Permission exists |
-| Public website | Not yet. Separate project scope; see DECISIONS.md 2026-09-22 |
+"Backend" is the mock repository layer in `src/data/mock` (the contract a real API will implement) with its React Query hooks. "Screens" are the pages a member uses.
+
+| Brief, Phase 1 | Backend | Screens |
+|---|---|---|
+| Roles and permissions | Done: member types plus national and chapter roles (zero or more per person), enforced in `src/auth` and pinned to the matrix by `src/auth/policy.test.ts` | Navigation and route guards; role administration screens not yet |
+| Home | n/a | Done: greeting, key dates, latest news |
+| Feed with approval flow | Done: draft → submitted → published | Reading done (feed, post). Editor and approval queue not yet |
+| Calendar | Done: events with RSVP and attendance | Reading and RSVP done (list, event, add to calendar). Editor and attendance sheet not yet |
+| Documents and rituals | Done: resources by category, with rituals restricted | Not yet |
+| Member directory and chapter pages | Done | Not yet |
+| Administration console and audit log | Done | Not yet |
+| Signup, verification queue, consent capture | Done: email and phone codes (simulated), consents with version and time, automatic checks, approve or reject with audit | Done: `/signup` and `/verification` |
+| Invitations by administrators and officers | Done: link instead of email code, pre-approved when the inviter may approve accounts | Done: `/invitations` and `/invite/<token>` |
+| Onboarding questionnaire | Done: questions by member type, age band from date of birth, totals for planners | Done: `/onboarding` after first sign-in, Home reminder, audience panel on Events for planners |
+| Helpdesk | Not yet. Permission exists | Not yet |
+| Public website | Not yet. Separate project scope; see DECISIONS.md 2026-09-22 | Not yet |
+
+Pages that are not built yet show a "being built" placeholder.
 
 The brief's production stack (Next.js, Supabase in Frankfurt, Vercel, Stripe, Resend) applies to the real backend. Here, `VITE_DATA_SOURCE=mock` selects the in-memory repositories in `src/data/mock`.
 
@@ -97,6 +104,8 @@ Demo mode (`VITE_DEMO_MODE=true`, the default) shows sign-in cards on the login 
 | `admin.demo` | `Demo!Admin2026` | National Representative and system administrator |
 
 The role switcher lets any signed-in demo account act as one of these personas.
+
+To try signup, choose "Create an account" on the login page; the email and SMS codes are shown on screen. Sign in as `national.officer.demo` or `admin.demo` and open Account verification to approve or reject it. The seed already has two pending accounts, one of them a parent. For invitations, sign in as `officer.demo` and open Invitations; the seeded open invitation's link is `/invite/5eed1a7e000000000000000000000001` (sign out first).
 
 ## Project structure
 

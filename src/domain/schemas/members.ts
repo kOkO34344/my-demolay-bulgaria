@@ -1,10 +1,13 @@
 import { z } from 'zod';
 
+import { vmsg } from '@/i18n/validation';
+
 import {
   ACCOUNT_STATUSES,
   ENTITY_TYPES,
   NOTIFICATION_CATEGORIES,
   DIGEST_FREQUENCIES,
+  VERIFICATION_DECISIONS,
 } from '@/domain';
 import type { NotificationCategory } from '@/domain';
 
@@ -47,6 +50,26 @@ export const memberStatusChangeSchema = z.object({
   status: z.enum(ACCOUNT_STATUSES, { error: 'validation.selectOption' }),
   reason: requiredText(LIMITS.reason, MIN_REASON_LENGTH),
 });
+
+/** Verification decision: rejecting needs a reason (it is audited); approving does not. */
+export const verificationDecisionSchema = z
+  .object({
+    userId: idSchema,
+    decision: z.enum(VERIFICATION_DECISIONS, { error: 'validation.selectOption' }),
+    reason: optionalText(LIMITS.reason),
+  })
+  .superRefine((value, ctx) => {
+    if (value.decision === 'reject' && value.reason.length < MIN_REASON_LENGTH) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['reason'],
+        message:
+          value.reason.length === 0
+            ? 'validation.required'
+            : vmsg('validation.tooShort', { count: MIN_REASON_LENGTH }),
+      });
+    }
+  });
 
 export const sendMessageSchema = z.object({
   toUserId: idSchema,

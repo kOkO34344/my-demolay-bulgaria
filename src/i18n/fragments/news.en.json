@@ -1,0 +1,30 @@
+{
+  "news": {
+    "pinned": "Pinned",
+    "unread": "Unread",
+    "attachmentCount_one": "{{count}} attachment",
+    "attachmentCount_other": "{{count}} attachments",
+    "feed": {
+      "description": "Publications from your chapter and from DeMolay Bulgaria.",
+      "feedLabel": "Show posts from",
+      "feeds": {
+        "all": "All",
+        "national": "National",
+        "chapter": "My chapter"
+      },
+      "searchLabel": "Search news",
+      "searchPlaceholder": "Search news…",
+      "unreadOnly": "Unread only",
+      "resultCount_one": "{{count}} post",
+      "resultCount_other": "{{count}} posts",
+      "allRead": "You have read every post here.",
+      "emptyFeed": "There are no posts here yet.",
+      "emptyTitle": "No news yet",
+      "emptyDescription": "When your chapter or the national office publishes a post, it will appear here."
+    },
+    "detail": {
+      "back": "Back to news",
+      "related": "Related posts"
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "onboarding": {
+    "title": "Onboarding questions",
+    "titleEdit": "Your interests and availability",
+    "welcome": "Welcome, {{name}}",
+    "description": "A few quick questions so events are planned for the people who come. Organisers only ever see totals, never your answers.",
+    "ageBand": "From your date of birth we count you in the {{band}} age group.",
+    "pickAny": "Pick as many as you like.",
+    "optionalHint": "Only if you would like to.",
+    "save": "Save answers",
+    "later": "Later",
+    "saved": "Thanks, your answers are saved.",
+    "questions": {
+      "interests": {
+        "active": "What would you like to do in DeMolay?",
+        "senior": "What would you like to do in DeMolay?",
+        "advisor": "Which activities could you help run?"
+      },
+      "availability": "When are you usually free?",
+      "helpOffers": {
+        "active": "Would you like to help with any of these?",
+        "senior": "Would you like to help with any of these?",
+        "advisor": "Could you help with any of these?",
+        "parent": "Could you help the chapter with any of these?"
+      }
+    },
+    "interests": {
+      "leadership": "Leadership",
+      "public_speaking": "Public speaking",
+      "service": "Service and charity",
+      "education": "Study and education",
+      "ritual": "Ritual and ceremonies",
+      "sports": "Sports",
+      "outdoors": "Hiking and outdoors",
+      "social": "Social evenings",
+      "arts": "Arts and music",
+      "technology": "Technology"
+    },
+    "availability": {
+      "weekday_evenings": "Weekday evenings",
+      "saturdays": "Saturdays",
+      "sundays": "Sundays",
+      "school_holidays": "School holidays"
+    },
+    "helpOffers": {
+      "event_help": "Helping at events",
+      "photography": "Photos and video",
+      "mentoring": "Mentoring younger members",
+      "teaching": "Leading a session or workshop",
+      "driving": "Driving members to events",
+      "fundraising": "Fundraising"
+    },
+    "ageBands": {
+      "14_17": "14–17",
+      "18_20": "18–20",
+      "21_29": "21–29",
+      "30_plus": "30+"
+    },
+    "reminder": {
+      "title": "Tell us what you are into",
+      "body": "Two minutes of questions help organisers plan events people want to come to.",
+      "action": "Answer now"
+    },
+    "errors": {
+      "pickOne": "Choose at least one."
+    }
+  }
+}

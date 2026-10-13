@@ -236,6 +236,8 @@ export function createMockMemberRepository(): MemberRepository {
         const at = clock.nowIso();
         db.transaction(() => {
           db.update('users', record.userId, { status: data.status }, 'user');
+          // Leaving "pending" settles any open signup request (verification queue).
+          if (user.status === 'pending') db.remove('signupRequests', record.userId);
           if (REVOKING_STATUSES.includes(data.status)) {
             for (const assignment of targetAssignments) {
               db.upsert('roleAssignments', { ...assignment, endedAt: at });

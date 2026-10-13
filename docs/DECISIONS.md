@@ -66,3 +66,44 @@ Where the matrix is silent or ambiguous, the prototype does the following. Each 
 - A parent sees no My Chapter page, because that page contains the directory.
 - A position from the member registry yields at most one role; ritual offices (Chaplain, Marshal, Standard Bearer and the like) yield none. System administrators add further roles by hand. Ending a role keeps it as history.
 - Suspension and expulsion end every role immediately; reactivation does not restore them.
+
+## 2026-10-13 — Member screens: feed, calendar and Home first
+
+- The Phase 1 foundation built the mock backend and the app shell; the feature pages were placeholders. Screens are now built in the order the 2026-09-22 review set: publications (feed) and the calendar, with Home built on the draft's "key dates" idea.
+- Built: Home (greeting, next four key dates with how many still need a reply, three latest posts), the news feed and post page, the events list and event page with RSVP and add to calendar.
+- Event items follow DESIGN-SYSTEM.md §6: Oxford left border by default, Ruby when the event starts within 24 hours, Beacon when an explicit registration deadline closes within 72 hours. Each flag is also written out in text.
+- Bilingual content missing in the reader's language falls back to the other language with a visible "Not translated yet" note and the correct `lang` attribute.
+- Not yet: the seven obligatory days in the calendar (the dates are not in the brief and are not invented here), "posts from Europe" as a feed scope, and the post and event editors.
+
+## 2026-10-13 — Signup and the verification queue
+
+Built per BRIEF.md › Login: open signup with email and phone verification and consent capture, then the administrator verification queue. Points the brief leaves open, each open to correction by the product owner:
+
+- The email address is the username. One code by email and one by SMS, valid 30 minutes, five wrong attempts discard the signup. The prototype shows the codes on screen.
+- An email that already has an account gets the same answers and no second account, so signup never reveals who is registered. Production would email the owner instead.
+- Privacy notice and terms are required. Photo consent is a free choice (consent tied to a service is not freely given), recorded only when given. Each consent stores its document version and time; the documents themselves are still owed by the Executive Director (ROADMAP.md §8), so version `2026-09` is a placeholder.
+- Ages: nobody under 14, advisors and parents 18 or over. An "active member" of 21+ or a "senior" under 21 is not blocked; the verifier sees it flagged, because the move to senior is actioned by a person.
+- A parent enters their child's DeM ID. Approval links them to the member holding it; a parent whose child is not found cannot be approved yet.
+- The member list itself (the DeMolay International export) is not in the system yet (ROADMAP.md §8), so verification is a human comparison. The automatic checks only help: age against member type, a DeM ID already held by another account, and the parent's child.
+- Verifiers are the holders of account.verify: system administrators, Executive Director, National Representative, National Secretary and National Coordinator. Each new signup notifies them.
+- Rejecting needs a reason and deletes the account and the personal data entered; the audit log keeps the decision and the name. Approving records the DeM ID (or the parent link) and notifies the member.
+- Not yet: invitation by an administrator (the second route in the brief) and the onboarding questionnaire.
+
+## 2026-10-13 — Invitations
+
+The brief's second route in ("invitation by an administrator"; ROADMAP.md §4 maps "Invite friends" to administrator and officer invitations). As built, open to correction by the product owner:
+
+- Who may invite: anyone who manages a chapter's roster or approves new accounts, for the chapters in their scope (Chapter Chairman and Secretary for their chapter; national officers with those rights everywhere). There is no separate "invite" row in the permission matrix, so no new permission was added.
+- The invitation fixes the email, member type and chapter; names and DeM ID are prefilled and editable. Following the link stands in for the email code; the phone is still confirmed by SMS, so both contacts are verified as the brief requires.
+- An invitation from someone who may approve accounts (account.verify) is pre-approved: the account opens on signup. Other invitations end in the verification queue, which shows who invited the person. A pre-approved parent whose child's DeM ID matches nobody still goes to the queue.
+- Links are valid for 14 days and can be revoked. One open invitation per email address; an address that already has an account cannot be invited. The prototype shows the link to share instead of sending email.
+
+## 2026-10-13 — Onboarding questionnaire
+
+BRIEF.md › Login: "An onboarding questionnaire follows, varying by member type, and feeds event planning"; ROADMAP.md §3: "interests, age band and availability". As built, open to correction by the product owner:
+
+- Three questions: interests, when people are usually free, and how they could help. Active members and seniors must pick at least one interest and one time; advisors are asked which activities they could help run (optional) and when they are free; parents are not asked about interests, only (optionally) about time and help such as driving or fundraising. The option lists are a first proposal for the product owner to edit.
+- Age band is not asked: it is derived from the date of birth already on file (14–17, 18–20, 21–29, 30+).
+- After the first sign-in each person is sent to the questionnaire once and back to the page they wanted. "Later" stops the redirect and leaves a reminder on Home. Answers can be changed at any time.
+- Event planners (event.create; chapter planners for their chapter, national planners for all) see totals on the Events page: how many answered, top interests, free times and age bands. Nobody sees another person's answers.
+- Seeded accounts already have answers so the demo is not interrupted; new signups and invitees get the questionnaire.

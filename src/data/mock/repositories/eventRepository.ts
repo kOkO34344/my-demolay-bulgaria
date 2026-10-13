@@ -461,7 +461,7 @@ export function createMockEventRepository(): EventRepository {
         const event = visibleEvent(subject, eventId);
         if (event.status !== 'draft') throw new ForbiddenError('invalid_transition');
         if (!canPublishEvent(subject, event))
-          throw new ForbiddenError('permission_denied', 'event.update');
+          throw new ForbiddenError('permission_denied', 'event.approve');
         assertReadyToPublish(event);
         const now = clock.nowIso();
         const published: Event = {

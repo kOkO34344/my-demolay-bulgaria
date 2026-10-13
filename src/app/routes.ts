@@ -71,7 +71,7 @@ export interface AppRouteDefinition {
   /** Section shown in the header / bottom bar context. */
   section: NavSection | null;
   owner: FeatureOwner;
-  /** Source file (documentation + CONVENTIONS-shell route table). */
+  /** Source file (documentation). */
   file: string;
   /** Lazy page module (default export = page component). */
   load?: () => Promise<PageModule>;

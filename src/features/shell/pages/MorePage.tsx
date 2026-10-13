@@ -2,7 +2,7 @@ import { ChevronRightIcon, LogOutIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import { useAuth, usePolicy, type NavItem } from '@/auth';
+import { primaryRole, useAuth, usePolicy, type NavItem } from '@/auth';
 import { RoleBadge } from '@/components/common/Badges';
 import { LanguageToggle } from '@/components/common/LanguageToggle';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -79,11 +79,12 @@ export default function MorePage() {
           >
             <UserAvatar name={member.displayName} seed={member.userId} size="lg" />
             <span className="flex min-w-0 flex-1 flex-col gap-1">
-              <span className="truncate font-heading text-lg font-semibold">
-                {text(member.displayName)}
-              </span>
+              <span className="truncate text-lg font-bold">{text(member.displayName)}</span>
               <span className="flex flex-wrap items-center gap-1.5">
-                <RoleBadge role={subject.role} />
+                <RoleBadge
+                  role={primaryRole(subject)?.role ?? null}
+                  memberType={subject.memberType}
+                />
                 {chapterName(member.chapterId) ? (
                   <span className="text-sm text-muted-foreground">
                     {chapterName(member.chapterId)}

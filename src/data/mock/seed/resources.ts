@@ -12,7 +12,11 @@ import type {
 
 import { ago, type SeedContext } from './context';
 
-/** Resource library metadata (no real files). All seven categories, EN / BG / bilingual files. */
+/**
+ * Resource library metadata (no real files). Every category, EN / BG / bilingual files. Ritual
+ * entries are placeholders: the real ritual PDFs and the rule for who reads which degree are owed
+ * by the product owner (docs/ROADMAP.md §8).
+ */
 
 interface ResourceSeed {
   id: ID;
@@ -36,6 +40,28 @@ interface ResourceSeed {
 
 const RESOURCES: ResourceSeed[] = [
   {
+    id: 'res-ritual-initiatory',
+    category: 'rituals',
+    language: 'bg',
+    fileType: 'pdf',
+    fileName: 'ritual-initiatory-degree-placeholder.pdf',
+    fileSize: 1_048_576,
+    version: '0.1',
+    uploadedBy: 'u-admin',
+    createdDaysAgo: 40,
+    downloads: 12,
+    en: {
+      title: 'Initiatory Degree — ritual (placeholder)',
+      description:
+        'Placeholder for the ritual text. Restricted to members, advisors and parents; every download is watermarked with the reader’s name.',
+    },
+    bg: {
+      title: 'Посветителна степен – ритуал (заместител)',
+      description:
+        'Заместител на текста на ритуала. Достъпен само за членове, съветници и родители; всяко изтегляне се маркира с името на читателя.',
+    },
+  },
+  {
     id: 'res-welcome-guide',
     category: 'new_members',
     language: 'both',
@@ -50,12 +76,12 @@ const RESOURCES: ResourceSeed[] = [
     en: {
       title: 'New member welcome guide',
       description:
-        'Everything a new member needs in the first months: how the chapter works, the seven cardinal virtues, meetings, offices and who to ask for help.',
+        'Everything a new member needs in the first months: how the chapter works, the seven precepts, meetings, offices and who to ask for help.',
     },
     bg: {
       title: 'Ръководство за нови членове',
       description:
-        'Всичко, от което новият член има нужда през първите месеци: как работи обителта, седемте кардинални добродетели, срещите, длъжностите и към кого да се обърне за помощ.',
+        'Всичко, от което новият член има нужда през първите месеци: как работи обителта, седемте принципа, срещите, длъжностите и към кого да се обърне за помощ.',
     },
   },
   {
@@ -70,14 +96,14 @@ const RESOURCES: ResourceSeed[] = [
     createdDaysAgo: 180,
     downloads: 97,
     en: {
-      title: 'The seven cardinal virtues — study card',
+      title: 'The seven precepts — study card',
       description:
-        'A one-page card with the seven cardinal virtues: Filial Love, Reverence for Sacred Things, Courtesy, Comradeship, Fidelity, Cleanness and Patriotism.',
+        'A one-page card with the seven precepts of DeMolay, in DeMolay International order: Filial Love, Reverence for Sacred Things, Courtesy, Comradeship, Fidelity, Cleanness and Patriotism.',
     },
     bg: {
-      title: 'Седемте кардинални добродетели – карта за учене',
+      title: 'Седемте принципа – карта за учене',
       description:
-        'Карта на една страница със седемте кардинални добродетели: синовна любов, благоговение – почит към свещените неща, учтивост, другарство, вярност, чистота и патриотизъм.',
+        'Карта на една страница със седемте принципа на Дьо Моле в реда на DeMolay International: синовна любов, благоговение – почит към свещените неща, учтивост, другарство, вярност, чистота и патриотизъм.',
     },
   },
   {
@@ -140,12 +166,12 @@ const RESOURCES: ResourceSeed[] = [
     updatedDaysAgo: 9,
     downloads: 33,
     en: {
-      title: 'Meeting minutes template for Scribes',
+      title: 'Meeting minutes template for Secretaries',
       description:
         'The standard format for minutes of working meetings, with guidance on what to record and how to store it.',
     },
     bg: {
-      title: 'Шаблон за протокол от среща за Писарите',
+      title: 'Шаблон за протокол от среща за Секретарите',
       description:
         'Стандартният формат за протоколи от работни срещи с указания какво да се записва и как да се съхранява.',
     },

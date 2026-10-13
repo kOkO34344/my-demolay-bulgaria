@@ -4,7 +4,7 @@ import type {
   PasswordResetInput,
   PasswordResetRequestInput,
   PasswordResetTicket,
-  Role,
+  DemoPersonaId,
   Session,
 } from '@/domain';
 
@@ -46,8 +46,9 @@ export interface AuthRepository {
   resetPassword(input: PasswordResetInput): Promise<void>;
 
   /**
-   * PROTOTYPE ONLY — no production endpoint. Overrides the effective role (null = back to own role).
+   * PROTOTYPE ONLY — no production endpoint. Acts as a demo persona: overrides the effective member
+   * type and roles (null = back to your own).
    * @throws ForbiddenError('demo_mode_disabled') when VITE_DEMO_MODE=false.
    */
-  switchDemoRole(role: Role | null): Promise<Session>;
+  switchDemoRole(persona: DemoPersonaId | null): Promise<Session>;
 }

@@ -3,7 +3,7 @@ import { defineConfig, minimal2023Preset } from '@vite-pwa/assets-generator/conf
 /**
  * PWA icon generation (consumed by vite-plugin-pwa's `pwaAssets` integration at dev/build time).
  *
- * Source (SHELL agent, see CONVENTIONS-shell.md › PWA): `public/app-icon-source.png` — a
+ * Source (see docs/DESIGN-SYSTEM.md §2): `public/app-icon-source.png` — a
  * byte-identical copy of the official round "Order of DeMolay – Bulgaria" seal from demolay.bg
  * (`public/brand/demolay-bulgaria-seal.png`). It must live at the root of `public/` because the
  * generator writes the icons next to the source image. The seal is never recoloured or cropped —
@@ -28,12 +28,12 @@ export default defineConfig({
       ...minimal2023Preset.maskable,
       // Seal stays inside the 80 % maskable safe zone.
       padding: 0.3,
-      resizeOptions: { background: '#152945' },
+      resizeOptions: { background: '#1B365F' },
     },
     apple: {
       ...minimal2023Preset.apple,
       padding: 0.22,
-      resizeOptions: { background: '#152945' },
+      resizeOptions: { background: '#1B365F' },
     },
   },
   images: ['public/app-icon-source.png'],

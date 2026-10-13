@@ -13,7 +13,8 @@ export * from './schema';
 export { simulateLatency, mockCall, setMockLatency } from './latency';
 export {
   getSessionRecord,
-  assignmentFor,
+  assignmentsFor,
+  subjectForUserRecord,
   subjectForSession,
   currentSubject,
   requireSubject,

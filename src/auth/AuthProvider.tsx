@@ -2,7 +2,9 @@ import { useCallback, useMemo, type ReactNode } from 'react';
 
 import { ForbiddenError } from '@/data/errors';
 import { useLogin, useLogout, useSession, useSwitchDemoRole } from '@/data/hooks/auth';
-import type { LoginInput, Role } from '@/domain';
+import type { DemoPersonaId, LoginInput } from '@/domain';
+
+import { personaOfUser } from './demoCredentials';
 
 import { AuthContext, type AuthContextValue, type AuthStatus } from './context';
 import { isDemoModeEnabled } from './subject';
@@ -40,9 +42,9 @@ export function AuthProvider({ children, demoMode }: AuthProviderProps) {
     await logoutAsync();
   }, [logoutAsync]);
   const switchDemoRole = useCallback(
-    (role: Role | null) => {
+    (persona: DemoPersonaId | null) => {
       if (!isDemoMode) return Promise.reject(new ForbiddenError('demo_mode_disabled'));
-      return switchAsync(role);
+      return switchAsync(persona);
     },
     [isDemoMode, switchAsync],
   );
@@ -54,7 +56,7 @@ export function AuthProvider({ children, demoMode }: AuthProviderProps) {
       user: session?.user ?? null,
       member: session?.member ?? null,
       subject: session?.subject ?? null,
-      actualRole: session?.assignment.role ?? null,
+      actualPersona: session ? personaOfUser(session.user.id) : null,
       isDemoMode,
       demoOverride: isDemoMode ? (session?.demo.override ?? null) : null,
       login,

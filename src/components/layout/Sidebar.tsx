@@ -118,9 +118,7 @@ export function Sidebar() {
           className="size-10 shrink-0 object-contain"
         />
         <span className="sr-only flex-col leading-tight lg:not-sr-only lg:flex">
-          <span className="font-heading text-[1.0625rem] font-semibold tracking-tight text-white">
-            {t('app.name')}
-          </span>
+          <span className="text-[1.0625rem] font-bold text-white">{t('app.name')}</span>
           <span className="text-xs text-sidebar-muted-foreground">{t('app.subtitle')}</span>
         </span>
       </Link>

@@ -9,6 +9,7 @@ import type {
   PositionRoleMapping,
   RoleAssignment,
   RoleAssignmentInput,
+  RoleRemovalInput,
   RoleAssignmentQuery,
   RoleDefinition,
   SpecialAssignment,
@@ -94,6 +95,8 @@ function useRoleCommand<V, T>(fn: (variables: V) => Promise<T>) {
 
 export const useAssignRole = () =>
   useRoleCommand((input: RoleAssignmentInput) => repositories.roles.assignRole(input));
+export const useRemoveRole = () =>
+  useRoleCommand((input: RoleRemovalInput) => repositories.roles.removeRole(input));
 export const useCreateSpecialAssignment = () =>
   useRoleCommand((input: SpecialAssignmentInput) =>
     repositories.roles.createSpecialAssignment(input),

@@ -6,6 +6,7 @@ import type {
   PositionRoleMapping,
   RoleAssignment,
   RoleAssignmentInput,
+  RoleRemovalInput,
   RoleAssignmentQuery,
   RoleDefinition,
   SpecialAssignment,
@@ -22,10 +23,17 @@ export interface RoleRepository {
   listAssignments(query?: RoleAssignmentQuery): Promise<RoleAssignment[]>;
 
   /**
-   * PUT /api/v1/members/{user_id}/role { role, scope, reason } — manual assignment.
+   * POST /api/v1/members/{user_id}/roles { role, scope, reason } — adds a manual role (a person
+   * holds zero or more; re-assigning a held role replaces its scope).
    * @throws ForbiddenError('role_escalation' | 'self_action' | 'permission_denied') per checkAssignRole.
    */
   assignRole(input: RoleAssignmentInput): Promise<RoleAssignment>;
+
+  /**
+   * POST /api/v1/role-assignments/{id}/end — ends the term of one role (history is kept).
+   * @throws ForbiddenError('permission_denied' | 'role_escalation' | 'self_action'), NotFoundError
+   */
+  removeRole(input: RoleRemovalInput): Promise<RoleAssignment>;
 
   /** GET /api/v1/special-assignments?user_id=&include_inactive= */
   listSpecialAssignments(query?: SpecialAssignmentQuery): Promise<SpecialAssignment[]>;

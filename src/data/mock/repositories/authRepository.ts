@@ -4,7 +4,9 @@ import {
   passwordResetRequestSchema,
   zodFieldErrors,
 } from '@/auth/schemas';
-import { demoScopeFor, isDemoModeEnabled } from '@/auth/subject';
+import { personaOfUser } from '@/auth/demoCredentials';
+import { demoOverrideFor } from '@/auth/demoPersonas';
+import { isDemoModeEnabled, primaryRole } from '@/auth/subject';
 import {
   ForbiddenError,
   RateLimitedError,
@@ -12,9 +14,10 @@ import {
   ValidationError,
 } from '@/data/errors';
 import type { AuthRepository } from '@/data/repositories';
+import type { SessionRecord } from '@/data/store/schema';
 import {
   appendAudit,
-  assignmentFor,
+  assignmentsFor,
   db,
   getSessionRecord,
   requireSubject,
@@ -22,7 +25,14 @@ import {
   subjectForSession,
   type MemberRecord,
 } from '@/data/store';
-import type { CurrentMember, ID, PasswordResetTicket, Role, Session } from '@/domain';
+import type {
+  CurrentMember,
+  DemoPersonaId,
+  ID,
+  PasswordResetTicket,
+  Session,
+  Subject,
+} from '@/domain';
 import { clock } from '@/lib/clock';
 
 /**
@@ -65,9 +75,9 @@ export function buildSessionForUser(userId: ID): Session {
   return {
     user,
     member: toCurrentMember(member, userId),
-    assignment: assignmentFor(userId),
+    assignments: assignmentsFor(userId),
     specialAssignments: db.find('specialAssignments', (sa) => sa.userId === userId),
-    subject: subjectForSession(sessionRecord),
+    subject: requireSubjectFor(sessionRecord),
     demo: { enabled: demoEnabled, override: demoEnabled ? sessionRecord.demoOverride : null },
     issuedAt: sessionRecord.issuedAt,
     expiresAt: null,
@@ -75,21 +85,23 @@ export function buildSessionForUser(userId: ID): Session {
 }
 
 /** Writes a session for `userId` without credentials (tests / renderWithProviders). */
-export function startSessionForUser(userId: ID, demoOverrideRole: Role | null = null): Session {
+export function startSessionForUser(userId: ID, demoPersona: DemoPersonaId | null = null): Session {
   const member = db.require('members', userId, 'member');
   db.setMeta('session', {
     userId,
     issuedAt: clock.nowIso(),
     demoOverride:
-      demoOverrideRole && isDemoModeEnabled()
-        ? {
-            role: demoOverrideRole,
-            scope: demoScopeFor(demoOverrideRole, member.chapterId),
-            switchedAt: clock.nowIso(),
-          }
+      demoPersona && isDemoModeEnabled()
+        ? demoOverrideFor(demoPersona, member.chapterId, clock.nowIso())
         : null,
   });
   return buildSessionForUser(userId);
+}
+
+function requireSubjectFor(record: SessionRecord): Subject {
+  const subject = subjectForSession(record);
+  if (!subject) throw new UnauthorizedError('session_expired');
+  return subject;
 }
 
 function registerFailedAttempt(userId: ID | null): never {
@@ -189,7 +201,7 @@ export function createMockAuthRepository(): AuthRepository {
           action: 'auth.logout',
           entityType: 'user',
           entityId: record.userId,
-          chapterId: subject.homeChapterId,
+          chapterId: subject?.homeChapterId ?? null,
           summary: { kind: 'key', key: 'auditActions.auth.logout' },
         });
       }
@@ -289,17 +301,16 @@ export function createMockAuthRepository(): AuthRepository {
       });
     },
 
-    async switchDemoRole(role) {
+    async switchDemoRole(persona) {
       await simulateLatency();
       if (!isDemoModeEnabled()) throw new ForbiddenError('demo_mode_disabled');
       const record = getSessionRecord();
       if (!record) throw new UnauthorizedError('not_authenticated');
-      const before = subjectForSession(record);
-      const assignment = assignmentFor(record.userId);
+      const before = requireSubjectFor(record);
       const member = db.require('members', record.userId, 'member');
       const override =
-        role && role !== assignment.role
-          ? { role, scope: demoScopeFor(role, member.chapterId), switchedAt: clock.nowIso() }
+        persona && persona !== personaOfUser(record.userId)
+          ? demoOverrideFor(persona, member.chapterId, clock.nowIso())
           : null;
       db.setMeta('session', { ...record, demoOverride: override });
       const session = buildSessionForUser(record.userId);
@@ -309,7 +320,12 @@ export function createMockAuthRepository(): AuthRepository {
         entityId: record.userId,
         chapterId: member.chapterId,
         summary: { kind: 'key', key: 'auditActions.demo.role_switched' },
-        metadata: { from: before.role, to: session.subject.role },
+        metadata: {
+          from: record.demoOverride?.persona ?? personaOfUser(record.userId) ?? 'own',
+          to: override?.persona ?? personaOfUser(record.userId) ?? 'own',
+          fromRole: primaryRole(before)?.role ?? null,
+          toRole: primaryRole(session.subject)?.role ?? null,
+        },
       });
       return session;
     },

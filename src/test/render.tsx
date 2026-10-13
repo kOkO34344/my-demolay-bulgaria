@@ -8,7 +8,7 @@ import { AppProviders } from '@/app/providers';
 import { queryKeys } from '@/data/hooks/queryKeys';
 import { startSessionForUser } from '@/data/mock/repositories/authRepository';
 import { DEMO_USER_IDS } from '@/data/mock/seed/demoAccounts';
-import type { Locale, Role, Session } from '@/domain';
+import type { DemoPersonaId, Locale, Session } from '@/domain';
 import { i18n } from '@/i18n';
 import type { ThemePreference } from '@/lib/theme';
 
@@ -30,12 +30,12 @@ export interface RenderWithProvidersOptions extends Omit<RenderOptions, 'wrapper
   /** Extra routes rendered alongside (e.g. a login route to assert redirects). */
   routes?: Array<{ path: string; element: ReactNode }>;
   /**
-   * Signed-in demo account by role (default 'member'). `null` = signed out.
+   * Signed-in demo account by persona (default 'active_member'). `null` = signed out.
    * The session is written to the mock store and primed into the query cache synchronously.
    */
-  role?: Role | null;
-  /** Demo role-switcher override applied on top of `role`'s account. */
-  demoRole?: Role;
+  persona?: DemoPersonaId | null;
+  /** Demo role-switcher override: act as another persona on top of `persona`'s account. */
+  actAs?: DemoPersonaId;
   lang?: Locale;
   /** Forced theme preference (default 'light'); null = use stored preference / OS setting. */
   theme?: ThemePreference | null;
@@ -53,7 +53,7 @@ export interface RenderWithProvidersResult extends RenderResult {
 
 /**
  * Renders UI inside every app provider (QueryClient, i18n, theme, auth, tooltips) and a MemoryRouter.
- *   const { user } = renderWithProviders(<NewsPage />, { route: '/news', role: 'chapter_officer', lang: 'bg' });
+ *   const { user } = renderWithProviders(<NewsPage />, { route: '/news', persona: 'chapter_secretary', lang: 'bg' });
  */
 export function renderWithProviders(
   ui: ReactElement,
@@ -61,8 +61,8 @@ export function renderWithProviders(
     route = '/',
     path,
     routes = [],
-    role = 'member',
-    demoRole,
+    persona = 'active_member',
+    actAs,
     lang = 'en',
     theme = 'light',
     demoMode,
@@ -73,7 +73,7 @@ export function renderWithProviders(
 ): RenderWithProvidersResult {
   void i18n.changeLanguage(lang);
 
-  const session = role ? startSessionForUser(DEMO_USER_IDS[role], demoRole ?? null) : null;
+  const session = persona ? startSessionForUser(DEMO_USER_IDS[persona], actAs ?? null) : null;
   queryClient.setQueryData(queryKeys.auth.session(), session);
 
   const content =

@@ -43,7 +43,7 @@ afterEach(() => {
 
 describe('data hooks with the mock backend', () => {
   it('RSVP updates the event detail and the events list', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const { wrapper } = setup();
     const eventId = SEED_IDS.events.memberCanRsvp;
     const { result } = renderHook(
@@ -65,7 +65,7 @@ describe('data hooks with the mock backend', () => {
   });
 
   it('a rejected RSVP rolls back the optimistic update and surfaces the typed error', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const { wrapper } = setup();
     const eventId = SEED_IDS.events.full;
     const { result } = renderHook(() => ({ event: useEvent(eventId), rsvp: useRsvp() }), {
@@ -82,7 +82,7 @@ describe('data hooks with the mock backend', () => {
   });
 
   it('publishing a submission refreshes the management list', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     const { wrapper } = setup();
     const postId = SEED_IDS.posts.advisorCanPublish;
     const { result } = renderHook(
@@ -97,7 +97,7 @@ describe('data hooks with the mock backend', () => {
   });
 
   it('translation edits refresh the translation queue', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     const { wrapper } = setup();
     const entityId = SEED_IDS.posts.officerDraft;
     const { result } = renderHook(
@@ -125,7 +125,7 @@ describe('data hooks with the mock backend', () => {
 
   it('polling shows sync progress and refreshes status and the bell when the run finishes', async () => {
     setDemoSyncDuration(400);
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const { wrapper } = setup();
     const { result } = renderHook(
       () => ({

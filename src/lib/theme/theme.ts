@@ -15,7 +15,7 @@ export const THEME_STORAGE_KEY = STORAGE_KEYS.theme;
 /** <meta name="theme-color"> per resolved theme (matches the app header surface). */
 export const THEME_COLORS: Record<ResolvedTheme, string> = {
   light: '#ffffff',
-  dark: '#132136',
+  dark: '#0e1b30',
 };
 
 const DARK_QUERY = '(prefers-color-scheme: dark)';

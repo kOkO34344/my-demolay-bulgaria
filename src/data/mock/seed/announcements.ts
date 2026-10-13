@@ -196,7 +196,7 @@ Any active member aged 14 to 21 can apply. Tell us in a short letter what you wo
 
 Applications are reviewed by a small committee of advisors who do not assess candidates from their own chapter. The results will be announced in the portal, and every applicant will receive feedback.
 
-Use the application form attached below and send it through your chapter advisor.`,
+Use the application form attached below and send it through your Chapter Chairman.`,
     },
     bg: {
       title: 'Стипендии за обучение на членовете: кандидатстването започна',
@@ -208,7 +208,7 @@ Use the application form attached below and send it through your chapter advisor
 
 Кандидатурите се разглеждат от малка комисия от съветници, които не оценяват кандидати от собствената си обител. Резултатите ще бъдат обявени в портала и всеки кандидат ще получи обратна връзка.
 
-Използвайте прикачения формуляр за кандидатстване и го изпратете чрез съветника на обителта си.`,
+Използвайте прикачения формуляр за кандидатстване и го изпратете чрез председателя на обителта си.`,
     },
   },
   {
@@ -284,7 +284,7 @@ The chapter directory shows only your name, profile photo, chapter and position.
 
 Only your chapter advisors and the national administrators can see your contact details, and only to the extent needed to organise activities and to keep you and your parents informed.
 
-The full policy is available in the Policies section of Resources. If you have questions, ask your chapter advisor.`,
+The full policy is available in the Policies section of Resources. If you have questions, ask your Chapter Chairman.`,
     },
     bg: {
       title: 'Обновена политика за поверителност на членовете',
@@ -296,7 +296,7 @@ The full policy is available in the Policies section of Resources. If you have q
 
 Данните ви за контакт виждат само съветниците на обителта и националните администратори – и само доколкото е нужно за организиране на дейностите и за информиране на вас и родителите ви.
 
-Пълният текст на политиката е в категория „Правила“ на раздел „Ресурси“. Ако имате въпроси, обърнете се към съветника на обителта.`,
+Пълният текст на политиката е в категория „Правила“ на раздел „Ресурси“. Ако имате въпроси, обърнете се към председателя на обителта.`,
     },
   },
   {
@@ -431,7 +431,7 @@ This is also a good opportunity to get to know members from another chapter — 
         'The new officers of Sveta Sofia will be installed at a public ceremony. Families and friends are welcome — please reply in Events.',
       body: `The new officers of Sveta Sofia chapter will be installed at a public installation ceremony. Parents, relatives, friends and members of other chapters are warmly invited.
 
-The ceremony is followed by a short reception prepared by the members themselves. If you can help with setting up the hall or with the reception, tell the Marshal or the Scribe at the next meeting.
+The ceremony is followed by a short reception prepared by the members themselves. If you can help with setting up the hall or with the reception, tell the Marshal or the Secretary at the next meeting.
 
 Officers, please be at the hall an hour early for a final rehearsal. Members should wear the chapter's formal dress.
 
@@ -443,7 +443,7 @@ Reply in the Events section so we know how many guests to expect — places in t
         'Новите длъжностни лица на „Света София“ ще бъдат инсталирани на открита церемония. Семействата и приятелите са добре дошли – отговорете в раздел „Събития“.',
       body: `Новите длъжностни лица на обител „Света София“ ще бъдат инсталирани на открита церемония. Родители, роднини, приятели и членове на другите обители са сърдечно поканени.
 
-След церемонията следва кратък коктейл, подготвен от самите членове. Ако можете да помогнете с подреждането на залата или с коктейла, кажете на Маршала или на Писаря на следващата среща.
+След церемонията следва кратък коктейл, подготвен от самите членове. Ако можете да помогнете с подреждането на залата или с коктейла, кажете на Маршала или на Секретаря на следващата среща.
 
 Длъжностните лица трябва да бъдат в залата един час по-рано за последна репетиция. Членовете се явяват в официалното облекло на обителта.
 
@@ -509,7 +509,7 @@ Photos from the drive are available to members on request. We will plan the next
 
 Each meeting starts with chapter business and reports from the officers, followed by a programme prepared by a different group of members. The programme for the next few meetings is already on the chapter calendar.
 
-If you cannot attend, let the Scribe know in advance through the portal so the attendance record stays accurate.
+If you cannot attend, let the Secretary know in advance through the portal so the attendance record stays accurate.
 
 The term calendar with all dates is available in the Meetings section of Resources.`,
     },
@@ -521,7 +521,7 @@ The term calendar with all dates is available in the Meetings section of Resourc
 
 Всяка среща започва с текущите въпроси на обителта и отчетите на длъжностните лица, след което следва програма, подготвена от различна група членове. Програмата за следващите няколко срещи вече е в календара на обителта.
 
-Ако не можете да присъствате, уведомете предварително Писаря през портала, за да бъде отчетът за присъствието точен.
+Ако не можете да присъствате, уведомете предварително Секретаря през портала, за да бъде отчетът за присъствието точен.
 
 Календарът за срока с всички дати е в категория „Срещи“ на раздел „Ресурси“.`,
     },
@@ -571,8 +571,8 @@ The room is small, so registration closes early. Sign up in the Events section a
     en: {
       title: 'Officers: recording attendance in the portal',
       summary:
-        'From this month the Scribe records attendance for every meeting and event in the portal instead of on paper.',
-      body: `From this month, attendance for every working meeting and chapter event is recorded in the portal instead of on paper. The Scribe is responsible for it, and any officer can step in when the Scribe is absent.
+        'From this month the Secretary records attendance for every meeting and event in the portal instead of on paper.',
+      body: `From this month, attendance for every working meeting and chapter event is recorded in the portal instead of on paper. The Secretary is responsible for it, and any officer can step in when the Secretary is absent.
 
 Please record attendance within three days of the event. Mark members who let us know in advance as “Excused” rather than “Absent”.
 
@@ -583,8 +583,8 @@ Last month's events still need to be entered — the Parents' evening is the mos
     bg: {
       title: 'За длъжностните лица: отбелязване на присъствието в портала',
       summary:
-        'От този месец Писарят отбелязва присъствието на всяка среща и събитие в портала вместо на хартия.',
-      body: `От този месец присъствието на всяка работна среща и събитие на обителта се отбелязва в портала вместо на хартия. Отговорен е Писарят, а всяко длъжностно лице може да го замести, когато отсъства.
+        'От този месец Секретарят отбелязва присъствието на всяка среща и събитие в портала вместо на хартия.',
+      body: `От този месец присъствието на всяка работна среща и събитие на обителта се отбелязва в портала вместо на хартия. Отговорен е Секретарят, а всяко длъжностно лице може да го замести, когато отсъства.
 
 Моля, отбелязвайте присъствието до три дни след събитието. Членовете, които са ни уведомили предварително, отбелязвайте с „Извинено отсъствие“, а не с „Отсъства“.
 
@@ -839,7 +839,7 @@ If you would like to make cards or small gifts in advance, bring them to the mee
         'Twenty books on leadership, communication and history are now available to borrow at every meeting.',
       body: `Thanks to donations from advisors and parents, our chapter now has a small library of twenty books on leadership, communication, history and personal development.
 
-Books can be borrowed at every working meeting for up to four weeks. The Scribe keeps the list of who has which book. When you return a book, share in two or three sentences what you found useful — we will collect the recommendations for future members.
+Books can be borrowed at every working meeting for up to four weeks. The Secretary keeps the list of who has which book. When you return a book, share in two or three sentences what you found useful — we will collect the recommendations for future members.
 
 If you have a book you would like to donate, bring it to the next meeting.`,
     },
@@ -849,7 +849,7 @@ If you have a book you would like to donate, bring it to the next meeting.`,
         'Двайсет книги за лидерство, комуникация и история вече могат да се заемат на всяка среща.',
       body: `Благодарение на дарения от съветници и родители обителта ни вече има малка библиотека от двайсет книги за лидерство, комуникация, история и личностно развитие.
 
-Книгите могат да се заемат на всяка работна среща за до четири седмици. Писарят води списък кой коя книга е взел. Когато върнете книга, споделете в две-три изречения какво ви е било полезно – ще съберем препоръките за следващите членове.
+Книгите могат да се заемат на всяка работна среща за до четири седмици. Секретарят води списък кой коя книга е взел. Когато върнете книга, споделете в две-три изречения какво ви е било полезно – ще съберем препоръките за следващите членове.
 
 Ако имате книга, която искате да дарите, донесете я на следващата среща.`,
     },
@@ -927,7 +927,7 @@ Registered participants will receive the packing list and the daily programme by
       title: 'Photo contest: our chapter in pictures',
       summary:
         'Send your best photos from chapter activities. The winning photos will be printed for the meeting hall.',
-      body: `We are collecting the best photos from this year's chapter activities. Send up to three photos with a short caption to the Scribe through the portal.
+      body: `We are collecting the best photos from this year's chapter activities. Send up to three photos with a short caption to the Secretary through the portal.
 
 Only photos in which everyone pictured agreed to be photographed can take part. The winning photos will be printed and displayed in the meeting hall.`,
     },
@@ -935,7 +935,7 @@ Only photos in which everyone pictured agreed to be photographed can take part. 
       title: 'Фотоконкурс: обителта ни в снимки',
       summary:
         'Изпратете най-хубавите си снимки от дейностите на обителта. Наградените снимки ще бъдат отпечатани за залата.',
-      body: `Събираме най-хубавите снимки от тазгодишните дейности на обителта. Изпратете до три снимки с кратко описание на Писаря през портала.
+      body: `Събираме най-хубавите снимки от тазгодишните дейности на обителта. Изпратете до три снимки с кратко описание на Секретаря през портала.
 
 В конкурса участват само снимки, на които всички изобразени са се съгласили да бъдат снимани. Наградените снимки ще бъдат отпечатани и поставени в залата за срещи.`,
     },

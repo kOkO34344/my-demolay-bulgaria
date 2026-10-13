@@ -105,9 +105,9 @@ const JOBS: JobSeed[] = [
       {
         userId: 'u-b03',
         displayName: nameOf('u-b03'),
-        fromRole: 'chapter_officer',
-        toRole: 'member',
-        scope: { level: 'chapter', chapterIds: ['ch-4'] },
+        fromRole: 'ch_mc',
+        toRole: null,
+        scope: null,
         mappingId: null,
       },
     ],
@@ -168,8 +168,8 @@ const JOBS: JobSeed[] = [
       {
         userId: 'u-s03',
         displayName: nameOf('u-s03'),
-        fromRole: 'member',
-        toRole: 'chapter_officer',
+        fromRole: null,
+        toRole: 'ch_jc',
         scope: { level: 'chapter', chapterIds: ['ch-1'] },
         mappingId: 'map-ch-junior-councilor',
       },

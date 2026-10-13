@@ -2,7 +2,7 @@ import axe, { type Result, type RunOptions } from 'axe-core';
 
 /**
  * Runs axe-core against a rendered tree (jsdom). Colour contrast cannot be computed in jsdom, so it
- * is disabled here (contrast is verified at the token level — see CONVENTIONS-core.md — and in E2E).
+ * is disabled here (contrast is verified at the token level — see the token comments in src/styles/globals.css — and in E2E).
  *   expect(await axeViolations(container)).toEqual([]);
  */
 export async function axeViolations(

@@ -17,7 +17,7 @@ export function seedSpecialAssignments(ctx: SeedContext): SpecialAssignment[] {
       endsAt: at(ctx, 26, '23:59'),
       reason: 'Preparing and uploading the new-member welcome pack for the autumn intake.',
       approverId: 'u-advisor',
-      createdBy: 'u-advisor',
+      createdBy: 'u-admin',
       createdAt: ago(ctx, { days: 4, hours: 6 }),
       revokedAt: null,
       revokedBy: null,
@@ -32,7 +32,7 @@ export function seedSpecialAssignments(ctx: SeedContext): SpecialAssignment[] {
       endsAt: at(ctx, -20, '23:59'),
       reason: 'Organising the spring charity run with the Almoner.',
       approverId: 'u-advisor',
-      createdBy: 'u-advisor',
+      createdBy: 'u-admin',
       createdAt: ago(ctx, { days: 62, hours: 3 }),
       revokedAt: null,
       revokedBy: null,
@@ -66,7 +66,7 @@ export function seedSpecialAssignments(ctx: SeedContext): SpecialAssignment[] {
       createdAt: ago(ctx, { days: 15, hours: 2 }),
       revokedAt: ago(ctx, { days: 14, hours: 1 }),
       revokedBy: 'u-admin',
-      revokeReason: 'Granted by mistake — publishing stays with the chapter advisor.',
+      revokeReason: 'Granted by mistake — publishing stays with the Chapter Chairman.',
     },
   ];
 }

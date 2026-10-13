@@ -10,4 +10,10 @@ export {
 } from './render';
 export { axeViolations, summarizeViolations } from './a11y';
 export { mediaState } from './polyfills';
-export { buildSubjectFor, subjectsByRole } from './subjects';
+export {
+  buildSubject,
+  defaultScope,
+  personaSubject,
+  roleSubject,
+  subjectsByPersona,
+} from './subjects';

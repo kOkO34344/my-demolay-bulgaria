@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
-import type { Role } from '@/domain';
+import type { DemoPersonaId } from '@/domain';
 import MorePage from '@/features/shell/pages/MorePage';
 import { renderWithProviders, screen, waitFor, within } from '@/test';
 
@@ -14,12 +14,15 @@ const WORKSPACE_LINKS = [
   'Administration',
 ] as const;
 
-function renderLayout(role: Role, options: { demoMode?: boolean; route?: string } = {}) {
+function renderLayout(
+  persona: DemoPersonaId,
+  options: { demoMode?: boolean; route?: string } = {},
+) {
   return renderWithProviders(
     <AppLayout>
       <h1>Page body</h1>
     </AppLayout>,
-    { role, demoMode: options.demoMode, route: options.route ?? '/' },
+    { persona, demoMode: options.demoMode, route: options.route ?? '/' },
   );
 }
 
@@ -31,7 +34,7 @@ const sidebarLinkNames = () =>
 
 describe('AppLayout navigation', () => {
   it('provides landmarks: skip link, main#main-content, labelled navigation', () => {
-    renderLayout('member');
+    renderLayout('active_member');
     expect(screen.getByRole('link', { name: 'Skip to main content' })).toHaveAttribute(
       'href',
       '#main-content',
@@ -41,8 +44,8 @@ describe('AppLayout navigation', () => {
     expect(screen.getByRole('navigation', { name: 'Primary' })).toBeInTheDocument();
   });
 
-  it('member: sees the member sections only — no Administration or Member Management', () => {
-    renderLayout('member');
+  it('active member: sees the member sections only — no Administration or Member Management', () => {
+    renderLayout('active_member');
     const names = sidebarLinkNames();
     for (const label of ['Home', 'News', 'Events', 'My Chapter', 'Resources', 'Profile']) {
       expect(names.some((name) => name.startsWith(label))).toBe(true);
@@ -54,15 +57,15 @@ describe('AppLayout navigation', () => {
     expect(within(sidebarNav()).getByRole('button', { name: 'Sign out' })).toBeInTheDocument();
   });
 
-  it('national administrator: sees every workspace section', () => {
-    renderLayout('national_admin');
+  it('system administrator: sees every workspace section', () => {
+    renderLayout('sysadmin');
     for (const label of WORKSPACE_LINKS) {
       expect(within(sidebarNav()).getByRole('link', { name: label })).toBeInTheDocument();
     }
   });
 
-  it('chapter advisor: Member Management but not Administration', () => {
-    renderLayout('chapter_advisor');
+  it('chapter chairman: Member Management but not Administration', () => {
+    renderLayout('chapter_chairman');
     expect(within(sidebarNav()).getByRole('link', { name: 'Member Management' })).toBeVisible();
     expect(
       within(sidebarNav()).queryByRole('link', { name: 'Administration' }),
@@ -70,7 +73,7 @@ describe('AppLayout navigation', () => {
   });
 
   it('marks the current section with aria-current="page"', () => {
-    renderLayout('member', { route: '/events' });
+    renderLayout('active_member', { route: '/events' });
     expect(within(sidebarNav()).getByRole('link', { name: 'Events' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -81,7 +84,7 @@ describe('AppLayout navigation', () => {
   });
 
   it('mobile bottom bar: Home, News, Events, Chapter, More', () => {
-    renderLayout('member');
+    renderLayout('active_member');
     const bottom = screen.getByRole('navigation', { name: 'Primary' });
     expect(
       within(bottom)
@@ -91,7 +94,7 @@ describe('AppLayout navigation', () => {
   });
 
   it('shows the unread count on the Notifications item with a spoken label', async () => {
-    renderLayout('member');
+    renderLayout('active_member');
     const link = await within(sidebarNav()).findByRole('link', {
       name: /^Notifications.*unread notifications?\)$/,
     });
@@ -101,14 +104,14 @@ describe('AppLayout navigation', () => {
 
 describe('Demo role switcher', () => {
   it('is shown (sidebar panel + header chip + prototype footer) in demo mode', () => {
-    renderLayout('member', { demoMode: true });
+    renderLayout('active_member', { demoMode: true });
     expect(screen.getByRole('region', { name: 'Demo role switcher' })).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'Demo role switcher' }).length).toBeGreaterThan(0);
     expect(screen.getByText(/prototype with fictional data/)).toBeInTheDocument();
   });
 
   it('does not exist at all when demo mode is off', () => {
-    renderLayout('member', { demoMode: false });
+    renderLayout('active_member', { demoMode: false });
     expect(screen.queryByText('Demo role switcher')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Demo role switcher/ })).not.toBeInTheDocument();
     expect(screen.queryByText(/prototype with fictional data/)).not.toBeInTheDocument();
@@ -119,7 +122,7 @@ describe('Demo role switcher', () => {
       <AppLayout>
         <MorePage />
       </AppLayout>,
-      { role: 'member', demoMode: false, route: '/more' },
+      { persona: 'active_member', demoMode: false, route: '/more' },
     );
     expect(screen.getByRole('heading', { level: 1, name: 'More' })).toBeInTheDocument();
     expect(screen.queryByRole('radiogroup', { name: 'View the app as' })).not.toBeInTheDocument();
@@ -133,18 +136,18 @@ describe('Demo role switcher', () => {
       <AppLayout>
         <MorePage />
       </AppLayout>,
-      { role: 'member', demoMode: true, route: '/more' },
+      { persona: 'active_member', demoMode: true, route: '/more' },
     );
     expect(
       within(sidebarNav()).queryByRole('link', { name: 'Administration' }),
     ).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('radio', { name: /National Administrator/ }));
+    await user.click(screen.getByRole('radio', { name: /System administrator/ }));
 
     expect(
       await within(sidebarNav()).findByRole('link', { name: 'Administration' }),
     ).toBeInTheDocument();
-    expect(await screen.findByText('Now viewing as National Administrator.')).toBeInTheDocument();
+    expect(await screen.findByText('Now viewing as System administrator.')).toBeInTheDocument();
     expect(
       within(screen.getByRole('main')).getByRole('button', { name: 'Return to my role' }),
     ).toBeInTheDocument();
@@ -158,9 +161,9 @@ describe('Demo role switcher', () => {
           <Route path="/members" element={<MorePage />} />
         </Route>
       </Routes>,
-      { role: 'national_admin', demoMode: true, route: '/members' },
+      { persona: 'sysadmin', demoMode: true, route: '/members' },
     );
-    await user.click(screen.getByRole('radio', { name: /^Member/ }));
+    await user.click(screen.getByRole('radio', { name: /^Active member/ }));
     expect(await screen.findByRole('heading', { name: 'Home body' })).toBeInTheDocument();
     await waitFor(() =>
       expect(

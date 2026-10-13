@@ -28,7 +28,7 @@
       "scopeNotAllowedForRole": "This scope isn't available for the selected role.",
       "approverIsRecipient": "The approver can't be the member who receives the permission.",
       "approverInvalid": "Choose an active member as the approver.",
-      "positionCodeFormat": "Use capital Latin letters, digits and underscores, e.g. CH_SCRIBE.",
+      "positionCodeFormat": "Use capital Latin letters, digits and underscores, e.g. CH_SECRETARY.",
       "phoneFormat": "Enter a valid phone number.",
       "unknownChapter": "Choose an existing chapter.",
       "unknownMember": "Choose an existing member.",
@@ -174,6 +174,14 @@
       "maintenance": {
         "title": "Scheduled maintenance (simulated)",
         "body": "The portal will be read-only for one hour on Sunday morning. No action is needed."
+      },
+      "accountExpelled": {
+        "title": "Your membership has ended",
+        "body": "Reason: {{reason}}"
+      },
+      "roleRemoved": {
+        "title": "A role has ended",
+        "body": "You no longer hold the role {{role}} ({{scope}})."
       }
     },
     "audit": {
@@ -221,7 +229,8 @@
       "translationUpdatedEn": "Updated the English version of “{{title}}”",
       "translationUpdatedBg": "Updated the Bulgarian version of “{{title}}”",
       "translationReviewedEn": "Reviewed the English version of “{{title}}”",
-      "translationReviewedBg": "Reviewed the Bulgarian version of “{{title}}”"
+      "translationReviewedBg": "Reviewed the Bulgarian version of “{{title}}”",
+      "roleRemoved": "Ended {{name}}’s role “{{role}}” ({{scope}}): {{reason}}"
     }
   }
 }

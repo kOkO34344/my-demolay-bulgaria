@@ -6,7 +6,7 @@ import type {
   PasswordChangeInput,
   PasswordResetInput,
   PasswordResetRequestInput,
-  Role,
+  DemoPersonaId,
   Session,
 } from '@/domain';
 
@@ -82,7 +82,7 @@ export function useResetPassword() {
 export function useSwitchDemoRole() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (role: Role | null) => repositories.auth.switchDemoRole(role),
+    mutationFn: (persona: DemoPersonaId | null) => repositories.auth.switchDemoRole(persona),
     onSuccess: async (session) => {
       client.setQueryData(queryKeys.auth.session(), session);
       await client.resetQueries({ predicate: (q) => isNotAuthQuery(q.queryKey) });

@@ -21,12 +21,12 @@ const BAZAAR_BG = {
 
 describe('translation repository — queue', () => {
   it('members have no translation queue', async () => {
-    signInAs('member');
+    signInAs('active_member');
     await expect(translations.listTasks()).rejects.toBeInstanceOf(ForbiddenError);
   });
 
   it('administrators see every item that needs work, most urgent first', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const tasks = await translations.listTasks();
     expect(tasks.length).toBeGreaterThanOrEqual(8);
     expect(tasks.every((t) => t.locales.en !== 'reviewed' || t.locales.bg !== 'reviewed')).toBe(
@@ -44,7 +44,7 @@ describe('translation repository — queue', () => {
   });
 
   it('filters by state, entity type, language and search', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const missing = await translations.listTasks({ state: 'missing' });
     expect(missing.every((t) => t.locales.en === 'missing' || t.locales.bg === 'missing')).toBe(
       true,
@@ -59,7 +59,7 @@ describe('translation repository — queue', () => {
   });
 
   it('chapter officers see only their chapter’s items', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     const tasks = await translations.listTasks({ state: 'all' });
     expect(tasks.length).toBeGreaterThan(0);
     expect(tasks.every((t) => t.chapterId === 'ch-1')).toBe(true);
@@ -68,7 +68,7 @@ describe('translation repository — queue', () => {
 
 describe('translation repository — editing and review', () => {
   it('officer adds the missing Bulgarian version → needs review, audited, now submittable', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     const task = await translations.updateTranslation({
       entityType: 'announcement',
       entityId: P.officerDraft,
@@ -86,7 +86,7 @@ describe('translation repository — editing and review', () => {
   });
 
   it('only reviewers may save as reviewed or mark a version reviewed', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     await expect(
       translations.updateTranslation({
         entityType: 'announcement',
@@ -103,7 +103,7 @@ describe('translation repository — editing and review', () => {
         locale: 'bg',
       }),
     ).rejects.toBeInstanceOf(ForbiddenError);
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     const reviewed = await translations.markReviewed({
       entityType: 'announcement',
       entityId: P.advisorCanPublish,
@@ -125,7 +125,7 @@ describe('translation repository — editing and review', () => {
   });
 
   it('a reviewer can save and approve in one step', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const resource = db.require('resources', 'res-officer-handbook');
     const task = await translations.updateTranslation({
       entityType: 'resource',
@@ -143,7 +143,7 @@ describe('translation repository — editing and review', () => {
   });
 
   it('rejects incomplete versions, frozen items and out-of-scope items', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     const missing = await translations
       .markReviewed({ entityType: 'announcement', entityId: P.officerDraft, locale: 'bg' })
       .catch((e: unknown) => e);
@@ -160,11 +160,11 @@ describe('translation repository — editing and review', () => {
     expect((invalid as ValidationError).fieldErrors).toEqual({
       'fields.title': 'validation.required',
     });
-    signInAs('national_admin');
+    signInAs('sysadmin');
     await expect(
       translations.markReviewed({ entityType: 'announcement', entityId: P.archived, locale: 'en' }),
     ).rejects.toMatchObject({ reasonKey: 'messages.errors.notEditable' });
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     await expect(
       translations.updateTranslation({
         entityType: 'announcement',

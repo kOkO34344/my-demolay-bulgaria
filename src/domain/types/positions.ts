@@ -9,7 +9,7 @@ export type PositionLevel = (typeof POSITION_LEVELS)[number];
  * prototype — always labelled "Imported position — demo data"). Members cannot edit it.
  */
 export interface ImportedPosition {
-  /** Stable registry code, e.g. "CH_SCRIBE". Mappings match on this code. */
+  /** Stable registry code, e.g. "CH_SECRETARY". Mappings match on this code. */
   code: string;
   title: LocalizedText;
   level: PositionLevel;
@@ -23,12 +23,16 @@ export interface ImportedPosition {
   isDemoData: boolean;
 }
 
-/** Rule: imported position code → application role at a scope level. Highest priority wins. */
+/**
+ * Rule: imported position code → application role at a scope level. Highest priority wins.
+ * `role: null` means the office carries no application role (e.g. ritual offices): the holder gets
+ * member-type access only. That is a valid outcome, unlike a code with no rule at all.
+ */
 export interface PositionRoleMapping {
   id: ID;
   positionCode: string;
   positionTitle: LocalizedText;
-  role: Role;
+  role: Role | null;
   scopeLevel: ScopeLevel;
   /** Higher number = evaluated first. */
   priority: number;
@@ -41,7 +45,7 @@ export interface PositionRoleMapping {
 export interface PositionMappingInput {
   positionCode: string;
   positionTitle: LocalizedText;
-  role: Role;
+  role: Role | null;
   scopeLevel: ScopeLevel;
   priority: number;
   active: boolean;
@@ -52,7 +56,7 @@ export interface PositionMappingInput {
 export interface MappingPreview {
   positionCode: string;
   matchedMapping: PositionRoleMapping | null;
-  /** Resulting role, or null when the position is unmapped (→ sync exception). */
+  /** Resulting role; null when unmapped (→ sync exception) or mapped to "no role". */
   role: Role | null;
   scopeLevel: ScopeLevel | null;
   /** Example resolved scope for a member holding this position. */

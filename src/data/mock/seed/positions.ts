@@ -12,9 +12,9 @@ import { mappingIdFor } from './demoAccounts';
 
 /**
  * Catalogue of organisational positions used by the simulated member registry (demo data).
- * Bulgarian titles: „Главен съветник“ and „Национален съветник“ are publicly documented; the other
- * chapter offices use the SUGGESTED (unverified) translations from RESEARCH.md §3.2 — one place to
- * replace them once the organisation confirms its titles.
+ * Office titles follow docs/ROLES-AND-PERMISSIONS.md §3; ritual offices are DeMolay chapter offices
+ * that carry no application role. Bulgarian titles for the ritual offices are suggested
+ * translations to be confirmed by the organisation.
  */
 
 export interface PositionDefinition {
@@ -30,11 +30,12 @@ const p = (code: string, en: string, bg: string, level: PositionLevel): Position
 });
 
 export const POSITIONS = {
-  CH_MASTER_COUNCILOR: p('CH_MASTER_COUNCILOR', 'Master Councilor', 'Главен съветник', 'chapter'),
-  CH_SENIOR_COUNCILOR: p('CH_SENIOR_COUNCILOR', 'Senior Councilor', 'Старши съветник', 'chapter'),
-  CH_JUNIOR_COUNCILOR: p('CH_JUNIOR_COUNCILOR', 'Junior Councilor', 'Младши съветник', 'chapter'),
-  CH_SCRIBE: p('CH_SCRIBE', 'Scribe', 'Писар', 'chapter'),
-  CH_TREASURER: p('CH_TREASURER', 'Treasurer', 'Ковчежник', 'chapter'),
+  CH_CHAIRMAN: p('CH_CHAIRMAN', 'Chapter Chairman', 'Председател на обителта', 'chapter'),
+  CH_MASTER_COUNCILOR: p('CH_MASTER_COUNCILOR', 'Master Councillor', 'Главен съветник', 'chapter'),
+  CH_SENIOR_COUNCILOR: p('CH_SENIOR_COUNCILOR', 'Senior Councillor', 'Старши съветник', 'chapter'),
+  CH_JUNIOR_COUNCILOR: p('CH_JUNIOR_COUNCILOR', 'Junior Councillor', 'Младши съветник', 'chapter'),
+  CH_SECRETARY: p('CH_SECRETARY', 'Chapter Secretary', 'Секретар на обителта', 'chapter'),
+  CH_TREASURER: p('CH_TREASURER', 'Chapter Treasurer', 'Ковчежник на обителта', 'chapter'),
   CH_CHAPLAIN: p('CH_CHAPLAIN', 'Chaplain', 'Капелан', 'chapter'),
   CH_MARSHAL: p('CH_MARSHAL', 'Marshal', 'Маршал', 'chapter'),
   CH_STANDARD_BEARER: p('CH_STANDARD_BEARER', 'Standard Bearer', 'Знаменосец', 'chapter'),
@@ -44,24 +45,31 @@ export const POSITIONS = {
   CH_SENIOR_DEACON: p('CH_SENIOR_DEACON', 'Senior Deacon', 'Старши дякон', 'chapter'),
   CH_JUNIOR_STEWARD: p('CH_JUNIOR_STEWARD', 'Junior Steward', 'Младши стюард', 'chapter'),
   CH_ACTIVE_MEMBER: p('CH_ACTIVE_MEMBER', 'Active member', 'Активен член', 'chapter'),
-  CH_ADVISOR: p('CH_ADVISOR', 'Chapter Advisor', 'Съветник на обителта', 'chapter'),
-  CH_ADVISORY_COUNCIL_CHAIR: p(
-    'CH_ADVISORY_COUNCIL_CHAIR',
-    'Chairman of the Advisory Council',
-    'Председател на Консултативния съвет',
-    'chapter',
+  CH_ADVISOR: p('CH_ADVISOR', 'Advisor', 'Съветник', 'chapter'),
+  NAT_EXECUTIVE_DIRECTOR: p(
+    'NAT_EXECUTIVE_DIRECTOR',
+    'Executive Director',
+    'Изпълнителен директор',
+    'national',
   ),
-  NAT_PROGRAMME_COORDINATOR: p(
-    'NAT_PROGRAMME_COORDINATOR',
-    'National Programme Coordinator',
-    'Национален координатор на програмите',
+  NAT_REPRESENTATIVE: p(
+    'NAT_REPRESENTATIVE',
+    'National Representative',
+    'Национален представител',
+    'national',
+  ),
+  NAT_COORDINATOR: p(
+    'NAT_COORDINATOR',
+    'National Coordinator',
+    'Национален координатор',
     'national',
   ),
   NAT_SECRETARY: p('NAT_SECRETARY', 'National Secretary', 'Национален секретар', 'national'),
+  NAT_TREASURER: p('NAT_TREASURER', 'National Treasurer', 'Национален ковчежник', 'national'),
   NAT_MASTER_COUNCILOR: p(
     'NAT_MASTER_COUNCILOR',
-    'National Master Councilor',
-    'Национален съветник',
+    'National Master Councillor',
+    'Национален главен съветник',
     'national',
   ),
   NAT_INSPECTOR: p('NAT_INSPECTOR', 'National Inspector', 'Национален инспектор', 'national'),
@@ -82,7 +90,8 @@ export const UNMAPPED_POSITION_CODES = ['CH_SENIOR_DEACON', 'CH_JUNIOR_STEWARD',
 interface MappingSeed {
   id?: ID;
   code: PositionCode;
-  role: Role;
+  /** null = the office carries no application role (member-type access only). */
+  role: Role | null;
   scopeLevel: ScopeLevel;
   priority: number;
   active?: boolean;
@@ -94,7 +103,7 @@ interface MappingSeed {
 const MAPPINGS: MappingSeed[] = [
   {
     code: 'CH_MASTER_COUNCILOR',
-    role: 'chapter_officer',
+    role: 'ch_mc',
     scopeLevel: 'chapter',
     priority: 100,
     notes: 'Presiding youth officer of the chapter.',
@@ -103,7 +112,7 @@ const MAPPINGS: MappingSeed[] = [
   },
   {
     code: 'CH_SENIOR_COUNCILOR',
-    role: 'chapter_officer',
+    role: 'ch_sc',
     scopeLevel: 'chapter',
     priority: 100,
     notes: '',
@@ -112,7 +121,7 @@ const MAPPINGS: MappingSeed[] = [
   },
   {
     code: 'CH_JUNIOR_COUNCILOR',
-    role: 'chapter_officer',
+    role: 'ch_jc',
     scopeLevel: 'chapter',
     priority: 100,
     notes: '',
@@ -120,8 +129,8 @@ const MAPPINGS: MappingSeed[] = [
     updatedBy: null,
   },
   {
-    code: 'CH_SCRIBE',
-    role: 'chapter_officer',
+    code: 'CH_SECRETARY',
+    role: 'ch_sec',
     scopeLevel: 'chapter',
     priority: 100,
     notes: 'Keeps minutes and records attendance.',
@@ -130,7 +139,7 @@ const MAPPINGS: MappingSeed[] = [
   },
   {
     code: 'CH_TREASURER',
-    role: 'chapter_officer',
+    role: 'ch_treas',
     scopeLevel: 'chapter',
     priority: 100,
     notes: '',
@@ -139,7 +148,7 @@ const MAPPINGS: MappingSeed[] = [
   },
   {
     code: 'CH_CHAPLAIN',
-    role: 'member',
+    role: null,
     scopeLevel: 'chapter',
     priority: 50,
     notes: '',
@@ -148,7 +157,7 @@ const MAPPINGS: MappingSeed[] = [
   },
   {
     code: 'CH_MARSHAL',
-    role: 'member',
+    role: null,
     scopeLevel: 'chapter',
     priority: 50,
     notes: '',
@@ -157,7 +166,7 @@ const MAPPINGS: MappingSeed[] = [
   },
   {
     code: 'CH_STANDARD_BEARER',
-    role: 'member',
+    role: null,
     scopeLevel: 'chapter',
     priority: 50,
     notes: '',
@@ -166,7 +175,7 @@ const MAPPINGS: MappingSeed[] = [
   },
   {
     code: 'CH_ORATOR',
-    role: 'member',
+    role: null,
     scopeLevel: 'chapter',
     priority: 50,
     notes: '',
@@ -175,7 +184,7 @@ const MAPPINGS: MappingSeed[] = [
   },
   {
     code: 'CH_ALMONER',
-    role: 'member',
+    role: null,
     scopeLevel: 'chapter',
     priority: 50,
     notes: '',
@@ -184,28 +193,28 @@ const MAPPINGS: MappingSeed[] = [
   },
   {
     code: 'CH_SENTINEL',
-    role: 'member',
+    role: null,
     scopeLevel: 'chapter',
     priority: 50,
-    notes: 'Replaced the legacy officer rule for Sentinels.',
+    notes: 'Ritual office — no application role. Replaced the legacy councillor rule.',
     updatedDaysAgo: 45,
     updatedBy: 'u-admin',
   },
   {
     id: 'map-ch-sentinel-legacy',
     code: 'CH_SENTINEL',
-    role: 'chapter_officer',
+    role: 'ch_jc',
     scopeLevel: 'chapter',
     priority: 90,
     active: false,
     notes:
-      'Legacy rule from the pilot year — Sentinels no longer receive officer access. Kept inactive for reference.',
+      'Legacy rule from the pilot year — Sentinels no longer submit posts. Kept inactive for reference.',
     updatedDaysAgo: 45,
     updatedBy: 'u-admin',
   },
   {
     code: 'CH_ACTIVE_MEMBER',
-    role: 'member',
+    role: null,
     scopeLevel: 'chapter',
     priority: 10,
     notes: 'Default for members without an office.',
@@ -214,25 +223,25 @@ const MAPPINGS: MappingSeed[] = [
   },
   {
     code: 'CH_ADVISOR',
-    role: 'chapter_advisor',
-    scopeLevel: 'chapter',
+    role: 'advisor',
+    scopeLevel: 'national',
     priority: 100,
-    notes: 'Adult advisor appointed for the chapter.',
+    notes: 'Adult advisor. Advisors are held nationally (docs/ROLES-AND-PERMISSIONS.md §3).',
     updatedDaysAgo: 120,
     updatedBy: null,
   },
   {
-    code: 'CH_ADVISORY_COUNCIL_CHAIR',
-    role: 'chapter_advisor',
+    code: 'CH_CHAIRMAN',
+    role: 'ch_chairman',
     scopeLevel: 'chapter',
     priority: 100,
-    notes: '',
+    notes: 'The single advisor point of contact; approves chapter content.',
     updatedDaysAgo: 120,
     updatedBy: null,
   },
   {
-    code: 'NAT_PROGRAMME_COORDINATOR',
-    role: 'national_officer',
+    code: 'NAT_COORDINATOR',
+    role: 'nat_coord',
     scopeLevel: 'national',
     priority: 100,
     notes: '',
@@ -241,20 +250,47 @@ const MAPPINGS: MappingSeed[] = [
   },
   {
     code: 'NAT_SECRETARY',
-    role: 'national_officer',
+    role: 'nat_sec',
     scopeLevel: 'national',
     priority: 100,
-    notes: 'The current National Secretary holds a manual administrator assignment.',
+    notes: 'The current National Secretary also holds a manual system administrator role.',
     updatedDaysAgo: 120,
     updatedBy: null,
   },
   {
     code: 'NAT_MASTER_COUNCILOR',
-    role: 'national_officer',
+    role: 'nat_mc',
     scopeLevel: 'national',
     priority: 100,
     notes: 'Created to resolve a synchronization exception.',
     updatedDaysAgo: 21,
+    updatedBy: 'u-admin',
+  },
+  {
+    code: 'NAT_EXECUTIVE_DIRECTOR',
+    role: 'exec_director',
+    scopeLevel: 'national',
+    priority: 100,
+    notes: '',
+    updatedDaysAgo: 30,
+    updatedBy: 'u-admin',
+  },
+  {
+    code: 'NAT_REPRESENTATIVE',
+    role: 'nat_rep',
+    scopeLevel: 'national',
+    priority: 100,
+    notes: 'Product owner of the platform.',
+    updatedDaysAgo: 30,
+    updatedBy: 'u-admin',
+  },
+  {
+    code: 'NAT_TREASURER',
+    role: 'nat_treas',
+    scopeLevel: 'national',
+    priority: 100,
+    notes: '',
+    updatedDaysAgo: 30,
     updatedBy: 'u-admin',
   },
 ];

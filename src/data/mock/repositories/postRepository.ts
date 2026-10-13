@@ -1,3 +1,4 @@
+import { chapterRoleChapterIds } from '@/auth/subject';
 import {
   announcementTarget,
   can,
@@ -70,13 +71,9 @@ const searchFields = (p: Announcement) => [
   p.translations.bg?.body,
 ];
 
-/** The viewer's "my chapter" set: chapters of a chapter-level role, else the home chapter. */
+/** The viewer's "my chapter" set: the home chapter plus chapters of chapter-level roles. */
 function myChapterIds(subject: Subject): ID[] {
-  const level = subject.scope.level;
-  if ((level === 'chapter' || level === 'multi_chapter') && subject.scope.chapterIds?.length) {
-    return subject.scope.chapterIds;
-  }
-  return [subject.homeChapterId];
+  return [...new Set([subject.homeChapterId, ...chapterRoleChapterIds(subject)])];
 }
 
 function visiblePost(subject: Subject, postId: ID): Announcement {
@@ -154,9 +151,7 @@ function reviewersFor(post: Announcement): ID[] {
     (u) => can(u.subject, 'post.approve', target) && can(u.subject, 'post.publish', target),
   );
   if (post.audience.scope !== 'national') {
-    const local = approvers.filter(
-      (u) => u.subject.scope.level === 'chapter' || u.subject.scope.level === 'multi_chapter',
-    );
+    const local = approvers.filter((u) => chapterRoleChapterIds(u.subject).length > 0);
     if (local.length > 0) return local.map((u) => u.userId);
   }
   return approvers.map((u) => u.userId);

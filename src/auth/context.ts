@@ -2,9 +2,9 @@ import { createContext } from 'react';
 
 import type {
   CurrentMember,
+  DemoPersonaId,
   DemoRoleOverride,
   LoginInput,
-  Role,
   Session,
   Subject,
   User,
@@ -19,8 +19,8 @@ export interface AuthContextValue {
   member: CurrentMember | null;
   /** Effective policy subject (includes the demo override). null when signed out. */
   subject: Subject | null;
-  /** The user's real role (before any demo override). */
-  actualRole: Role | null;
+  /** The demo persona of the signed-in demo account (before any demo override); null otherwise. */
+  actualPersona: DemoPersonaId | null;
   /** VITE_DEMO_MODE !== 'false' */
   isDemoMode: boolean;
   /** Active demo role override, if any. */
@@ -28,7 +28,7 @@ export interface AuthContextValue {
   login: (input: LoginInput) => Promise<Session>;
   logout: () => Promise<void>;
   /** Prototype only. Rejects with ForbiddenError('demo_mode_disabled') when demo mode is off. */
-  switchDemoRole: (role: Role | null) => Promise<Session>;
+  switchDemoRole: (persona: DemoPersonaId | null) => Promise<Session>;
   isLoggingIn: boolean;
   isLoggingOut: boolean;
   isSwitchingRole: boolean;

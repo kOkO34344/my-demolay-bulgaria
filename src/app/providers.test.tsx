@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { MoonIcon, SunIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import { Can, RequirePermission, useAuth, usePolicy } from '@/auth';
+import { Can, RequirePermission, useAuth, usePolicy, primaryRole } from '@/auth';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { SUPPORTED_LOCALES, isLocale, labelKeys, useLocale } from '@/i18n/public';
@@ -64,13 +64,15 @@ function NavProbe() {
   const { switchDemoRole, subject } = useAuth();
   return (
     <div>
-      <p data-testid="role">{subject?.role ?? 'none'}</p>
+      <p data-testid="role">
+        {subject ? (primaryRole(subject)?.role ?? subject.memberType) : 'none'}
+      </p>
       <ul aria-label="nav">
         {policy.visibleNavItems('sidebar').map((item) => (
           <li key={item.id}>{item.id}</li>
         ))}
       </ul>
-      <button type="button" onClick={() => void switchDemoRole('national_admin')}>
+      <button type="button" onClick={() => void switchDemoRole('sysadmin')}>
         switch
       </button>
     </div>
@@ -79,7 +81,7 @@ function NavProbe() {
 
 describe('AppProviders + foundation preview', () => {
   it('switches language in place without logging out', async () => {
-    const { user } = renderWithProviders(<ProvidersPreview />, { role: 'chapter_officer' });
+    const { user } = renderWithProviders(<ProvidersPreview />, { persona: 'chapter_secretary' });
     expect(screen.getByText('Member Portal')).toBeInTheDocument();
     await user.click(screen.getByRole('radio', { name: 'Bulgarian' }));
     expect(await screen.findByText('Портал за членове')).toBeInTheDocument();
@@ -95,7 +97,7 @@ describe('AppProviders + foundation preview', () => {
     expect(document.documentElement.style.colorScheme).toBe('dark');
     expect(window.sessionStorage.getItem('mdb.theme')).toBe('dark');
     expect(document.querySelector('meta[name="theme-color"]')?.getAttribute('content')).toBe(
-      '#132136',
+      '#0e1b30',
     );
   });
 
@@ -131,7 +133,7 @@ describe('guards and permission gates', () => {
       <RequirePermission routeId="admin">
         <p>admin area</p>
       </RequirePermission>,
-      { role: 'member', path: '/admin', route: '/admin' },
+      { persona: 'active_member', path: '/admin', route: '/admin' },
     );
     expect(screen.queryByText('admin area')).not.toBeInTheDocument();
     expect(
@@ -145,7 +147,7 @@ describe('guards and permission gates', () => {
         <p>news</p>
       </RequirePermission>,
       {
-        role: null,
+        persona: null,
         path: '/news',
         route: '/news',
         routes: [{ path: '/login', element: <p>login page</p> }],
@@ -160,21 +162,21 @@ describe('guards and permission gates', () => {
         <button type="button">New announcement</button>
       </Can>
     );
-    const { unmount } = renderWithProviders(ui, { role: 'chapter_officer' });
+    const { unmount } = renderWithProviders(ui, { persona: 'chapter_secretary' });
     expect(screen.getByRole('button', { name: 'New announcement' })).toBeInTheDocument();
     unmount();
-    renderWithProviders(ui, { role: 'member' });
+    renderWithProviders(ui, { persona: 'active_member' });
     expect(screen.getByText('hidden')).toBeInTheDocument();
   });
 });
 
 describe('demo role switcher through React', () => {
   it('updates the subject and navigation immediately', async () => {
-    const { user } = renderWithProviders(<NavProbe />, { role: 'member' });
-    expect(screen.getByTestId('role')).toHaveTextContent('member');
+    const { user } = renderWithProviders(<NavProbe />, { persona: 'active_member' });
+    expect(screen.getByTestId('role')).toHaveTextContent('active');
     expect(screen.queryByText('admin')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'switch' }));
-    await waitFor(() => expect(screen.getByTestId('role')).toHaveTextContent('national_admin'));
+    await waitFor(() => expect(screen.getByTestId('role')).toHaveTextContent('sysadmin'));
     expect(screen.getByText('admin')).toBeInTheDocument();
   });
 
@@ -185,12 +187,14 @@ describe('demo role switcher through React', () => {
       return (
         <div>
           <p data-testid="mode">{String(isDemoMode)}</p>
-          <p data-testid="role">{subject?.role ?? 'none'}</p>
+          <p data-testid="role">
+            {subject ? (primaryRole(subject)?.role ?? subject.memberType) : 'none'}
+          </p>
           <p data-testid="outcome">{outcome}</p>
           <button
             type="button"
             onClick={() => {
-              switchDemoRole('national_admin').then(
+              switchDemoRole('sysadmin').then(
                 () => setOutcome('switched'),
                 (error: unknown) =>
                   setOutcome(error instanceof ForbiddenError ? error.reason : 'other'),
@@ -202,10 +206,13 @@ describe('demo role switcher through React', () => {
         </div>
       );
     }
-    const { user } = renderWithProviders(<SwitchAttempt />, { role: 'member', demoMode: false });
+    const { user } = renderWithProviders(<SwitchAttempt />, {
+      persona: 'active_member',
+      demoMode: false,
+    });
     expect(screen.getByTestId('mode')).toHaveTextContent('false');
     await user.click(screen.getByRole('button', { name: 'switch' }));
     expect(await screen.findByText('demo_mode_disabled')).toBeInTheDocument();
-    expect(screen.getByTestId('role')).toHaveTextContent('member');
+    expect(screen.getByTestId('role')).toHaveTextContent('active');
   });
 });

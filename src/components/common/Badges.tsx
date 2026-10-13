@@ -44,6 +44,7 @@ import type {
   SyncExceptionStatus,
   SyncJobStatus,
   TranslationState,
+  MemberType,
 } from '@/domain';
 import { labelKeys, useLocalized } from '@/i18n/public';
 import { cn } from '@/lib/utils';
@@ -96,6 +97,7 @@ function statusStyle(input: StatusBadgeInput): StatusStyle {
         active: { variant: 'success', icon: CircleCheckIcon },
         suspended: { variant: 'destructive', icon: BanIcon },
         pending: { variant: 'warning', icon: ClockIcon },
+        expelled: { variant: 'destructive', icon: BanIcon },
       };
       return { ...map[input.status], labelKey: labelKeys.accountStatus(input.status) };
     }
@@ -180,13 +182,29 @@ export function StatusBadge({ className, ...input }: StatusBadgeProps) {
   );
 }
 
-/** Application role (translated full title, e.g. „Съветник на обителта“). */
-export function RoleBadge({ role, className }: { role: Role; className?: string }) {
+/**
+ * Application role (translated full title, e.g. „Председател на обителта“). Without a role, shows
+ * the member type instead (e.g. "Active member", "Parent").
+ */
+export function RoleBadge({
+  role,
+  memberType,
+  className,
+}: {
+  role: Role | null;
+  memberType?: MemberType;
+  className?: string;
+}) {
   const { t } = useTranslation();
+  const key = role
+    ? labelKeys.role(role)
+    : memberType
+      ? labelKeys.memberType(memberType)
+      : labelKeys.noRole;
   return (
     <Badge variant="outline" className={className}>
       <ShieldIcon aria-hidden="true" />
-      {t(labelKeys.role(role))}
+      {t(key)}
     </Badge>
   );
 }
@@ -277,7 +295,7 @@ export function DemoDataBadge({ className, label }: { className?: string; label?
 
 /**
  * Imported organizational position with its provenance:
- *   Писар  [Imported position — demo data]
+ *   Секретар  [Imported position — demo data]
  * `layout="stacked"` puts the marker under the title (profile cards); `inline` keeps one line.
  */
 export function ImportedPositionLabel({

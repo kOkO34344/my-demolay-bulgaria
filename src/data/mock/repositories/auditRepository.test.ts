@@ -13,21 +13,21 @@ const posts = createMockPostRepository();
 
 describe('audit repository — scope filtering', () => {
   it('members and officers have no audit log', async () => {
-    signInAs('member');
+    signInAs('active_member');
     expect((await audit.list()).total).toBe(0);
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     expect((await audit.list()).total).toBe(0);
   });
 
-  it('chapter advisors see their chapter only', async () => {
-    signInAs('chapter_advisor');
-    const page = await audit.list({ pageSize: 200 });
-    expect(page.total).toBeGreaterThan(10);
-    expect(page.items.every((e) => e.chapterId === 'ch-1')).toBe(true);
+  it('only system administrators read the audit log (not even the Chapter Chairman)', async () => {
+    signInAs('chapter_chairman');
+    expect((await audit.list({ pageSize: 200 })).total).toBe(0);
+    signInAs('national_coordinator');
+    expect((await audit.list({ pageSize: 200 })).total).toBe(0);
   });
 
   it('administrators see everything, newest first, with filters and pagination', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const all = await audit.list({ pageSize: 200 });
     expect(all.total).toBe(db.count('auditLog'));
     expect([...all.items].sort((a, b) => b.at.localeCompare(a.at))).toEqual(all.items);
@@ -44,7 +44,7 @@ describe('audit repository — scope filtering', () => {
   });
 
   it('entity history is visible to the people who manage that entity', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     await posts.update(SEED_IDS.posts.officerDraft, {
       translations: db.require('announcements', SEED_IDS.posts.officerDraft).translations,
       audience: { scope: 'chapter', chapterIds: ['ch-1'], visibility: 'all_members' },
@@ -54,12 +54,12 @@ describe('audit repository — scope filtering', () => {
     });
     const history = await audit.forEntity('announcement', SEED_IDS.posts.officerDraft);
     expect(history[0]).toMatchObject({ action: 'post.updated', actor: { id: 'u-officer' } });
-    signInAs('member');
+    signInAs('active_member');
     expect(await audit.forEntity('announcement', SEED_IDS.posts.officerDraft)).toEqual([]);
   });
 
   it('member history lists actions by or about the member', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const history = await audit.forMember('u-officer');
     expect(history.length).toBeGreaterThan(0);
     expect(

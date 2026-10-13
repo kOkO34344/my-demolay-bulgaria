@@ -11,7 +11,9 @@ export const PERMISSION_GROUPS = [
   'resources',
   'chapters',
   'members',
+  'payments',
   'notifications',
+  'helpdesk',
   'roles',
   'translations',
   'audit',
@@ -29,6 +31,11 @@ export interface PermissionMeta {
   descriptionKey: string;
   /** Scope levels at which this permission is meaningful (special-assignment form options). */
   scopeLevels: ScopeLevel[];
+  /**
+   * Set when the feature behind the permission is not built in the prototype yet: the brief's
+   * phase it belongs to (docs/ROADMAP.md §5). The permission is still granted per the matrix.
+   */
+  plannedPhase?: 1 | 2 | 3;
 }
 
 const CONTENT_SCOPES: ScopeLevel[] = ['chapter', 'multi_chapter', 'national', 'system'];
@@ -41,6 +48,7 @@ function meta(
   permission: Permission,
   group: PermissionGroup,
   scopeLevels: ScopeLevel[],
+  plannedPhase?: PermissionMeta['plannedPhase'],
 ): PermissionMeta {
   return {
     permission,
@@ -48,6 +56,7 @@ function meta(
     labelKey: labelKeys.permission(permission),
     descriptionKey: labelKeys.permissionDescription(permission),
     scopeLevels,
+    ...(plannedPhase ? { plannedPhase } : {}),
   };
 }
 
@@ -63,6 +72,7 @@ export const PERMISSION_CATALOGUE: Record<Permission, PermissionMeta> = {
   'event.read': meta('event.read', 'events', CONTENT_SCOPES),
   'event.create': meta('event.create', 'events', CONTENT_SCOPES),
   'event.update': meta('event.update', 'events', CONTENT_SCOPES),
+  'event.approve': meta('event.approve', 'events', CONTENT_SCOPES),
   'event.cancel': meta('event.cancel', 'events', CONTENT_SCOPES),
   'event.rsvp': meta('event.rsvp', 'events', SELF_ONLY),
   'event.participants.read': meta('event.participants.read', 'events', CONTENT_SCOPES),
@@ -72,15 +82,24 @@ export const PERMISSION_CATALOGUE: Record<Permission, PermissionMeta> = {
   'resource.upload': meta('resource.upload', 'resources', CONTENT_SCOPES),
   'resource.update': meta('resource.update', 'resources', CONTENT_SCOPES),
   'resource.archive': meta('resource.archive', 'resources', CONTENT_SCOPES),
+  'ritual.read': meta('ritual.read', 'resources', CONTENT_SCOPES),
   'chapter.read': meta('chapter.read', 'chapters', CONTENT_SCOPES),
   'chapter.update': meta('chapter.update', 'chapters', CONTENT_SCOPES),
   'chapter.directory.read': meta('chapter.directory.read', 'chapters', CONTENT_SCOPES),
   'member.profile.read': meta('member.profile.read', 'members', SELF_AND_UP),
   'member.profile.update': meta('member.profile.update', 'members', SELF_AND_UP),
   'member.access.manage': meta('member.access.manage', 'members', CONTENT_SCOPES),
+  'account.verify': meta('account.verify', 'members', NATIONAL_UP),
   'notification.read': meta('notification.read', 'notifications', SELF_ONLY),
   'notification.send.chapter': meta('notification.send.chapter', 'notifications', CONTENT_SCOPES),
   'notification.send.national': meta('notification.send.national', 'notifications', NATIONAL_UP),
+  'email.send.mass': meta('email.send.mass', 'notifications', NATIONAL_UP, 2),
+  'payment.read.all': meta('payment.read.all', 'payments', NATIONAL_UP, 2),
+  'payment.read.chapter': meta('payment.read.chapter', 'payments', CONTENT_SCOPES, 2),
+  'payment.record': meta('payment.record', 'payments', CONTENT_SCOPES, 2),
+  'payment.pay': meta('payment.pay', 'payments', SELF_ONLY, 2),
+  'helpdesk.create': meta('helpdesk.create', 'helpdesk', SELF_ONLY, 1),
+  'helpdesk.answer': meta('helpdesk.answer', 'helpdesk', SYSTEM_ONLY, 1),
   'role.read': meta('role.read', 'roles', CONTENT_SCOPES),
   'role.assign': meta('role.assign', 'roles', CONTENT_SCOPES),
   'role.mapping.manage': meta('role.mapping.manage', 'roles', SYSTEM_ONLY),

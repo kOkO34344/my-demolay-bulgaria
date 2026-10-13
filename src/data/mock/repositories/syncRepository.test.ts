@@ -20,15 +20,15 @@ const X = SEED_IDS.sync;
 
 describe('sync repository — access and status', () => {
   it('only administrators read or run the integration', async () => {
-    signInAs('member');
+    signInAs('active_member');
     await expect(sync.getStatus()).rejects.toBeInstanceOf(ForbiddenError);
-    signInAs('national_officer');
+    signInAs('national_coordinator');
     await expect(sync.listJobs()).rejects.toBeInstanceOf(ForbiddenError);
     await expect(sync.runDemoSync()).rejects.toBeInstanceOf(ForbiddenError);
   });
 
   it('reports a simulated, disconnected integration with the seeded history', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const status = await sync.getStatus();
     expect(status).toMatchObject({
       connected: false,
@@ -51,7 +51,7 @@ describe('sync repository — access and status', () => {
   });
 
   it('filters exceptions by status and kind', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const open = await sync.listExceptions({ status: 'open' });
     expect(open).toHaveLength(5);
     const unmapped = await sync.listExceptions({ status: 'all', kind: 'unmapped_position' });
@@ -73,7 +73,7 @@ describe('sync repository — demo run lifecycle (fake timers)', () => {
   });
 
   it('advances through the stages over ~5 s and applies the registry changes', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const adminBefore = notificationsOf('u-admin').length;
     const job = await sync.runDemoSync();
     expect(job).toMatchObject({ id: 'sync-run-1', status: 'queued', stage: 'queued', progress: 0 });
@@ -99,27 +99,33 @@ describe('sync repository — demo run lifecycle (fake timers)', () => {
       ['u-s11', 'u-t03', 'u-v03'].sort(),
     );
     expect(done.result?.roleChanges).toEqual([
-      expect.objectContaining({ userId: 'u-t03', fromRole: 'member', toRole: 'chapter_officer' }),
+      expect.objectContaining({ userId: 'u-t03', fromRole: null, toRole: 'ch_treas' }),
+      expect.objectContaining({ userId: 'u-v03', fromRole: null, toRole: 'ch_sec' }),
     ]);
     expect(done.result?.counts).toMatchObject({ imported: 1, updated: 2 });
     expect(done.exceptions).toEqual([
       expect.objectContaining({ kind: 'unmapped_position', status: 'open' }),
     ]);
 
-    // Manual override kept; mapped role recalculated; importedAt refreshed.
-    expect(db.require('roleAssignments', 'ra-u-v03')).toMatchObject({
+    // Manual role kept next to the new position role; importedAt refreshed.
+    expect(db.require('roleAssignments', 'ra-u-v03-ch_sec')).toMatchObject({
       source: 'manual',
-      role: 'chapter_officer',
+      role: 'ch_sec',
+      endedAt: null,
     });
-    expect(db.require('roleAssignments', 'ra-u-t03')).toMatchObject({
-      role: 'chapter_officer',
+    expect(db.require('roleAssignments', 'ra-u-v03-pos')).toMatchObject({
+      source: 'mapping',
+      role: 'ch_sec',
+    });
+    expect(db.require('roleAssignments', 'ra-u-t03-pos')).toMatchObject({
+      role: 'ch_treas',
       mappingId: 'map-ch-treasurer',
     });
     expect(db.require('members', 'u-s01').importedPosition?.importedAt).toBe(done.job.finishedAt);
 
     // Side effects: audit + notifications.
     expect(auditEntries('sync.completed', job.id)).toHaveLength(1);
-    expect(auditEntries('role.assigned', 'ra-u-t03')).toHaveLength(1);
+    expect(auditEntries('role.assigned', 'ra-u-t03-pos')).toHaveLength(1);
     expect(notificationsOf('u-admin')).toHaveLength(adminBefore + 1);
     expect(notificationsOf('u-admin')[0]).toMatchObject({
       category: 'system',
@@ -135,7 +141,7 @@ describe('sync repository — demo run lifecycle (fake timers)', () => {
 
   it('is deterministic per run number and settles into "no changes"', async () => {
     setDemoSyncDuration(100);
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const results: string[] = [];
     for (let run = 1; run <= 4; run += 1) {
       const job = await sync.runDemoSync();
@@ -149,7 +155,7 @@ describe('sync repository — demo run lifecycle (fake timers)', () => {
   });
 
   it('completes on the next read even if the timers were dropped (e.g. after a reload)', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const job = await sync.runDemoSync();
     cancelDemoSyncTimers();
     vi.setSystemTime(new Date(Date.now() + DEFAULT_SYNC_DURATION_MS + 10));
@@ -159,11 +165,11 @@ describe('sync repository — demo run lifecycle (fake timers)', () => {
 
 describe('sync repository — exceptions queue', () => {
   it('resolves an unmapped position by mapping it and applies the role', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const mapping = await roles.createMapping({
       positionCode: 'CH_SENIOR_DEACON',
       positionTitle: { en: 'Senior Deacon', bg: 'Старши дякон' },
-      role: 'member',
+      role: null,
       scopeLevel: 'chapter',
       priority: 50,
       active: true,
@@ -178,10 +184,8 @@ describe('sync repository — exceptions queue', () => {
       status: 'resolved',
       resolution: { action: 'map_position', mappingId: mapping.id, resolvedBy: 'u-admin' },
     });
-    expect(db.require('roleAssignments', 'ra-u-p05')).toMatchObject({
-      source: 'mapping',
-      mappingId: mapping.id,
-    });
+    // "No role" is a valid outcome: the deacon keeps member-type access only.
+    expect(db.get('roleAssignments', 'ra-u-p05-pos')).toBeUndefined();
     expect(auditEntries('sync.exception_resolved', 'exc-deacon-unmapped')).toHaveLength(1);
     await expect(
       sync.resolveException('exc-deacon-unmapped', { action: 'manual', note: 'again' }),
@@ -189,12 +193,12 @@ describe('sync repository — exceptions queue', () => {
   });
 
   it('validates the resolution and records ignored exceptions', async () => {
-    signInAs('national_admin');
+    signInAs('sysadmin');
     const mismatch = await sync
       .resolveException(X.openUnmappedException, {
         action: 'map_position',
         note: 'Wrong rule',
-        mappingId: 'map-ch-scribe',
+        mappingId: 'map-ch-secretary',
       })
       .catch((e: unknown) => e);
     expect((mismatch as ValidationError).fieldErrors).toEqual({

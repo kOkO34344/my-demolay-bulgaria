@@ -2,8 +2,13 @@ import { ChevronDownIcon, FlaskConicalIcon, KeyRoundIcon } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { getDemoCredentials, type DemoCredential } from '@/auth';
-import { labelKeys } from '@/i18n/public';
+import {
+  getDemoCredentials,
+  personaDescriptionKey,
+  personaLabelKey,
+  type DemoCredential,
+} from '@/auth';
+
 import { cn } from '@/lib/utils';
 
 export interface DemoAccessPanelProps {
@@ -46,7 +51,7 @@ export function DemoAccessPanel({ enabled, onSelect }: DemoAccessPanelProps) {
         <p className="mb-3 text-sm text-muted-foreground">{t('demo.accessDescription')}</p>
         <ul className="flex flex-col gap-2" aria-label={t('auth.demo.listLabel')}>
           {credentials.map((credential) => (
-            <li key={credential.role}>
+            <li key={credential.persona}>
               <button
                 type="button"
                 onClick={() => onSelect(credential)}
@@ -60,10 +65,10 @@ export function DemoAccessPanel({ enabled, onSelect }: DemoAccessPanelProps) {
                 </span>
                 <span className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-sm font-semibold text-foreground">
-                    {t(labelKeys.role(credential.role))}
+                    {t(personaLabelKey(credential.persona))}
                   </span>
                   <span className="text-xs leading-relaxed text-muted-foreground">
-                    {t(labelKeys.roleDescription(credential.role))}
+                    {t(personaDescriptionKey(credential.persona))}
                   </span>
                   <span className="mt-1 text-xs text-muted-foreground">
                     {t('auth.demo.usernameLabel')}{' '}

@@ -5,17 +5,18 @@ import { createMockAuthRepository } from '@/data/mock/repositories/authRepositor
 import { env } from '@/lib/env';
 
 import { getDemoCredentials } from './demoCredentials';
-import { buildSubject, demoScopeFor, isDemoModeEnabled } from './subject';
+import { DEMO_PERSONAS, demoOverrideFor, personaRoles } from './demoPersonas';
+import { buildSubject, isDemoModeEnabled } from './subject';
 
-const assignment = {
+const base = {
   userId: 'u-member',
-  role: 'member' as const,
-  scope: { level: 'chapter' as const, chapterIds: ['ch-1'] },
-};
-const override = {
-  role: 'national_admin' as const,
-  scope: { level: 'system' as const },
-  switchedAt: '2026-10-12T00:00:00.000Z',
+  memberType: 'active' as const,
+  accountStatus: 'active' as const,
+  homeChapterId: 'ch-1',
+  linkedMemberIds: [],
+  assignments: [],
+  specialAssignments: [],
+  demoOverride: demoOverrideFor('sysadmin', 'ch-1', '2026-10-12T00:00:00.000Z'),
 };
 
 describe('demo mode', () => {
@@ -31,53 +32,68 @@ describe('demo mode', () => {
     expect(isDemoModeEnabled({ VITE_DEMO_MODE: ' FALSE ' })).toBe(false);
   });
 
-  it('applies the role override only when demo mode is enabled', () => {
-    const base = {
-      assignment,
-      homeChapterId: 'ch-1',
-      specialAssignments: [],
-      demoOverride: override,
-    };
-    expect(buildSubject({ ...base, demoModeEnabled: true }).role).toBe('national_admin');
+  it('applies the persona override only when demo mode is enabled', () => {
+    const on = buildSubject({ ...base, demoModeEnabled: true });
+    expect(on.memberType).toBe('advisor');
+    expect(on.roles.map((r) => r.role)).toEqual(['sysadmin', 'nat_rep']);
     const off = buildSubject({ ...base, demoModeEnabled: false });
-    expect(off.role).toBe('member');
-    expect(off.scope).toEqual({ level: 'chapter', chapterIds: ['ch-1'] });
+    expect(off.memberType).toBe('active');
+    expect(off.roles).toEqual([]);
   });
 
-  it('maps every role to a representative scope', () => {
-    expect(demoScopeFor('member', 'ch-2')).toEqual({ level: 'chapter', chapterIds: ['ch-2'] });
-    expect(demoScopeFor('chapter_advisor', 'ch-1')).toEqual({
-      level: 'chapter',
-      chapterIds: ['ch-1'],
-    });
-    expect(demoScopeFor('national_officer', 'ch-1')).toEqual({ level: 'national' });
-    expect(demoScopeFor('national_admin', 'ch-1')).toEqual({ level: 'system' });
+  it('never overrides the account status', () => {
+    const suspended = buildSubject({ ...base, accountStatus: 'suspended', demoModeEnabled: true });
+    expect(suspended.accountStatus).toBe('suspended');
   });
 
-  it('hides demo credentials when demo mode is off', () => {
-    expect(getDemoCredentials(true)).toHaveLength(5);
+  it('resolves persona roles against the home chapter', () => {
+    expect(personaRoles('chapter_chairman', 'ch-2')).toEqual([
+      { role: 'ch_chairman', scope: { level: 'chapter', chapterIds: ['ch-2'] } },
+    ]);
+    expect(personaRoles('national_coordinator', 'ch-1')).toEqual([
+      { role: 'nat_coord', scope: { level: 'national' } },
+    ]);
+    expect(personaRoles('active_member', 'ch-1')).toEqual([]);
+    expect(demoOverrideFor('parent', 'ch-1', '2026-10-12T00:00:00.000Z').linkedMemberIds).toEqual([
+      'u-member',
+    ]);
+  });
+
+  it('offers one demo account per persona, hidden when demo mode is off', () => {
+    expect(getDemoCredentials(true).map((c) => c.persona)).toEqual([...DEMO_PERSONAS]);
     expect(getDemoCredentials(false)).toHaveLength(0);
   });
 
-  it('the repository refuses to switch roles when demo mode is off', async () => {
+  it('the repository refuses to switch personas when demo mode is off', async () => {
     const auth = createMockAuthRepository();
     await auth.login({ username: 'member.demo', password: 'Demo!Member2026', remember: false });
     env.demoMode = false;
-    await expect(auth.switchDemoRole('national_admin')).rejects.toBeInstanceOf(ForbiddenError);
+    await expect(auth.switchDemoRole('sysadmin')).rejects.toBeInstanceOf(ForbiddenError);
     const session = await auth.getSession();
-    expect(session?.subject.role).toBe('member');
+    expect(session?.subject.roles).toEqual([]);
     expect(session?.demo).toEqual({ enabled: false, override: null });
   });
 
   it('switching updates the session subject immediately and can be reverted', async () => {
     const auth = createMockAuthRepository();
     await auth.login({ username: 'member.demo', password: 'Demo!Member2026', remember: false });
-    const switched = await auth.switchDemoRole('chapter_advisor');
-    expect(switched.subject.role).toBe('chapter_advisor');
-    expect(switched.subject.scope).toEqual({ level: 'chapter', chapterIds: ['ch-1'] });
-    expect(switched.assignment.role).toBe('member');
+    const switched = await auth.switchDemoRole('chapter_chairman');
+    expect(switched.subject.memberType).toBe('advisor');
+    expect(switched.subject.roles).toEqual([
+      { role: 'ch_chairman', scope: { level: 'chapter', chapterIds: ['ch-1'] } },
+    ]);
+    expect(switched.assignments).toEqual([]);
     const back = await auth.switchDemoRole(null);
-    expect(back.subject.role).toBe('member');
+    expect(back.subject.memberType).toBe('active');
+    expect(back.subject.roles).toEqual([]);
     expect(back.demo.override).toBeNull();
+  });
+
+  it('switching to your own persona clears the override', async () => {
+    const auth = createMockAuthRepository();
+    await auth.login({ username: 'member.demo', password: 'Demo!Member2026', remember: false });
+    await auth.switchDemoRole('parent');
+    const own = await auth.switchDemoRole('active_member');
+    expect(own.demo.override).toBeNull();
   });
 });

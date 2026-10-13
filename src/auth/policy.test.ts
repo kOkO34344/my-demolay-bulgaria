@@ -3,13 +3,16 @@ import { describe, expect, it } from 'vitest';
 import type {
   Announcement,
   AnnouncementStatus,
+  DemoPersonaId,
   Event,
   Permission,
   PolicyTarget,
   Role,
   SpecialAssignment,
+  Subject,
 } from '@/domain';
-import { buildSubjectFor, subjectsByRole } from '@/test/subjects';
+import { PERMISSIONS, ROLES } from '@/domain';
+import { buildSubject, personaSubject, roleSubject, subjectsByPersona } from '@/test/subjects';
 
 import {
   allowedAnnouncementTransitions,
@@ -17,8 +20,10 @@ import {
   can,
   canCreateSpecialAssignment,
   canManageMember,
-  canRevokeSpecialAssignment,
+  canPayFor,
+  canPublishEvent,
   canRsvp,
+  canVerifyAccount,
   canViewAnnouncement,
   canViewEvent,
   canViewMemberPrivateFields,
@@ -30,9 +35,9 @@ import {
 } from './policy';
 import { ROLE_DEFINITIONS } from './roles';
 import { canAccessRoute, visibleAdminTabs, visibleNavItems } from './routeAccess';
-import { resolveGrantScope, scopeCovers } from './scope';
+import { chapterScope, resolveGrantScope, scopeCovers } from './scope';
 
-const S = subjectsByRole();
+const S = subjectsByPersona();
 const NOW = new Date('2026-10-12T09:00:00.000Z');
 
 const IN_CH1: PolicyTarget = { chapterId: 'ch-1' };
@@ -40,175 +45,214 @@ const OUT_CH4: PolicyTarget = { chapterId: 'ch-4' };
 const NATIONAL: PolicyTarget = { chapterId: null, level: 'national' };
 
 // ---------------------------------------------------------------------------------------------
-// Role × permission × scope matrix
+// docs/ROLES-AND-PERMISSIONS.md §4 — the permission matrix, cell for cell
 // ---------------------------------------------------------------------------------------------
 
-type Expectation = [permission: Permission, inCh1: boolean, outCh4: boolean, national: boolean];
+/** Matrix columns in document order; `parent` is a member type, not a role. */
+type Column = Role | 'parent';
+const COLUMNS: Column[] = [
+  'sysadmin',
+  'exec_director',
+  'nat_rep',
+  'nat_sec',
+  'nat_coord',
+  'nat_mc',
+  'nat_treas',
+  'ch_chairman',
+  'ch_mc',
+  'ch_sc', // the matrix's "ch_sc / ch_jc" column; ch_jc is checked against the same cells
+  'ch_sec',
+  'ch_treas',
+  'advisor',
+  'parent',
+];
 
-const MATRIX: Record<Role, Expectation[]> = {
-  member: [
-    ['feed.read', true, false, false],
-    ['event.read', true, false, false],
-    ['resource.read', true, false, false],
-    ['chapter.read', true, false, false],
-    ['post.create', false, false, false],
-    ['post.publish', false, false, false],
-    ['event.create', false, false, false],
-    ['event.participants.read', false, false, false],
-    ['attendance.manage', false, false, false],
-    ['resource.upload', false, false, false],
-    ['chapter.directory.read', false, false, false],
-    ['member.profile.read', false, false, false],
-    ['member.access.manage', false, false, false],
-    ['role.assign', false, false, false],
-    ['audit.read.chapter', false, false, false],
-    ['system.manage', false, false, false],
-  ],
-  chapter_officer: [
-    ['feed.read', true, false, false],
-    ['post.create', true, false, false],
-    ['post.update', true, false, false],
-    ['post.submit', true, false, false],
-    ['post.approve', false, false, false],
-    ['post.publish', false, false, false],
-    ['post.archive', false, false, false],
-    ['event.create', true, false, false],
-    ['event.update', true, false, false],
-    ['event.cancel', false, false, false],
-    ['event.participants.read', true, false, false],
-    ['attendance.read', true, false, false],
-    ['attendance.manage', true, false, false],
-    ['resource.upload', true, false, false],
-    ['resource.update', true, false, false],
-    ['resource.archive', true, false, false],
-    ['chapter.directory.read', true, false, false],
-    ['notification.send.chapter', true, false, false],
-    ['notification.send.national', false, false, false],
-    ['member.profile.read', false, false, false],
-    ['member.access.manage', false, false, false],
-    ['role.assign', false, false, false],
-    ['audit.read.chapter', false, false, false],
-    ['system.manage', false, false, false],
-  ],
-  chapter_advisor: [
-    ['post.create', true, false, false],
-    ['post.approve', true, false, false],
-    ['post.publish', true, false, false],
-    ['post.archive', true, false, false],
-    ['event.cancel', true, false, false],
-    ['attendance.manage', true, false, false],
-    ['member.profile.read', true, false, false],
-    ['member.access.manage', true, false, false],
-    ['role.read', true, false, false],
-    ['role.assign', true, false, false],
-    ['role.mapping.manage', false, false, false],
-    ['audit.read.chapter', true, false, false],
-    ['audit.read.national', false, false, false],
-    ['translation.review', true, false, false],
-    ['notification.send.national', false, false, false],
-    ['integration.read', false, false, false],
-    ['system.manage', false, false, false],
-  ],
-  national_officer: [
-    ['feed.read', true, true, true],
-    ['post.create', true, true, true],
-    ['post.publish', true, true, true],
-    ['post.archive', true, true, true],
-    ['event.create', true, true, true],
-    ['event.cancel', true, true, true],
-    ['event.participants.read', true, true, true],
-    ['attendance.manage', true, true, true],
-    ['resource.upload', true, true, true],
-    ['chapter.read', true, true, true],
-    ['chapter.directory.read', true, true, true],
-    ['notification.send.national', true, true, true],
-    ['translation.publish', true, true, true],
-    ['audit.read.chapter', true, true, true],
-    ['audit.read.national', false, false, false],
-    ['member.profile.read', false, false, false],
-    ['member.access.manage', false, false, false],
-    ['role.assign', false, false, false],
-    ['role.mapping.manage', false, false, false],
-    ['chapter.update', false, false, false],
-    ['integration.read', false, false, false],
-    ['system.manage', false, false, false],
-  ],
-  national_admin: [
-    ['feed.read', true, true, true],
-    ['post.publish', true, true, true],
-    ['event.cancel', true, true, true],
-    ['member.profile.read', true, true, true],
-    ['member.access.manage', true, true, true],
-    ['chapter.update', true, true, true],
-    ['role.assign', true, true, true],
-    ['role.mapping.manage', true, true, true],
-    ['translation.publish', true, true, true],
-    ['audit.read.national', true, true, true],
-    ['integration.read', true, true, true],
-    ['integration.manage', true, true, true],
-    ['system.manage', true, true, true],
-  ],
-};
+/** Y allowed, C own chapter only, S submit for approval, '' not allowed. */
+type Cell = 'Y' | 'C' | 'S' | '';
 
-describe('role × permission × scope', () => {
-  for (const role of Object.keys(MATRIX) as Role[]) {
-    describe(role, () => {
-      it.each(MATRIX[role])(
-        '%s → in ch-1: %s, out ch-4: %s, national: %s',
-        (permission, inCh1, outCh4, national) => {
-          const subject = S[role];
-          expect(can(subject, permission, IN_CH1, NOW)).toBe(inCh1);
-          expect(can(subject, permission, OUT_CH4, NOW)).toBe(outCh4);
-          expect(can(subject, permission, NATIONAL, NOW)).toBe(national);
-        },
-      );
+interface MatrixRow {
+  capability: string;
+  permissions: Permission[];
+  /** 'chapter' rows are checked against ch-1 (own) and ch-4 (other); 'national' against national objects. */
+  target: 'chapter' | 'national' | 'self';
+  cells: Cell[];
+}
+
+// prettier-ignore
+const MATRIX: MatrixRow[] = [
+  { capability: 'Read feed, calendar, documents, rituals, library', permissions: ['feed.read', 'event.read', 'resource.read', 'ritual.read'], target: 'chapter',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y'] },
+  { capability: 'Read member directory', permissions: ['chapter.read'], target: 'chapter',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', ''] },
+  { capability: 'Publish national post', permissions: ['post.publish'], target: 'national',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', 'Y', '', '', '', '', '', '', '', ''] },
+  { capability: 'Publish chapter post', permissions: ['post.publish'], target: 'chapter',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', '', '', 'C', 'C', '', '', '', '', ''] },
+  { capability: 'Submit post for approval', permissions: ['post.submit'], target: 'chapter',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', '', '', 'Y', 'Y', 'S', 'S', '', '', ''] },
+  { capability: 'Approve chapter post', permissions: ['post.approve'], target: 'chapter',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', '', '', 'C', '', '', '', '', '', ''] },
+  { capability: 'Upload national document', permissions: ['resource.upload'], target: 'national',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', '', '', '', '', '', '', '', '', ''] },
+  { capability: 'Upload chapter minutes', permissions: ['resource.upload'], target: 'chapter',
+    cells: ['Y', 'Y', 'Y', 'Y', '', '', '', 'C', '', '', 'C', '', '', ''] },
+  { capability: 'Create chapter event', permissions: ['event.create'], target: 'chapter',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', '', '', 'C', 'C', '', '', '', '', ''] },
+  { capability: 'Approve chapter event', permissions: ['event.approve'], target: 'chapter',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', '', '', 'C', '', '', '', '', '', ''] },
+  { capability: 'Approve new accounts', permissions: ['account.verify'], target: 'chapter',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', '', '', '', '', '', '', '', '', ''] },
+  { capability: 'Assign roles', permissions: ['role.assign'], target: 'chapter',
+    cells: ['Y', '', '', '', '', '', '', '', '', '', '', '', '', ''] },
+  { capability: 'View all payments and dues', permissions: ['payment.read.all'], target: 'national',
+    cells: ['Y', 'Y', 'Y', '', '', '', 'Y', '', '', '', '', '', '', ''] },
+  { capability: 'View chapter dues status', permissions: ['payment.read.chapter'], target: 'chapter',
+    cells: ['Y', 'Y', 'Y', '', '', '', 'Y', 'C', '', '', '', 'C', '', ''] },
+  { capability: 'Record cash or transfer payment', permissions: ['payment.record'], target: 'chapter',
+    cells: ['Y', '', '', '', '', '', 'Y', '', '', '', '', 'C', '', ''] },
+  { capability: 'Send mass email', permissions: ['email.send.mass'], target: 'national',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', '', '', '', '', '', '', '', '', ''] },
+  { capability: 'Manage chapter roster', permissions: ['member.access.manage'], target: 'chapter',
+    cells: ['Y', 'Y', 'Y', 'Y', '', '', '', 'C', '', '', 'C', '', '', ''] },
+  { capability: 'Read audit log', permissions: ['audit.read.national', 'audit.read.chapter'], target: 'chapter',
+    cells: ['Y', '', '', '', '', '', '', '', '', '', '', '', '', ''] },
+  { capability: 'Raise a helpdesk ticket', permissions: ['helpdesk.create'], target: 'self',
+    cells: ['Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y'] },
+  { capability: 'Answer helpdesk tickets', permissions: ['helpdesk.answer'], target: 'chapter',
+    cells: ['Y', '', '', '', '', '', '', '', '', '', '', '', '', ''] },
+];
+
+const columnSubject = (column: Column): Subject =>
+  column === 'parent' ? personaSubject('parent') : roleSubject(column);
+
+const isNationalColumn = (column: Column): boolean =>
+  column !== 'parent' && ROLE_DEFINITIONS[column].level === 'national' && column !== 'advisor';
+
+describe('permission matrix (docs/ROLES-AND-PERMISSIONS.md §4)', () => {
+  for (const row of MATRIX) {
+    describe(row.capability, () => {
+      const columns: Column[] = [...COLUMNS, 'ch_jc'];
+      it.each(
+        columns.map(
+          (column) =>
+            [column, row.cells[COLUMNS.indexOf(column === 'ch_jc' ? 'ch_sc' : column)]] as const,
+        ),
+      )('%s → %s', (column, cell) => {
+        const subject = columnSubject(column);
+        for (const permission of row.permissions) {
+          if (row.target === 'self') {
+            expect(can(subject, permission, { ownerId: subject.userId }, NOW)).toBe(cell !== '');
+            expect(can(subject, permission, { ownerId: 'someone-else' }, NOW)).toBe(false);
+            continue;
+          }
+          if (row.target === 'national') {
+            expect(can(subject, permission, NATIONAL, NOW)).toBe(cell !== '');
+            continue;
+          }
+          const allowedHere = cell !== '';
+          const allowedElsewhere = (cell === 'Y' || cell === 'S') && isNationalColumn(column);
+          expect(can(subject, permission, IN_CH1, NOW), `${permission} in ch-1`).toBe(allowedHere);
+          expect(can(subject, permission, OUT_CH4, NOW), `${permission} in ch-4`).toBe(
+            allowedElsewhere,
+          );
+        }
+      });
     });
   }
 
-  it('every role can RSVP and read notifications only for itself', () => {
-    for (const subject of Object.values(S)) {
-      expect(can(subject, 'event.rsvp', { ownerId: subject.userId }, NOW)).toBe(true);
-      expect(can(subject, 'event.rsvp', { ownerId: 'someone-else' }, NOW)).toBe(false);
-      expect(can(subject, 'notification.read', { ownerId: subject.userId }, NOW)).toBe(true);
+  it('"S" means submit only: councillors and secretaries cannot publish', () => {
+    for (const role of ['ch_sc', 'ch_jc', 'ch_sec'] as const) {
+      expect(can(roleSubject(role), 'post.submit', IN_CH1, NOW)).toBe(true);
+      expect(can(roleSubject(role), 'post.publish', IN_CH1, NOW)).toBe(false);
     }
   });
 
-  it('a capability check without target is true when held at any scope', () => {
-    expect(can(S.chapter_officer, 'post.create', undefined, NOW)).toBe(true);
-    expect(can(S.member, 'post.create', undefined, NOW)).toBe(false);
-    expect(can(null, 'feed.read')).toBe(false);
+  it('the matrix covers every role', () => {
+    expect([...COLUMNS, 'ch_jc'].filter((c) => c !== 'parent').sort()).toEqual([...ROLES].sort());
   });
 
-  it('role definitions grant only catalogue permissions, admin holds all', () => {
-    expect(new Set(ROLE_DEFINITIONS.national_admin.grants.map((g) => g.permission)).size).toBe(39);
-    const memberPerms = ROLE_DEFINITIONS.member.grants.map((g) => g.permission);
-    for (const p of memberPerms)
-      expect(ROLE_DEFINITIONS.chapter_officer.grants.map((g) => g.permission)).toContain(p);
+  it('system administrators hold every permission', () => {
+    const sysadmin = new Set(ROLE_DEFINITIONS.sysadmin.grants.map((g) => g.permission));
+    expect([...sysadmin].sort()).toEqual([...PERMISSIONS].sort());
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// Member types and the rules behind the matrix (§2, §5)
+// ---------------------------------------------------------------------------------------------
+
+describe('member types', () => {
+  it('a person with no role reads everything in their chapter and publishes nothing', () => {
+    for (const memberType of ['active', 'senior', 'advisor'] as const) {
+      const subject = buildSubject(memberType, []);
+      expect(can(subject, 'feed.read', IN_CH1, NOW)).toBe(true);
+      expect(can(subject, 'chapter.read', IN_CH1, NOW)).toBe(true);
+      expect(can(subject, 'ritual.read', IN_CH1, NOW)).toBe(true);
+      expect(can(subject, 'post.create', undefined, NOW)).toBe(false);
+      expect(can(subject, 'event.create', undefined, NOW)).toBe(false);
+    }
+  });
+
+  it('seniors have the same access as advisors', () => {
+    const perms = (s: Subject) =>
+      effectivePermissions(s, NOW)
+        .map((g) => g.permission)
+        .sort();
+    expect(perms(buildSubject('senior', []))).toEqual(perms(buildSubject('advisor', [])));
+  });
+
+  it('parents never see the directory, never post, and pay only for their linked children', () => {
+    const parent = S.parent;
+    expect(can(parent, 'chapter.read', IN_CH1, NOW)).toBe(false);
+    expect(can(parent, 'post.create', undefined, NOW)).toBe(false);
+    expect(can(parent, 'event.rsvp', undefined, NOW)).toBe(false);
+    expect(canPayFor(parent, 'u-member', NOW)).toBe(true);
+    expect(canPayFor(parent, parent.userId, NOW)).toBe(true);
+    expect(canPayFor(parent, 'u-officer', NOW)).toBe(false);
+  });
+
+  it('members pay their own dues, never someone else’s', () => {
+    expect(canPayFor(S.active_member, S.active_member.userId, NOW)).toBe(true);
+    expect(canPayFor(S.active_member, 'u-officer', NOW)).toBe(false);
+  });
+
+  it('suspended, expelled and pending accounts hold no permissions at all', () => {
+    for (const accountStatus of ['suspended', 'expelled', 'pending'] as const) {
+      const subject = personaSubject('sysadmin', { accountStatus });
+      expect(effectivePermissions(subject, NOW)).toEqual([]);
+      expect(can(subject, 'feed.read', IN_CH1, NOW)).toBe(false);
+    }
+  });
+
+  it('roles add up: one person can hold several, each at its own scope', () => {
+    const subject = buildSubject('active', [
+      { role: 'ch_sec', scope: chapterScope('ch-1') },
+      { role: 'ch_chairman', scope: chapterScope('ch-5') },
+    ]);
+    expect(can(subject, 'post.approve', { chapterId: 'ch-5' }, NOW)).toBe(true);
+    expect(can(subject, 'post.approve', IN_CH1, NOW)).toBe(false);
+    expect(can(subject, 'post.submit', IN_CH1, NOW)).toBe(true);
+    expect(can(subject, 'resource.upload', IN_CH1, NOW)).toBe(true);
+  });
+
+  it('national-only grants never reach chapter content (National Master Councillor)', () => {
+    const natMc = roleSubject('nat_mc');
+    expect(can(natMc, 'post.publish', NATIONAL, NOW)).toBe(true);
+    expect(can(natMc, 'post.publish', IN_CH1, NOW)).toBe(false);
+    expect(can(natMc, 'post.publish', undefined, NOW)).toBe(true);
+    expect(allowedScopesFor(natMc, 'post.create', ['ch-1', 'ch-2'], NOW)).toEqual({
+      national: true,
+      chapterIds: [],
+      multiChapter: false,
+    });
   });
 });
 
 describe('scope resolution', () => {
-  it('chapter-level grants follow the assignment (multi-chapter advisors)', () => {
-    const advisor = buildSubjectFor('chapter_advisor', {
-      scope: { level: 'multi_chapter', chapterIds: ['ch-1', 'ch-3'] },
-    });
-    expect(can(advisor, 'post.publish', { chapterId: 'ch-3' }, NOW)).toBe(true);
-    expect(can(advisor, 'post.publish', { chapterId: 'ch-4' }, NOW)).toBe(false);
-    expect(
-      can(advisor, 'post.publish', { chapterId: null, chapterIds: ['ch-1', 'ch-3'] }, NOW),
-    ).toBe(true);
-    expect(
-      can(advisor, 'post.publish', { chapterId: null, chapterIds: ['ch-1', 'ch-4'] }, NOW),
-    ).toBe(false);
-  });
-
   it('a national grant is capped by a chapter assignment (no escalation through scope)', () => {
     expect(
       resolveGrantScope('national', { level: 'chapter', chapterIds: ['ch-1'] }, 'ch-1'),
-    ).toEqual({
-      level: 'chapter',
-      chapterIds: ['ch-1'],
-    });
+    ).toEqual({ level: 'chapter', chapterIds: ['ch-1'] });
     expect(resolveGrantScope('system', { level: 'national' }, 'ch-2')).toEqual({
       level: 'national',
     });
@@ -218,6 +262,12 @@ describe('scope resolution', () => {
     expect(scopeCovers({ level: 'self' }, { ownerId: 'u-1' }, 'u-1')).toBe(true);
     expect(scopeCovers({ level: 'self' }, { ownerId: 'u-2' }, 'u-1')).toBe(false);
     expect(scopeCovers({ level: 'self' }, { chapterId: 'ch-1' }, 'u-1')).toBe(false);
+  });
+
+  it('a capability check without target is true when held at any scope', () => {
+    expect(can(S.chapter_secretary, 'post.create', undefined, NOW)).toBe(true);
+    expect(can(S.active_member, 'post.create', undefined, NOW)).toBe(false);
+    expect(can(null, 'feed.read')).toBe(false);
   });
 });
 
@@ -235,7 +285,7 @@ function specialAssignment(overrides: Partial<SpecialAssignment> = {}): SpecialA
     endsAt: '2026-10-20T00:00:00.000Z',
     reason: 'Helps organise the autumn service day',
     approverId: 'u-advisor',
-    createdBy: 'u-advisor',
+    createdBy: 'u-admin',
     createdAt: '2026-10-09T00:00:00.000Z',
     revokedAt: null,
     revokedBy: null,
@@ -249,191 +299,86 @@ describe('special assignment windows', () => {
     ['before start', { startsAt: '2026-10-13T00:00:00.000Z' }, 'scheduled', false],
     ['active', {}, 'active', true],
     ['expired', { endsAt: '2026-10-11T00:00:00.000Z' }, 'expired', false],
-    [
-      'revoked',
-      { revokedAt: '2026-10-11T00:00:00.000Z', revokedBy: 'u-advisor' },
-      'revoked',
-      false,
-    ],
+    ['revoked', { revokedAt: '2026-10-11T00:00:00.000Z', revokedBy: 'u-admin' }, 'revoked', false],
   ];
 
   it.each(cases)('%s', (_label, overrides, state, grants) => {
     const sa = specialAssignment(overrides);
-    const member = buildSubjectFor('member', { specialAssignments: [sa] });
+    const member = personaSubject('active_member', { specialAssignments: [sa] });
     expect(specialAssignmentState(sa, NOW)).toBe(state);
     expect(can(member, 'event.create', IN_CH1, NOW)).toBe(grants);
     expect(can(member, 'event.create', OUT_CH4, NOW)).toBe(false);
   });
 
   it('ignores assignments that belong to someone else', () => {
-    const member = buildSubjectFor('member', {
+    const member = personaSubject('active_member', {
       specialAssignments: [specialAssignment({ userId: 'u-other' })],
     });
     expect(can(member, 'event.create', IN_CH1, NOW)).toBe(false);
   });
 
   it('reports the source of effective grants', () => {
-    const member = buildSubjectFor('member', { specialAssignments: [specialAssignment()] });
-    const grant = effectivePermissions(member, NOW).find((g) => g.permission === 'event.create');
-    expect(grant).toMatchObject({ source: 'special_assignment', sourceId: 'sa-1' });
+    const member = personaSubject('active_member', { specialAssignments: [specialAssignment()] });
+    const grants = effectivePermissions(member, NOW);
+    expect(grants.find((g) => g.permission === 'event.create')).toMatchObject({
+      source: 'special_assignment',
+      sourceId: 'sa-1',
+    });
+    expect(grants.find((g) => g.permission === 'feed.read')).toMatchObject({
+      source: 'member_type',
+    });
   });
 });
 
 // ---------------------------------------------------------------------------------------------
-// Escalation prevention
+// Role assignment: system administrators alone (§5)
 // ---------------------------------------------------------------------------------------------
 
 describe('role assignment & escalation prevention', () => {
-  const ch1 = { level: 'chapter' as const, chapterIds: ['ch-1'] };
-  const ch4 = { level: 'chapter' as const, chapterIds: ['ch-4'] };
+  const ch1 = chapterScope('ch-1');
 
-  it('advisor may assign lower roles inside their chapter only', () => {
+  it('only system administrators assign roles', () => {
+    for (const role of ROLES.filter((r) => r !== 'sysadmin')) {
+      expect(checkAssignRole(roleSubject(role), 'ch_sc', ch1, { userId: 'u-x' }, NOW)).toEqual({
+        allowed: false,
+        reason: 'missing_permission',
+      });
+    }
+    expect(checkAssignRole(S.sysadmin, 'ch_chairman', ch1, { userId: 'u-x' }, NOW)).toEqual({
+      allowed: true,
+    });
     expect(
-      checkAssignRole(
-        S.chapter_advisor,
-        'chapter_officer',
-        ch1,
-        { userId: 'u-x', currentRole: 'member' },
-        NOW,
-      ),
+      checkAssignRole(S.sysadmin, 'sysadmin', { level: 'system' }, { userId: 'u-x' }, NOW),
     ).toEqual({ allowed: true });
-    expect(
-      checkAssignRole(
-        S.chapter_advisor,
-        'member',
-        ch1,
-        { userId: 'u-x', currentRole: 'chapter_officer' },
-        NOW,
-      ).allowed,
-    ).toBe(true);
-    expect(checkAssignRole(S.chapter_advisor, 'chapter_advisor', ch1, undefined, NOW).reason).toBe(
-      'escalation',
-    );
-    expect(checkAssignRole(S.chapter_advisor, 'chapter_officer', ch4, undefined, NOW).reason).toBe(
-      'scope_not_covered',
-    );
-    expect(
-      checkAssignRole(S.chapter_advisor, 'national_officer', { level: 'national' }, undefined, NOW)
-        .reason,
-    ).toBe('scope_not_covered');
-    expect(
-      checkAssignRole(
-        S.chapter_advisor,
-        'member',
-        ch1,
-        { userId: 'u-x', currentRole: 'chapter_advisor' },
-        NOW,
-      ).reason,
-    ).toBe('target_outranks');
   });
 
-  it('nobody can change their own role', () => {
+  it('nobody grants themselves a role', () => {
     expect(
-      checkAssignRole(
-        S.national_admin,
-        'member',
-        { level: 'chapter', chapterIds: ['ch-3'] },
-        { userId: 'u-admin' },
-        NOW,
-      ).reason,
-    ).toBe('self_assignment');
+      checkAssignRole(S.sysadmin, 'nat_treas', { level: 'national' }, { userId: 'u-admin' }, NOW),
+    ).toEqual({ allowed: false, reason: 'self_assignment' });
   });
 
-  it('roles without role.assign cannot assign', () => {
-    expect(checkAssignRole(S.member, 'member', ch1, undefined, NOW).reason).toBe(
-      'missing_permission',
-    );
-    expect(checkAssignRole(S.chapter_officer, 'member', ch1, undefined, NOW).reason).toBe(
-      'missing_permission',
-    );
-    expect(checkAssignRole(S.national_officer, 'member', ch1, undefined, NOW).reason).toBe(
-      'missing_permission',
-    );
+  it('roles are assigned only at the scope level they are held at', () => {
+    expect(
+      checkAssignRole(S.sysadmin, 'ch_chairman', { level: 'national' }, { userId: 'u-x' }, NOW),
+    ).toEqual({ allowed: false, reason: 'scope_not_allowed_for_role' });
+    expect(checkAssignRole(S.sysadmin, 'nat_sec', ch1, { userId: 'u-x' }, NOW)).toEqual({
+      allowed: false,
+      reason: 'scope_not_allowed_for_role',
+    });
   });
 
-  it('admin can assign any role at a valid scope; invalid scope levels are rejected', () => {
+  it('special permissions: only what you hold, within your role.assign scope, never to yourself', () => {
+    expect(canCreateSpecialAssignment(S.sysadmin, 'event.create', ch1, 'u-member', NOW)).toBe(true);
+    expect(canCreateSpecialAssignment(S.sysadmin, 'event.create', ch1, 'u-admin', NOW)).toBe(false);
     expect(
-      checkAssignRole(
-        S.national_admin,
-        'national_admin',
-        { level: 'system' },
-        { userId: 'u-x' },
-        NOW,
-      ).allowed,
-    ).toBe(true);
-    expect(
-      checkAssignRole(
-        S.national_admin,
-        'national_officer',
-        { level: 'national' },
-        { userId: 'u-x' },
-        NOW,
-      ).allowed,
-    ).toBe(true);
-    expect(
-      checkAssignRole(S.national_admin, 'member', { level: 'national' }, { userId: 'u-x' }, NOW)
-        .reason,
-    ).toBe('scope_not_allowed_for_role');
-    expect(
-      checkAssignRole(
-        S.national_admin,
-        'chapter_officer',
-        { level: 'chapter', chapterIds: [] },
-        { userId: 'u-x' },
-        NOW,
-      ).reason,
-    ).toBe('scope_not_allowed_for_role');
-  });
-
-  it('special assignments: only permissions you hold, within your scope, never to yourself', () => {
-    expect(
-      canCreateSpecialAssignment(S.chapter_advisor, 'event.create', ch1, 'u-member', NOW),
-    ).toBe(true);
-    expect(
-      canCreateSpecialAssignment(S.chapter_advisor, 'event.create', ch4, 'u-member', NOW),
-    ).toBe(false);
-    expect(
-      canCreateSpecialAssignment(
-        S.chapter_advisor,
-        'system.manage',
-        { level: 'system' },
-        'u-member',
-        NOW,
-      ),
-    ).toBe(false);
-    expect(
-      canCreateSpecialAssignment(
-        S.chapter_advisor,
-        'notification.send.national',
-        { level: 'national' },
-        'u-member',
-        NOW,
-      ),
-    ).toBe(false);
-    expect(
-      canCreateSpecialAssignment(S.chapter_advisor, 'event.create', ch1, 'u-advisor', NOW),
-    ).toBe(false);
-    expect(
-      canCreateSpecialAssignment(S.national_officer, 'event.create', ch1, 'u-member', NOW),
-    ).toBe(false);
-    expect(
-      canCreateSpecialAssignment(
-        S.national_admin,
-        'integration.manage',
-        { level: 'system' },
-        'u-member',
-        NOW,
-      ),
-    ).toBe(true);
-    expect(canRevokeSpecialAssignment(S.chapter_advisor, specialAssignment(), NOW)).toBe(true);
-    expect(
-      canRevokeSpecialAssignment(S.chapter_advisor, specialAssignment({ scope: ch4 }), NOW),
+      canCreateSpecialAssignment(S.chapter_chairman, 'event.create', ch1, 'u-member', NOW),
     ).toBe(false);
   });
 });
 
 // ---------------------------------------------------------------------------------------------
-// Announcement workflow
+// Announcements
 // ---------------------------------------------------------------------------------------------
 
 function post(status: AnnouncementStatus, overrides: Partial<Announcement> = {}): Announcement {
@@ -473,35 +418,48 @@ describe('announcement workflow transitions', () => {
     published: ['edit', 'archive'],
     archived: ['restore'],
   };
-  const EXPECTED: Record<Role, Record<AnnouncementStatus, string[]>> = {
-    member: { draft: [], submitted: [], published: [], archived: [] },
-    chapter_officer: {
+  const NONE = { draft: [], submitted: [], published: [], archived: [] };
+  const EXPECTED: Record<DemoPersonaId, Record<AnnouncementStatus, string[]>> = {
+    active_member: NONE,
+    parent: NONE,
+    chapter_secretary: {
       draft: ['edit', 'submit'],
       submitted: ['withdraw'],
       published: [],
       archived: [],
     },
-    chapter_advisor: REVIEWER,
-    national_officer: REVIEWER,
-    national_admin: REVIEWER,
+    chapter_chairman: REVIEWER,
+    chapter_treasurer: NONE,
+    national_coordinator: REVIEWER,
+    sysadmin: REVIEWER,
   };
 
-  for (const role of Object.keys(EXPECTED) as Role[]) {
-    it(`${role} on a chapter (ch-1) announcement authored by the officer`, () => {
+  for (const persona of Object.keys(EXPECTED) as DemoPersonaId[]) {
+    it(`${persona} on a chapter (ch-1) announcement authored by the secretary`, () => {
       for (const status of ['draft', 'submitted', 'published', 'archived'] as const) {
-        expect(allowedAnnouncementTransitions(S[role], post(status), NOW)).toEqual(
-          EXPECTED[role][status],
+        expect(allowedAnnouncementTransitions(S[persona], post(status), NOW)).toEqual(
+          EXPECTED[persona][status],
         );
       }
     });
   }
 
+  it('the Master Councillor publishes chapter posts but cannot approve submissions', () => {
+    const mc = roleSubject('ch_mc');
+    expect(allowedAnnouncementTransitions(mc, post('draft'), NOW)).toEqual([
+      'edit',
+      'submit',
+      'publish',
+    ]);
+    expect(allowedAnnouncementTransitions(mc, post('submitted'), NOW)).toEqual([]);
+  });
+
   it('chapter roles cannot touch national or other-chapter content', () => {
-    for (const role of ['chapter_officer', 'chapter_advisor'] as const) {
-      expect(allowedAnnouncementTransitions(S[role], nationalPost('draft'), NOW)).toEqual([]);
+    for (const persona of ['chapter_secretary', 'chapter_chairman'] as const) {
+      expect(allowedAnnouncementTransitions(S[persona], nationalPost('draft'), NOW)).toEqual([]);
       expect(
         allowedAnnouncementTransitions(
-          S[role],
+          S[persona],
           post('submitted', {
             chapterId: 'ch-4',
             audience: { scope: 'chapter', chapterIds: ['ch-4'], visibility: 'all_members' },
@@ -511,70 +469,45 @@ describe('announcement workflow transitions', () => {
       ).toEqual([]);
     }
   });
-
-  it('national officer manages national content; admin can override', () => {
-    expect(allowedAnnouncementTransitions(S.national_officer, nationalPost('draft'), NOW)).toEqual([
-      'edit',
-      'submit',
-      'publish',
-    ]);
-    expect(
-      allowedAnnouncementTransitions(S.national_admin, nationalPost('published'), NOW),
-    ).toEqual(['edit', 'archive']);
-  });
 });
 
 describe('announcement visibility', () => {
-  it('members see national and own-chapter published content only', () => {
-    expect(canViewAnnouncement(S.member, nationalPost('published'), NOW)).toBe(true);
-    expect(canViewAnnouncement(S.member, post('published'), NOW)).toBe(true);
-    expect(
-      canViewAnnouncement(
-        S.member,
-        post('published', {
-          chapterId: 'ch-4',
-          audience: { scope: 'chapter', chapterIds: ['ch-4'], visibility: 'all_members' },
-        }),
-        NOW,
-      ),
-    ).toBe(false);
-    expect(canViewAnnouncement(S.member, post('draft'), NOW)).toBe(false);
+  it('members and parents see national and own-chapter published content only', () => {
+    for (const subject of [S.active_member, S.parent]) {
+      expect(canViewAnnouncement(subject, nationalPost('published'), NOW)).toBe(true);
+      expect(canViewAnnouncement(subject, post('published'), NOW)).toBe(true);
+      expect(
+        canViewAnnouncement(
+          subject,
+          post('published', {
+            chapterId: 'ch-4',
+            audience: { scope: 'chapter', chapterIds: ['ch-4'], visibility: 'all_members' },
+          }),
+          NOW,
+        ),
+      ).toBe(false);
+      expect(canViewAnnouncement(subject, post('draft'), NOW)).toBe(false);
+    }
   });
 
-  it('multi-chapter content is visible to members of any addressed chapter', () => {
-    const multi = post('published', {
-      chapterId: null,
-      audience: { scope: 'multi_chapter', chapterIds: ['ch-1', 'ch-2'], visibility: 'all_members' },
-    });
-    expect(canViewAnnouncement(S.member, multi, NOW)).toBe(true);
-    expect(
-      canViewAnnouncement(buildSubjectFor('member', { homeChapterId: 'ch-4' }), multi, NOW),
-    ).toBe(false);
-  });
-
-  it('leadership-only content is hidden from ordinary members', () => {
+  it('leadership-only content is hidden from members without a publishing role', () => {
     const leadership = post('published', {
       audience: { scope: 'chapter', chapterIds: ['ch-1'], visibility: 'leadership' },
     });
-    const nationalLeadership = post('published', {
-      chapterId: null,
-      audience: { scope: 'national', chapterIds: [], visibility: 'leadership' },
-    });
-    expect(canViewAnnouncement(S.member, leadership, NOW)).toBe(false);
-    expect(canViewAnnouncement(S.chapter_officer, leadership, NOW)).toBe(true);
-    expect(canViewAnnouncement(S.member, nationalLeadership, NOW)).toBe(false);
-    expect(canViewAnnouncement(S.chapter_officer, nationalLeadership, NOW)).toBe(true);
+    expect(canViewAnnouncement(S.active_member, leadership, NOW)).toBe(false);
+    expect(canViewAnnouncement(S.chapter_treasurer, leadership, NOW)).toBe(false);
+    expect(canViewAnnouncement(S.chapter_secretary, leadership, NOW)).toBe(true);
   });
 
-  it('drafts are visible to their author and reviewers in scope', () => {
-    expect(canViewAnnouncement(S.chapter_officer, post('submitted'), NOW)).toBe(true);
-    expect(canViewAnnouncement(S.chapter_advisor, post('submitted'), NOW)).toBe(true);
-    expect(canViewAnnouncement(S.member, post('submitted'), NOW)).toBe(false);
+  it('submissions are visible to their author and approvers in scope', () => {
+    expect(canViewAnnouncement(S.chapter_secretary, post('submitted'), NOW)).toBe(true);
+    expect(canViewAnnouncement(S.chapter_chairman, post('submitted'), NOW)).toBe(true);
+    expect(canViewAnnouncement(S.active_member, post('submitted'), NOW)).toBe(false);
   });
 });
 
 // ---------------------------------------------------------------------------------------------
-// Events, participants, resources, members
+// Events, resources, members
 // ---------------------------------------------------------------------------------------------
 
 function event(overrides: Partial<Event> = {}): Event {
@@ -610,97 +543,98 @@ function event(overrides: Partial<Event> = {}): Event {
   };
 }
 
-describe('event participant visibility & RSVP', () => {
-  it('organizer-only lists are hidden from members but visible to officers in scope', () => {
-    expect(canViewParticipants(S.member, event(), NOW)).toBe(false);
-    expect(canViewParticipants(S.chapter_officer, event(), NOW)).toBe(true);
-    expect(canViewParticipants(S.national_officer, event(), NOW)).toBe(true);
+describe('events', () => {
+  it('publishing a draft is its approval: the Chairman approves, the Master Councillor cannot', () => {
+    const draft = event({ status: 'draft' });
+    expect(canPublishEvent(S.chapter_chairman, draft, NOW)).toBe(true);
+    expect(canPublishEvent(roleSubject('ch_mc'), draft, NOW)).toBe(false);
+    expect(canViewEvent(roleSubject('ch_mc'), draft, NOW)).toBe(true);
+    expect(canViewEvent(S.active_member, draft, NOW)).toBe(false);
   });
 
-  it('member-visible lists are shown to members who can see the event', () => {
-    expect(canViewParticipants(S.member, event({ participantVisibility: 'members' }), NOW)).toBe(
-      true,
-    );
-    expect(
-      canViewParticipants(
-        S.member,
-        event({ participantVisibility: 'members', chapterId: 'ch-4' }),
-        NOW,
-      ),
-    ).toBe(false);
+  it('organizer-only participant lists are hidden from members, visible to event staff', () => {
+    expect(canViewParticipants(S.active_member, event(), NOW)).toBe(false);
+    expect(canViewParticipants(S.chapter_secretary, event(), NOW)).toBe(true);
+    expect(canViewParticipants(S.national_coordinator, event(), NOW)).toBe(true);
   });
 
-  it('RSVP requires a visible published event', () => {
-    expect(canRsvp(S.member, event(), NOW)).toBe(true);
-    expect(canRsvp(S.member, event({ status: 'cancelled' }), NOW)).toBe(false);
-    expect(canRsvp(S.member, event({ chapterId: 'ch-4' }), NOW)).toBe(false);
-    expect(canRsvp(S.member, event({ scope: 'national', chapterId: null }), NOW)).toBe(true);
-  });
-
-  it('draft events are visible only to managers', () => {
-    expect(canViewEvent(S.member, event({ status: 'draft' }), NOW)).toBe(false);
-    expect(canViewEvent(S.chapter_officer, event({ status: 'draft' }), NOW)).toBe(true);
+  it('RSVP requires a visible published event; parents do not RSVP', () => {
+    expect(canRsvp(S.active_member, event(), NOW)).toBe(true);
+    expect(canRsvp(S.active_member, event({ status: 'cancelled' }), NOW)).toBe(false);
+    expect(canRsvp(S.active_member, event({ chapterId: 'ch-4' }), NOW)).toBe(false);
+    expect(canRsvp(S.active_member, event({ scope: 'national', chapterId: null }), NOW)).toBe(true);
+    expect(canRsvp(S.parent, event(), NOW)).toBe(false);
   });
 });
 
 describe('resources & member data', () => {
+  const base = { chapterId: 'ch-1', status: 'active' as const, visibility: 'all_members' as const };
+
   it('resource visibility respects chapter, leadership and archive state', () => {
-    const base = {
-      chapterId: 'ch-1',
-      status: 'active' as const,
-      visibility: 'all_members' as const,
-    };
-    expect(canViewResource(S.member, base, NOW)).toBe(true);
-    expect(canViewResource(S.member, { ...base, chapterId: null }, NOW)).toBe(true);
-    expect(canViewResource(S.member, { ...base, chapterId: 'ch-4' }, NOW)).toBe(false);
-    expect(canViewResource(S.member, { ...base, visibility: 'leadership' }, NOW)).toBe(false);
-    expect(canViewResource(S.chapter_officer, { ...base, visibility: 'leadership' }, NOW)).toBe(
-      true,
+    expect(canViewResource(S.active_member, base, NOW)).toBe(true);
+    expect(canViewResource(S.active_member, { ...base, chapterId: null }, NOW)).toBe(true);
+    expect(canViewResource(S.active_member, { ...base, chapterId: 'ch-4' }, NOW)).toBe(false);
+    expect(canViewResource(S.active_member, { ...base, visibility: 'leadership' }, NOW)).toBe(
+      false,
     );
-    expect(canViewResource(S.member, { ...base, status: 'archived' }, NOW)).toBe(false);
-    expect(canViewResource(S.chapter_officer, { ...base, status: 'archived' }, NOW)).toBe(true);
+    expect(canViewResource(S.chapter_secretary, { ...base, status: 'archived' }, NOW)).toBe(true);
+    expect(canViewResource(S.active_member, { ...base, status: 'archived' }, NOW)).toBe(false);
   });
 
-  it('restricted member fields: self, advisors in scope and admins only', () => {
+  it('rituals are readable by members, advisors and parents', () => {
+    const ritual = { ...base, chapterId: null, category: 'rituals' as const };
+    for (const subject of [S.active_member, S.chapter_chairman, S.parent]) {
+      expect(canViewResource(subject, ritual, NOW)).toBe(true);
+    }
+  });
+
+  it('restricted member fields: self, roster managers in scope and national officers', () => {
     const ch1Member = { userId: 'u-x', chapterId: 'ch-1' };
     expect(
-      canViewMemberPrivateFields(S.member, { userId: 'u-member', chapterId: 'ch-1' }, NOW),
+      canViewMemberPrivateFields(S.active_member, { userId: 'u-member', chapterId: 'ch-1' }, NOW),
     ).toBe(true);
-    expect(canViewMemberPrivateFields(S.member, ch1Member, NOW)).toBe(false);
-    expect(canViewMemberPrivateFields(S.chapter_officer, ch1Member, NOW)).toBe(false);
-    expect(canViewMemberPrivateFields(S.chapter_advisor, ch1Member, NOW)).toBe(true);
+    expect(canViewMemberPrivateFields(S.active_member, ch1Member, NOW)).toBe(false);
+    expect(canViewMemberPrivateFields(S.chapter_treasurer, ch1Member, NOW)).toBe(false);
+    expect(canViewMemberPrivateFields(S.chapter_secretary, ch1Member, NOW)).toBe(true);
+    expect(canViewMemberPrivateFields(S.chapter_chairman, ch1Member, NOW)).toBe(true);
     expect(
-      canViewMemberPrivateFields(S.chapter_advisor, { userId: 'u-y', chapterId: 'ch-4' }, NOW),
+      canViewMemberPrivateFields(S.chapter_chairman, { userId: 'u-y', chapterId: 'ch-4' }, NOW),
     ).toBe(false);
-    expect(canViewMemberPrivateFields(S.national_officer, ch1Member, NOW)).toBe(false);
-    expect(canViewMemberPrivateFields(S.national_admin, ch1Member, NOW)).toBe(true);
+    expect(canViewMemberPrivateFields(S.national_coordinator, ch1Member, NOW)).toBe(false);
+    expect(canViewMemberPrivateFields(S.sysadmin, ch1Member, NOW)).toBe(true);
   });
 
-  it('account management excludes yourself', () => {
-    expect(canManageMember(S.chapter_advisor, { userId: 'u-x', chapterId: 'ch-1' }, NOW)).toBe(
+  it('account management and verification exclude yourself', () => {
+    expect(canManageMember(S.chapter_chairman, { userId: 'u-x', chapterId: 'ch-1' }, NOW)).toBe(
       true,
     );
     expect(
-      canManageMember(S.chapter_advisor, { userId: 'u-advisor', chapterId: 'ch-1' }, NOW),
+      canManageMember(S.chapter_chairman, { userId: 'u-advisor', chapterId: 'ch-1' }, NOW),
     ).toBe(false);
-    expect(canManageMember(S.chapter_officer, { userId: 'u-x', chapterId: 'ch-1' }, NOW)).toBe(
+    expect(canManageMember(S.chapter_treasurer, { userId: 'u-x', chapterId: 'ch-1' }, NOW)).toBe(
+      false,
+    );
+    expect(
+      canVerifyAccount(S.national_coordinator, { userId: 'u-x', chapterId: 'ch-4' }, NOW),
+    ).toBe(true);
+    expect(canVerifyAccount(S.chapter_chairman, { userId: 'u-x', chapterId: 'ch-1' }, NOW)).toBe(
       false,
     );
   });
 
   it('allowedScopesFor lists the audiences a subject may target', () => {
     const all = ['ch-1', 'ch-2', 'ch-3', 'ch-4'];
-    expect(allowedScopesFor(S.chapter_officer, 'post.create', all, NOW)).toEqual({
+    expect(allowedScopesFor(S.chapter_secretary, 'post.create', all, NOW)).toEqual({
       national: false,
       chapterIds: ['ch-1'],
       multiChapter: false,
     });
-    expect(allowedScopesFor(S.national_officer, 'post.create', all, NOW)).toEqual({
+    expect(allowedScopesFor(S.national_coordinator, 'post.create', all, NOW)).toEqual({
       national: true,
       chapterIds: all,
       multiChapter: true,
     });
-    expect(allowedScopesFor(S.member, 'post.create', all, NOW)).toEqual({
+    expect(allowedScopesFor(S.active_member, 'post.create', all, NOW)).toEqual({
       national: false,
       chapterIds: [],
       multiChapter: false,
@@ -712,41 +646,49 @@ describe('resources & member data', () => {
 // Navigation & routes
 // ---------------------------------------------------------------------------------------------
 
-describe('navigation visibility per role', () => {
-  const ids = (role: Role) => visibleNavItems(S[role], 'sidebar', NOW).map((i) => i.id);
+describe('navigation visibility per persona', () => {
+  const ids = (persona: DemoPersonaId) =>
+    visibleNavItems(S[persona], 'sidebar', NOW).map((i) => i.id);
   const BASE = ['home', 'news', 'events', 'chapter', 'resources', 'notifications'];
 
-  it.each<[Role, string[]]>([
-    ['member', [...BASE, 'profile']],
-    ['chapter_officer', [...BASE, 'officerWorkspace', 'profile']],
-    ['chapter_advisor', [...BASE, 'officerWorkspace', 'content', 'members', 'profile']],
-    ['national_officer', [...BASE, 'officerWorkspace', 'content', 'profile']],
-    ['national_admin', [...BASE, 'officerWorkspace', 'content', 'members', 'admin', 'profile']],
-  ])('%s sidebar', (role, expected) => {
-    expect(ids(role)).toEqual(expected);
+  it.each<[DemoPersonaId, string[]]>([
+    ['active_member', [...BASE, 'profile']],
+    ['parent', ['home', 'news', 'events', 'resources', 'notifications', 'profile']],
+    ['chapter_secretary', [...BASE, 'officerWorkspace', 'members', 'profile']],
+    ['chapter_chairman', [...BASE, 'officerWorkspace', 'content', 'members', 'profile']],
+    ['chapter_treasurer', [...BASE, 'profile']],
+    ['national_coordinator', [...BASE, 'officerWorkspace', 'content', 'profile']],
+    ['sysadmin', [...BASE, 'officerWorkspace', 'content', 'members', 'admin', 'profile']],
+  ])('%s sidebar', (persona, expected) => {
+    expect(ids(persona)).toEqual(expected);
   });
 
-  it('mobile bottom navigation is the same five destinations for everyone', () => {
-    for (const subject of Object.values(S)) {
-      expect(visibleNavItems(subject, 'mobileBottom', NOW).map((i) => i.id)).toEqual([
-        'home',
-        'news',
-        'events',
-        'chapter',
-        'more',
-      ]);
-    }
+  it('mobile bottom navigation: My Chapter is hidden from parents (it holds the directory)', () => {
+    expect(visibleNavItems(S.active_member, 'mobileBottom', NOW).map((i) => i.id)).toEqual([
+      'home',
+      'news',
+      'events',
+      'chapter',
+      'more',
+    ]);
+    expect(visibleNavItems(S.parent, 'mobileBottom', NOW).map((i) => i.id)).toEqual([
+      'home',
+      'news',
+      'events',
+      'more',
+    ]);
   });
 
   it('route guards follow the same table', () => {
-    expect(canAccessRoute(S.member, 'admin', NOW)).toBe(false);
-    expect(canAccessRoute(S.member, 'contentCreate', NOW)).toBe(false);
-    expect(canAccessRoute(S.chapter_officer, 'contentCreate', NOW)).toBe(true);
-    expect(canAccessRoute(S.chapter_officer, 'content', NOW)).toBe(false);
-    expect(canAccessRoute(S.national_officer, 'members', NOW)).toBe(false);
+    expect(canAccessRoute(S.active_member, 'admin', NOW)).toBe(false);
+    expect(canAccessRoute(S.active_member, 'contentCreate', NOW)).toBe(false);
+    expect(canAccessRoute(S.chapter_secretary, 'contentCreate', NOW)).toBe(true);
+    expect(canAccessRoute(S.chapter_secretary, 'content', NOW)).toBe(false);
+    expect(canAccessRoute(S.parent, 'chapter', NOW)).toBe(false);
+    expect(canAccessRoute(S.national_coordinator, 'members', NOW)).toBe(false);
     expect(canAccessRoute(null, 'login', NOW)).toBe(true);
     expect(canAccessRoute(null, 'home', NOW)).toBe(false);
-    expect(visibleAdminTabs(S.national_admin, NOW)).toHaveLength(10);
-    expect(visibleAdminTabs(S.national_officer, NOW)).toHaveLength(0);
+    expect(visibleAdminTabs(S.sysadmin, NOW)).toHaveLength(10);
+    expect(visibleAdminTabs(S.national_coordinator, NOW)).toHaveLength(0);
   });
 });

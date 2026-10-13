@@ -1,7 +1,8 @@
 import { can } from '@/auth/policy';
+import { sortRolesByRank } from '@/auth/roles';
 import { buildSubject, isDemoModeEnabled } from '@/auth/subject';
 import { ForbiddenError, UnauthorizedError } from '@/data/errors';
-import type { Permission, PolicyTarget, RoleAssignment, Subject } from '@/domain';
+import type { DemoRoleOverride, Permission, PolicyTarget, RoleAssignment, Subject } from '@/domain';
 
 import { db } from './db';
 import type { SessionRecord } from './schema';
@@ -15,35 +16,38 @@ export function getSessionRecord(): SessionRecord | null {
   return db.getMeta('session');
 }
 
-/** The user's real role assignment (falls back to a member assignment in the home chapter). */
-export function assignmentFor(userId: string): RoleAssignment {
-  const assignment = db.find('roleAssignments', (a) => a.userId === userId)[0];
-  if (assignment) return assignment;
+/** The user's active role assignments (zero or more; ended terms excluded), highest rank first. */
+export function assignmentsFor(userId: string): RoleAssignment[] {
+  return sortRolesByRank(
+    db.find('roleAssignments', (a) => a.userId === userId && a.endedAt === null),
+  );
+}
+
+/** Subject for any stored user (demo override applied only when given and demo mode is on). */
+export function subjectForUserRecord(
+  userId: string,
+  demoOverride: DemoRoleOverride | null,
+  demoModeEnabled: boolean,
+): Subject | null {
   const member = db.get('members', userId);
-  return {
-    id: `ra-${userId}`,
+  const user = db.get('users', userId);
+  if (!member || !user) return null;
+  return buildSubject({
     userId,
-    role: 'member',
-    scope: { level: 'chapter', chapterIds: member ? [member.chapterId] : [] },
-    source: 'manual',
-    mappingId: null,
-    assignedBy: null,
-    assignedAt: new Date(0).toISOString(),
-    reason: null,
-  };
+    memberType: member.memberType,
+    accountStatus: user.status,
+    homeChapterId: member.chapterId,
+    linkedMemberIds: member.linkedMemberIds,
+    assignments: assignmentsFor(userId),
+    specialAssignments: db.find('specialAssignments', (sa) => sa.userId === userId),
+    demoOverride,
+    demoModeEnabled,
+  });
 }
 
 /** Builds the effective Subject for a session record (applies the demo override in demo mode). */
-export function subjectForSession(record: SessionRecord): Subject {
-  const member = db.get('members', record.userId);
-  const assignment = assignmentFor(record.userId);
-  return buildSubject({
-    assignment,
-    homeChapterId: member?.chapterId ?? assignment.scope.chapterIds?.[0] ?? '',
-    specialAssignments: db.find('specialAssignments', (sa) => sa.userId === record.userId),
-    demoOverride: record.demoOverride,
-    demoModeEnabled: isDemoModeEnabled(),
-  });
+export function subjectForSession(record: SessionRecord): Subject | null {
+  return subjectForUserRecord(record.userId, record.demoOverride, isDemoModeEnabled());
 }
 
 /** The acting subject, or null when nobody is signed in. */
@@ -64,7 +68,9 @@ export function requireSubject(): Subject {
     db.setMeta('session', null);
     throw new UnauthorizedError('session_expired');
   }
-  return subjectForSession(record);
+  const subject = subjectForSession(record);
+  if (!subject) throw new UnauthorizedError('session_expired');
+  return subject;
 }
 
 /** Throws ForbiddenError unless the subject holds `permission` covering `target`. */

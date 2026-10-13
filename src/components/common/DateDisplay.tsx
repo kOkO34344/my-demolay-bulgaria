@@ -43,7 +43,7 @@ export function DateBlock({ date, size = 'md', muted = false, className }: DateB
       <span
         aria-hidden="true"
         className={cn(
-          'block font-heading leading-none font-semibold',
+          'block font-display leading-none',
           size === 'md' ? 'pt-1.5 text-2xl' : 'pt-1 text-lg',
           muted ? 'text-muted-foreground' : 'text-foreground',
         )}

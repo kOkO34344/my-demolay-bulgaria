@@ -34,7 +34,8 @@ export function localizedLabel(key: string): LocalizedText {
   return { en: lookup(cache.en, key) ?? key, bg: lookup(cache.bg, key) ?? key };
 }
 
-export const roleLabel = (role: Role): LocalizedText => localizedLabel(labelKeys.role(role));
+export const roleLabel = (role: Role | null): LocalizedText =>
+  localizedLabel(role === null ? labelKeys.noRole : labelKeys.role(role));
 
 export const permissionLabel = (permission: Permission): LocalizedText =>
   localizedLabel(labelKeys.permission(permission));

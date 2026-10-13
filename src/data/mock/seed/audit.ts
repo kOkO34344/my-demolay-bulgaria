@@ -178,11 +178,11 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
     null,
     'role.assigned',
     'role_assignment',
-    'ra-u-b03',
+    'ra-u-b03-pos',
     'ch-4',
     k('roleSynced'),
-    { name: name('u-b03'), role: roleLabel('member'), scope: chapterScope('ch-4') },
-    { from: 'chapter_officer', to: 'member' },
+    { name: name('u-b03'), role: roleLabel(null), scope: chapterScope('ch-4') },
+    { from: 'ch_mc', to: null },
   );
   add(
     [-21, '10:15'],
@@ -206,8 +206,8 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
     null,
     k('mappingCreated'),
     {
-      position: lt('National Master Councilor', 'Национален съветник'),
-      role: roleLabel('national_officer'),
+      position: lt('National Master Councillor', 'Национален главен съветник'),
+      role: roleLabel('nat_mc'),
     },
   );
   add(
@@ -233,7 +233,7 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
     k('roleSynced'),
     {
       name: name('u-b03'),
-      role: roleLabel('national_officer'),
+      role: roleLabel('nat_mc'),
       scope: lt('National', 'Национално'),
     },
     { from: 'member', to: 'national_officer' },
@@ -305,11 +305,11 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
     null,
     'role.assigned',
     'role_assignment',
-    'ra-u-s03',
+    'ra-u-s03-pos',
     'ch-1',
     k('roleSynced'),
-    { name: name('u-s03'), role: roleLabel('chapter_officer'), scope: chapterScope('ch-1') },
-    { from: 'member', to: 'chapter_officer' },
+    { name: name('u-s03'), role: roleLabel('ch_jc'), scope: chapterScope('ch-1') },
+    { from: null, to: 'ch_jc' },
   );
   add([-1, '03:00'], null, 'sync.started', 'sync_job', 'sync-006', null, k('syncStartedScheduled'));
   add(
@@ -327,7 +327,7 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
   // ---- access: roles, special permissions, mappings, accounts -----------------------------
   add(
     [-62, '12:00'],
-    'u-advisor',
+    'u-admin',
     'special_assignment.created',
     'special_assignment',
     'sa-charity-run',
@@ -344,19 +344,16 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
     'u-admin',
     'role.assigned',
     'role_assignment',
-    'ra-u-s12',
-    'ch-1',
+    'ra-u-s12-ch_chairman',
+    'ch-5',
     k('roleAssigned'),
     {
       name: name('u-s12'),
-      role: roleLabel('chapter_advisor'),
-      scope: {
-        en: `Multi-chapter · ${chapter('ch-1').en}, ${chapter('ch-5').en}`,
-        bg: `Няколко обители · ${chapter('ch-1').bg}, ${chapter('ch-5').bg}`,
-      },
-      reason: 'Regional advisor for Sofia and Veliko Tarnovo.',
+      role: roleLabel('ch_chairman'),
+      scope: chapterScope('ch-5'),
+      reason: 'Acting Chapter Chairman for Veliko Tarnovo.',
     },
-    { to: 'chapter_advisor', source: 'manual' },
+    { to: 'ch_chairman', source: 'manual' },
   );
   add(
     [-55, '10:00'],
@@ -381,7 +378,7 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
     'map-ch-sentinel-legacy',
     null,
     k('mappingUpdated'),
-    { position: lt('Sentinel', 'Страж'), role: roleLabel('chapter_officer') },
+    { position: lt('Sentinel', 'Страж'), role: roleLabel('ch_jc') },
     { active: false },
   );
   add(
@@ -392,7 +389,7 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
     'map-ch-sentinel',
     null,
     k('mappingCreated'),
-    { position: lt('Sentinel', 'Страж'), role: roleLabel('member') },
+    { position: lt('Sentinel', 'Страж'), role: roleLabel(null) },
   );
   add(
     [-40, '16:00'],
@@ -414,16 +411,16 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
     'u-admin',
     'role.assigned',
     'role_assignment',
-    'ra-u-v03',
+    'ra-u-v03-ch_sec',
     'ch-3',
     k('roleAssigned'),
     {
       name: name('u-v03'),
-      role: roleLabel('chapter_officer'),
+      role: roleLabel('ch_sec'),
       scope: chapterScope('ch-3'),
-      reason: 'Acting Scribe for Varna until the registry is updated.',
+      reason: 'Acting Secretary for Varna until the registry is updated.',
     },
-    { to: 'chapter_officer', source: 'manual' },
+    { to: 'ch_sec', source: 'manual' },
   );
   add(
     [-15, '11:00'],
@@ -450,12 +447,12 @@ export function seedAuditLog(ctx: SeedContext, data: AuditSeedContext): AuditLog
     {
       name: name('u-p02'),
       permission: permissionLabel('post.publish'),
-      reason: 'Granted by mistake — publishing stays with the chapter advisor.',
+      reason: 'Granted by mistake — publishing stays with the Chapter Chairman.',
     },
   );
   add(
     [-4, '12:00'],
-    'u-advisor',
+    'u-admin',
     'special_assignment.created',
     'special_assignment',
     'sa-welcome-pack',

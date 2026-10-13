@@ -6,7 +6,7 @@ import type { EventCreateInput } from '@/domain';
 import { clock } from '@/lib/clock';
 
 import { SEED_IDS } from '../seed';
-import { auditEntries, notificationsOf, signInAs } from '../testing';
+import { auditEntries, notificationsOf, signInAs, signInAsUser } from '../testing';
 
 import { createMockEventRepository } from './eventRepository';
 
@@ -59,7 +59,7 @@ const conflictKey = async (promise: Promise<unknown>) => {
 
 describe('event repository — visibility', () => {
   it('member sees published national + own chapter events, never drafts or other chapters', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const upcoming = await events.list({ when: 'upcoming' });
     const ids = upcoming.map((e) => e.id);
     expect(ids).toEqual(expect.arrayContaining([E.memberCanRsvp, E.nationalConference, E.full]));
@@ -74,14 +74,14 @@ describe('event repository — visibility', () => {
   });
 
   it('organizers see drafts and notes in management views', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_chairman');
     const managed = await events.list({ when: 'all', includeUnpublished: true });
     expect(managed.map((e) => e.id)).toContain(E.draft);
     expect(managed.some((e) => e.notes.length > 0)).toBe(true);
   });
 
   it('filters by scope, category, month and search', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const national = await events.list({ when: 'all', scope: 'national' });
     expect(national.every((e) => e.scope === 'national')).toBe(true);
     const ceremonies = await events.list({ when: 'all', category: 'ceremony' });
@@ -93,7 +93,7 @@ describe('event repository — visibility', () => {
 
 describe('event repository — RSVP rules enforced server-side', () => {
   it('member replies to an open event; totals and myRsvp update', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const before = await events.participantTotals(E.memberCanRsvp);
     const view = await events.rsvp(E.memberCanRsvp, 'going');
     expect(view.myRsvp).toBe('going');
@@ -105,13 +105,13 @@ describe('event repository — RSVP rules enforced server-side', () => {
   });
 
   it('full event: "going" is rejected with event.full; maybe is accepted', async () => {
-    signInAs('member');
+    signInAs('active_member');
     expect(await conflictKey(events.rsvp(E.full, 'going'))).toBe('messages.errors.eventFull');
     expect((await events.rsvp(E.full, 'maybe')).myRsvp).toBe('maybe');
   });
 
   it('rejects replies after the deadline, to cancelled events and to past events', async () => {
-    signInAs('member');
+    signInAs('active_member');
     expect(await conflictKey(events.rsvp(E.deadlinePassed, 'going'))).toBe(
       'messages.errors.registrationClosed',
     );
@@ -124,7 +124,7 @@ describe('event repository — RSVP rules enforced server-side', () => {
   });
 
   it('switching from going frees a seat for someone else', async () => {
-    signInAs('member');
+    signInAs('active_member');
     expect(await conflictKey(events.rsvp(E.full, 'going'))).toBe('messages.errors.eventFull');
     const holder = db.find('rsvps', (r) => r.eventId === E.full && r.status === 'going')[0];
     expect(holder).toBeDefined();
@@ -134,7 +134,7 @@ describe('event repository — RSVP rules enforced server-side', () => {
   });
 
   it('rejects an invalid status value', async () => {
-    signInAs('member');
+    signInAs('active_member');
     await expect(events.rsvp(E.memberCanRsvp, 'yes' as unknown as 'going')).rejects.toBeInstanceOf(
       ValidationError,
     );
@@ -142,12 +142,12 @@ describe('event repository — RSVP rules enforced server-side', () => {
 });
 
 describe('event repository — organizer commands', () => {
-  it('officer creates and publishes a chapter event → audit + chapter notified', async () => {
-    signInAs('chapter_officer');
+  it('the Chapter Chairman creates and publishes a chapter event → audit + chapter notified', async () => {
+    signInAs('chapter_chairman');
     const view = await events.create(newEvent());
     expect(view).toMatchObject({
       status: 'published',
-      organizerId: 'u-officer',
+      organizerId: 'u-advisor',
       chapterId: 'ch-1',
     });
     expect(auditEntries('event.created', view.id)).toHaveLength(1);
@@ -160,7 +160,7 @@ describe('event repository — organizer commands', () => {
   });
 
   it('drafts can be incomplete but cannot be published until EN and BG are complete', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_chairman');
     const draft = await events.create(
       newEvent({ publish: false, translations: { en: newEvent().translations.en } }),
     );
@@ -171,10 +171,15 @@ describe('event repository — organizer commands', () => {
     });
   });
 
-  it('members cannot create; officers cannot create national events or cancel', async () => {
-    signInAs('member');
+  it('members cannot create; the Master Councillor drafts chapter events but cannot approve or cancel', async () => {
+    signInAs('active_member');
     await expect(events.create(newEvent())).rejects.toBeInstanceOf(ForbiddenError);
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
+    await expect(events.create(newEvent())).rejects.toBeInstanceOf(ForbiddenError);
+    signInAsUser('u-s01'); // Master Councillor of ch-1 (position mapping → ch_mc)
+    const draft = await events.create(newEvent({ publish: false }));
+    expect(draft.status).toBe('draft');
+    await expect(events.publish(draft.id)).rejects.toMatchObject({ permission: 'event.approve' });
     await expect(
       events.create(newEvent({ scope: 'national', chapterId: null })),
     ).rejects.toMatchObject({ permission: 'event.create' });
@@ -184,7 +189,7 @@ describe('event repository — organizer commands', () => {
   });
 
   it('advisor cancels → people who replied going/maybe are notified', async () => {
-    signInAs('chapter_advisor');
+    signInAs('chapter_chairman');
     const before = notificationsOf('u-member').length;
     const view = await events.cancel(E.memberGoing, 'The hall is unavailable.');
     expect(view).toMatchObject({
@@ -202,7 +207,7 @@ describe('event repository — organizer commands', () => {
   });
 
   it('updates notify interested members and audit capacity/visibility changes', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_chairman');
     const current = await events.get(E.memberGoing);
     const before = notificationsOf('u-member').length;
     await events.update(E.memberGoing, {
@@ -225,7 +230,7 @@ describe('event repository — organizer commands', () => {
   });
 
   it('capacity can never drop below the number of members going', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_chairman');
     const error = await events.setCapacity(E.almostFull, 5).catch((e: unknown) => e);
     expect(error).toBeInstanceOf(ValidationError);
     expect((error as ValidationError).fieldErrors.capacity).toBe(
@@ -238,7 +243,7 @@ describe('event repository — organizer commands', () => {
   });
 
   it('participant visibility setting is enforced', async () => {
-    signInAs('member');
+    signInAs('active_member');
     await expect(events.listParticipants(E.almostFull)).rejects.toMatchObject({
       permission: 'event.participants.read',
     });
@@ -246,7 +251,7 @@ describe('event repository — organizer commands', () => {
     expect(list.length).toBeGreaterThan(0);
     expect(list.every((p) => p.status !== 'not_going')).toBe(true);
     expect(Object.keys(list[0]?.person ?? {}).sort()).toEqual(['avatarUrl', 'displayName', 'id']);
-    signInAs('chapter_officer');
+    signInAs('chapter_chairman');
     const organizerView = await events.listParticipants(E.almostFull);
     expect(organizerView.filter((p) => p.status === 'going')).toHaveLength(10);
     const auditBefore = auditEntries('event.visibility_changed', E.almostFull).length;
@@ -254,15 +259,15 @@ describe('event repository — organizer commands', () => {
     expect(view.participantVisibility).toBe('members');
     const audit = auditEntries('event.visibility_changed', E.almostFull);
     expect(audit).toHaveLength(auditBefore + 1);
-    expect(audit[0]?.actorId).toBe('u-officer');
+    expect(audit[0]?.actorId).toBe('u-advisor');
   });
 
-  it('attendance: recorded only after the start, by organizers, and audited', async () => {
-    signInAs('member');
+  it('attendance: recorded only after the start, by the Secretary, and audited', async () => {
+    signInAs('active_member');
     await expect(events.listAttendance(E.pastWithoutAttendance)).rejects.toBeInstanceOf(
       ForbiddenError,
     );
-    signInAs('chapter_officer');
+    signInAs('chapter_secretary');
     const sheet = await events.listAttendance(E.pastWithoutAttendance);
     expect(sheet.length).toBeGreaterThan(5);
     expect(sheet.every((row) => row.record === null)).toBe(true);
@@ -291,17 +296,17 @@ describe('event repository — organizer commands', () => {
   });
 
   it('organizer notes are private to managers', async () => {
-    signInAs('chapter_officer');
+    signInAs('chapter_chairman');
     const note = await events.addNote(E.memberCanRsvp, 'Order the certificates.');
-    expect(note).toMatchObject({ authorId: 'u-officer', body: 'Order the certificates.' });
+    expect(note).toMatchObject({ authorId: 'u-advisor', body: 'Order the certificates.' });
     expect((await events.get(E.memberCanRsvp)).notes.map((n) => n.id)).toContain(note.id);
-    signInAs('member');
+    signInAs('active_member');
     expect((await events.get(E.memberCanRsvp)).notes).toEqual([]);
     await expect(events.addNote(E.memberCanRsvp, 'hi')).rejects.toBeInstanceOf(ForbiddenError);
   });
 
   it('exports an .ics file for visible events', async () => {
-    signInAs('member');
+    signInAs('active_member');
     const ics = await events.exportCalendar(E.nationalConference);
     expect(ics.mimeType).toBe('text/calendar');
     expect(ics.fileName).toBe(`demolay-${E.nationalConference}.ics`);

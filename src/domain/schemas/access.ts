@@ -60,11 +60,16 @@ export const specialAssignmentInputSchema = z
     }
   });
 
+export const roleRemovalInputSchema = z.object({
+  assignmentId: idSchema,
+  reason: requiredText(LIMITS.reason, MIN_REASON_LENGTH),
+});
+
 export const revokeSpecialAssignmentSchema = z.object({
   reason: requiredText(LIMITS.reason, MIN_REASON_LENGTH),
 });
 
-/** Registry position codes: upper-case letters, digits and underscores, e.g. "CH_SCRIBE". */
+/** Registry position codes: upper-case letters, digits and underscores, e.g. "CH_SECRETARY". */
 export const POSITION_CODE_PATTERN = /^[A-Z][A-Z0-9_]{1,63}$/;
 
 export const positionMappingInputSchema = z
@@ -75,7 +80,8 @@ export const positionMappingInputSchema = z
       .toUpperCase()
       .regex(POSITION_CODE_PATTERN, { error: 'messages.validation.positionCodeFormat' }),
     positionTitle: localizedTextSchema(LIMITS.title),
-    role: roleSchema,
+    /** null = the office carries no application role. */
+    role: roleSchema.nullable(),
     scopeLevel: scopeLevelSchema,
     priority: z
       .number({ error: 'validation.invalidNumber' })
@@ -86,7 +92,10 @@ export const positionMappingInputSchema = z
     notes: optionalText(LIMITS.notes),
   })
   .superRefine((input, ctx) => {
-    if (!ROLE_DEFINITIONS[input.role].allowedScopeLevels.includes(input.scopeLevel)) {
+    if (
+      input.role !== null &&
+      !ROLE_DEFINITIONS[input.role].allowedScopeLevels.includes(input.scopeLevel)
+    ) {
       ctx.addIssue({
         code: 'custom',
         path: ['scopeLevel'],

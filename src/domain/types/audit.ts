@@ -32,6 +32,7 @@ export const AUDIT_ACTIONS = [
   'member.status_changed',
   'member.profile_updated',
   'role.assigned',
+  'role.removed',
   'special_assignment.created',
   'special_assignment.revoked',
   'mapping.created',

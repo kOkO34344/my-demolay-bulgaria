@@ -40,7 +40,7 @@ function SectionHeading({
 
 /**
  * A titled region of a page (`<section aria-labelledby>`), no surface. Use for page areas that hold
- * their own cards/lists. Spacing: sections stack with `gap-8` (see PageStack in CONVENTIONS-shell).
+ * their own cards/lists. Spacing: sections stack with `gap-8`.
  */
 export function Section({
   title,

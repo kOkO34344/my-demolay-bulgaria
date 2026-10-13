@@ -1,3 +1,4 @@
+import { chapterRoleChapterIds } from '@/auth/subject';
 import type { ID, Subject } from '@/domain';
 
 /**
@@ -7,9 +8,5 @@ import type { ID, Subject } from '@/domain';
  */
 export function isLocalTo(subject: Subject, chapterIds: readonly ID[]): boolean {
   if (chapterIds.includes(subject.homeChapterId)) return true;
-  const level = subject.scope.level;
-  return (
-    (level === 'chapter' || level === 'multi_chapter') &&
-    (subject.scope.chapterIds ?? []).some((id) => chapterIds.includes(id))
-  );
+  return chapterRoleChapterIds(subject).some((id) => chapterIds.includes(id));
 }

@@ -2,7 +2,7 @@ import { FlaskConicalIcon, RotateCcwIcon, Undo2Icon } from 'lucide-react';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ROLES, isRole } from '@/auth';
+import { DEMO_PERSONAS, isDemoPersona, personaDescriptionKey, personaLabelKey } from '@/auth';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { labelKeys } from '@/i18n/public';
 import { cn } from '@/lib/utils';
 
 import { useDemoRoleSwitch, useResetDemo } from './hooks';
@@ -50,14 +49,14 @@ function ResetDemoDataButton({ onSidebar = false }: { onSidebar?: boolean }) {
 
 /**
  * Compact demo area for the bottom of the desktop sidebar (dashed, clearly "prototype only"):
- * a labelled role select + Reset demo data. Renders nothing when demo mode is off.
+ * a labelled persona select + Reset demo data. Renders nothing when demo mode is off.
  */
 export function SidebarDemoPanel() {
   const { t } = useTranslation();
   const selectId = useId();
-  const { isDemoMode, currentRole, actualRole, isOverridden, isSwitching, switchTo } =
+  const { isDemoMode, currentPersona, actualPersona, isOverridden, isSwitching, switchTo } =
     useDemoRoleSwitch();
-  if (!isDemoMode || !currentRole) return null;
+  if (!isDemoMode || !currentPersona) return null;
 
   return (
     <section
@@ -75,9 +74,9 @@ export function SidebarDemoPanel() {
         {t('shell.demo.viewingAsLabel')}
       </label>
       <Select
-        value={currentRole}
+        value={currentPersona}
         onValueChange={(value) => {
-          if (isRole(value)) void switchTo(value);
+          if (isDemoPersona(value)) void switchTo(value);
         }}
         disabled={isSwitching}
       >
@@ -89,10 +88,10 @@ export function SidebarDemoPanel() {
           <SelectValue />
         </SelectTrigger>
         <SelectContent position="popper" side="top" align="start">
-          {ROLES.map((role) => (
-            <SelectItem key={role} value={role}>
-              {t(labelKeys.role(role))}
-              {role === actualRole ? (
+          {DEMO_PERSONAS.map((persona) => (
+            <SelectItem key={persona} value={persona}>
+              {t(personaLabelKey(persona))}
+              {persona === actualPersona ? (
                 <span data-role-suffix="" className="text-muted-foreground">
                   {t('shell.demo.yourRoleSuffix')}
                 </span>
@@ -121,7 +120,7 @@ export function SidebarDemoPanel() {
 }
 
 /**
- * Full demo role switcher (radio list with role descriptions) for the More page and the header
+ * Full demo role switcher (radio list of personas with descriptions) for the More page and the header
  * "Demo" popover. Prototype-only; renders nothing when demo mode is off.
  */
 export function DemoRoleSwitcher({
@@ -135,9 +134,9 @@ export function DemoRoleSwitcher({
 }) {
   const { t } = useTranslation();
   const baseId = useId();
-  const { isDemoMode, currentRole, actualRole, isOverridden, isSwitching, switchTo } =
+  const { isDemoMode, currentPersona, actualPersona, isOverridden, isSwitching, switchTo } =
     useDemoRoleSwitch();
-  if (!isDemoMode || !currentRole) return null;
+  if (!isDemoMode || !currentPersona) return null;
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
 
   return (
@@ -147,10 +146,7 @@ export function DemoRoleSwitcher({
       className={cn('flex flex-col gap-3', className)}
     >
       <div className="flex flex-col gap-1">
-        <Heading
-          id={`${baseId}-title`}
-          className="flex items-center gap-2 font-heading text-base font-semibold"
-        >
+        <Heading id={`${baseId}-title`} className="flex items-center gap-2 text-base font-bold">
           <FlaskConicalIcon aria-hidden="true" className="size-4 text-muted-foreground" />
           {t('shell.demo.switcherTitle')}
         </Heading>
@@ -159,20 +155,20 @@ export function DemoRoleSwitcher({
         </p>
       </div>
       <RadioGroup
-        value={currentRole}
+        value={currentPersona}
         onValueChange={(value) => {
-          if (isRole(value)) void switchTo(value);
+          if (isDemoPersona(value)) void switchTo(value);
         }}
         disabled={isSwitching}
         aria-label={t('shell.demo.viewingAsLabel')}
         className="gap-1.5"
       >
-        {ROLES.map((role) => {
-          const itemId = `${baseId}-${role}`;
-          const selected = role === currentRole;
+        {DEMO_PERSONAS.map((persona) => {
+          const itemId = `${baseId}-${persona}`;
+          const selected = persona === currentPersona;
           return (
             <label
-              key={role}
+              key={persona}
               htmlFor={itemId}
               className={cn(
                 'flex cursor-pointer items-start gap-3 rounded-md border px-3 py-2.5 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring',
@@ -181,13 +177,13 @@ export function DemoRoleSwitcher({
             >
               <RadioGroupItem
                 id={itemId}
-                value={role}
+                value={persona}
                 className="mt-0.5 focus-visible:outline-none"
               />
               <span className="flex min-w-0 flex-col gap-0.5">
                 <span className={cn('text-sm', selected ? 'font-semibold' : 'font-medium')}>
-                  {t(labelKeys.role(role))}
-                  {role === actualRole ? (
+                  {t(personaLabelKey(persona))}
+                  {persona === actualPersona ? (
                     <span className="font-normal text-muted-foreground">
                       {t('shell.demo.yourRoleSuffix')}
                     </span>
@@ -195,7 +191,7 @@ export function DemoRoleSwitcher({
                 </span>
                 {showDescriptions ? (
                   <span className="text-xs text-muted-foreground">
-                    {t(labelKeys.roleDescription(role))}
+                    {t(personaDescriptionKey(persona))}
                   </span>
                 ) : null}
               </span>

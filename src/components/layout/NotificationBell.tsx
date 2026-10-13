@@ -115,7 +115,7 @@ export function NotificationBell() {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[min(24rem,calc(100vw-2rem))] p-0">
         <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
-          <h2 className="font-heading text-base font-semibold">{t('nav.notifications')}</h2>
+          <h2 className="font-sans text-base font-bold">{t('nav.notifications')}</h2>
           <Button
             variant="ghost"
             size="sm"

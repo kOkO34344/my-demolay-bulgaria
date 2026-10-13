@@ -107,7 +107,7 @@ export const EVENT_SEEDS: EventSeed[] = [
         'Regular working meeting: chapter business, officer reports and a practical session on public speaking.',
       description: `Our regular working meeting starts with chapter business and reports from the officers. After a short break, the Orator leads a practical session on speaking in front of a group — come ready to say a few words about yourself.
 
-Please arrive ten minutes early so we can start on time. If you cannot come, let the Scribe know in advance.`,
+Please arrive ten minutes early so we can start on time. If you cannot come, let the Secretary know in advance.`,
     },
     bg: {
       title: 'Работна среща: говорене пред публика',
@@ -115,7 +115,7 @@ Please arrive ten minutes early so we can start on time. If you cannot come, let
         'Редовна работна среща: текущи въпроси, отчети на длъжностните лица и практическа сесия за говорене пред публика.',
       description: `Редовната ни работна среща започва с текущите въпроси на обителта и отчетите на длъжностните лица. След кратка почивка Ораторът ще води практическа сесия за говорене пред група – елате готови да кажете няколко думи за себе си.
 
-Моля, елате десет минути по-рано, за да започнем навреме. Ако не можете да дойдете, уведомете предварително Писаря.`,
+Моля, елате десет минути по-рано, за да започнем навреме. Ако не можете да дойдете, уведомете предварително Секретаря.`,
     },
   },
   {
@@ -675,14 +675,14 @@ New members are especially welcome — it's a good meeting to see how the chapte
       summary: "Working meeting: planning the term's activities and the food drive report.",
       description: `We planned the term's activities and heard the Almoner's report on the food drive.
 
-The minutes are available from the Scribe.`,
+The minutes are available from the Secretary.`,
     },
     bg: {
       title: 'Работна среща: планиране на срока',
       summary: 'Работна среща: планиране на дейностите за срока и отчет за кампанията за храна.',
       description: `Планирахме дейностите за срока и изслушахме отчета на Милостинника за кампанията за храна.
 
-Протоколът може да се получи от Писаря.`,
+Протоколът може да се получи от Секретаря.`,
     },
   },
   {

@@ -32,10 +32,10 @@ export const SYNC_SCENARIOS: readonly SyncScenario[] = [
   {
     key: 'A',
     positionUpdates: [
-      // Tarnovo member elected Treasurer → mapped role changes member → chapter officer.
+      // Tarnovo member elected Treasurer → gains the Chapter Treasurer role.
       { userId: 'u-t03', code: 'CH_TREASURER', externalId: 'REG-10805' },
-      // Varna acting Scribe now confirmed in the registry → the MANUAL override is kept.
-      { userId: 'u-v03', code: 'CH_SCRIBE', externalId: 'REG-10607' },
+      // Varna acting Secretary now confirmed in the registry → position role added, manual role kept.
+      { userId: 'u-v03', code: 'CH_SECRETARY', externalId: 'REG-10607' },
       // Newly admitted Sofia member receives an office that has no mapping → new exception.
       { userId: 'u-s11', code: 'CH_JUNIOR_STEWARD', externalId: 'REG-10760' },
     ],
@@ -53,7 +53,7 @@ export const SYNC_SCENARIOS: readonly SyncScenario[] = [
   {
     key: 'B',
     positionUpdates: [
-      // Plovdiv term rotation: both stay chapter officers, only their positions change.
+      // Plovdiv term rotation: the two councillors swap offices (ch_mc ↔ ch_sc).
       { userId: 'u-p01', code: 'CH_SENIOR_COUNCILOR', externalId: 'REG-10502' },
       { userId: 'u-p02', code: 'CH_MASTER_COUNCILOR', externalId: 'REG-10506' },
     ],

@@ -1,11 +1,25 @@
-import type { Role, RoleAssignment, Scope, SpecialAssignment, Subject } from './access';
-import type { ISODateTime } from './common';
+import type { MemberType, RoleAssignment, SpecialAssignment, Subject, SubjectRole } from './access';
+import type { ID, ISODateTime } from './common';
 import type { CurrentMember, User } from './members';
+
+/** Personas offered by the demo role switcher (prototype only). */
+export const DEMO_PERSONAS = [
+  'active_member',
+  'parent',
+  'chapter_secretary',
+  'chapter_chairman',
+  'chapter_treasurer',
+  'national_coordinator',
+  'sysadmin',
+] as const;
+export type DemoPersonaId = (typeof DEMO_PERSONAS)[number];
 
 /** Demo role switcher override (prototype only; never present in production). */
 export interface DemoRoleOverride {
-  role: Role;
-  scope: Scope;
+  persona: DemoPersonaId;
+  memberType: MemberType;
+  roles: SubjectRole[];
+  linkedMemberIds: ID[];
   switchedAt: ISODateTime;
 }
 
@@ -18,12 +32,13 @@ export interface DemoState {
 /**
  * The authenticated session (in production: GET /api/v1/auth/session backed by an HttpOnly cookie).
  * `subject` is the EFFECTIVE principal used for every policy check (includes any demo override);
- * `assignment` is the user's real role assignment.
+ * `assignments` are the user's real role assignments.
  */
 export interface Session {
   user: User;
   member: CurrentMember;
-  assignment: RoleAssignment;
+  /** The user's real, active role assignments (zero or more). */
+  assignments: RoleAssignment[];
   specialAssignments: SpecialAssignment[];
   subject: Subject;
   demo: DemoState;

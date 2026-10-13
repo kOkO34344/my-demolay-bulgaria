@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 
-import { useAuth } from '@/auth';
+import { personaLabelKey, useAuth } from '@/auth';
 import { Button } from '@/components/ui/button';
 import { errorMessageKey } from '@/data/errors';
-import { labelKeys } from '@/i18n/public';
+
 import { paths } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
@@ -69,7 +69,7 @@ export function PermissionDenied({
         data-page-heading={isPage ? '' : undefined}
         className={cn(
           'text-balance text-foreground outline-none',
-          isPage ? 'text-2xl md:text-3xl' : 'font-heading text-lg font-semibold',
+          isPage ? 'text-2xl md:text-3xl' : 'font-heading text-lg font-bold',
         )}
       >
         {title ?? t('common.states.permissionDeniedTitle')}
@@ -79,7 +79,7 @@ export function PermissionDenied({
       </div>
       {demoOverride ? (
         <p className="max-w-md rounded-md border border-dashed border-input/70 bg-muted/60 px-3 py-2 text-sm text-muted-foreground">
-          {t('shell.permissionDenied.demoHint', { role: t(labelKeys.role(demoOverride.role)) })}
+          {t('shell.permissionDenied.demoHint', { role: t(personaLabelKey(demoOverride.persona)) })}
         </p>
       ) : null}
       <div className="mt-2 flex flex-wrap items-center justify-center gap-2">

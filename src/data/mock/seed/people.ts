@@ -1,6 +1,14 @@
-import { resolveMemberRole } from '@/domain/rules/mappings';
+import { requiresDemId } from '@/auth/memberTypes';
+import {
+  manualAssignmentId,
+  positionAssignmentId,
+  resolveMemberRole,
+} from '@/domain/rules/mappings';
 import type {
   AccountStatus,
+  ConsentKind,
+  ConsentRecord,
+  MemberType,
   ID,
   ImportedPosition,
   LocalizedText,
@@ -33,6 +41,10 @@ interface PersonSeed {
   first: LocalizedText;
   last: LocalizedText;
   chapterId: ID;
+  /** Defaults from position and age — see memberTypeOf. */
+  memberType?: MemberType;
+  /** Parents: the members they are linked to. */
+  linkedTo?: ID[];
   position: { code: PositionCode; externalId: string } | null;
   status: AccountStatus;
   age: number;
@@ -165,7 +177,7 @@ export const PEOPLE: PersonSeed[] = [
     chapterId: 'ch-1',
     position: pos('CH_SENTINEL', 'REG-10437'),
     status: 'active',
-    age: 13,
+    age: 14,
     joinedDaysAgo: 210,
     lastLoginDaysAgo: 20,
     phone: '+359 000 000 209',
@@ -192,7 +204,7 @@ export const PEOPLE: PersonSeed[] = [
     chapterId: 'ch-1',
     position: null,
     status: 'pending',
-    age: 12,
+    age: 14,
     joinedDaysAgo: 6,
     lastLoginDaysAgo: null,
     phone: '+359 000 000 211',
@@ -203,14 +215,14 @@ export const PEOPLE: PersonSeed[] = [
     first: lt('Emil', 'Емил'),
     last: lt('Kostov', 'Костов'),
     chapterId: 'ch-1',
-    position: pos('CH_ADVISORY_COUNCIL_CHAIR', 'REG-10115'),
+    position: pos('CH_CHAIRMAN', 'REG-10115'),
     status: 'active',
     age: 52,
     joinedDaysAgo: 1900,
     lastLoginDaysAgo: 5,
     phone: '+359 000 000 212',
     address: 'бул. „Примерен“ 11, София (fictional)',
-    bio: 'Chairman of the Advisory Council. Also advises the Veliko Tarnovo chapter this year.',
+    bio: 'Chapter Chairman of Sveta Sofia. Also advises the Veliko Tarnovo chapter this year.',
   },
   // ch-2 Plovdiv -------------------------------------------------------------------------------
   {
@@ -244,7 +256,7 @@ export const PEOPLE: PersonSeed[] = [
     first: lt('Asen', 'Асен'),
     last: lt('Dobrev', 'Добрев'),
     chapterId: 'ch-2',
-    position: pos('CH_SCRIBE', 'REG-10511'),
+    position: pos('CH_SECRETARY', 'REG-10511'),
     status: 'active',
     age: 16,
     joinedDaysAgo: 640,
@@ -285,7 +297,7 @@ export const PEOPLE: PersonSeed[] = [
     chapterId: 'ch-2',
     position: pos('CH_ACTIVE_MEMBER', 'REG-10548'),
     status: 'suspended',
-    age: 20,
+    age: 23,
     joinedDaysAgo: 1150,
     lastLoginDaysAgo: 210,
     phone: '+359 000 000 226',
@@ -439,9 +451,77 @@ export const PEOPLE: PersonSeed[] = [
     phone: '+359 000 000 253',
     address: 'бул. „Примерен“ 9, Велико Търново (fictional)',
   },
+  // Parents ------------------------------------------------------------------------------------
+  // Linked to one member each; no position, no DeM ID, no directory listing (docs/BRIEF.md).
+  {
+    id: 'u-par1',
+    first: lt('Daniela', 'Даниела'),
+    last: lt('Koleva', 'Колева'),
+    chapterId: 'ch-1',
+    memberType: 'parent',
+    linkedTo: ['u-s03'],
+    position: null,
+    status: 'active',
+    age: 46,
+    joinedDaysAgo: 200,
+    lastLoginDaysAgo: 9,
+    phone: '+359 000 000 261',
+    address: 'ул. „Примерна“ 31, София (fictional)',
+    privacy: { showInDirectory: false, allowMessages: false },
+    preferences: 'quiet',
+  },
+  {
+    id: 'u-par2',
+    first: lt('Rumen', 'Румен'),
+    last: lt('Vasilev', 'Василев'),
+    chapterId: 'ch-1',
+    memberType: 'parent',
+    linkedTo: ['u-s08'],
+    position: null,
+    status: 'active',
+    age: 44,
+    joinedDaysAgo: 90,
+    lastLoginDaysAgo: 30,
+    phone: '+359 000 000 262',
+    address: 'ул. „Примерна“ 47, София (fictional)',
+    privacy: { showInDirectory: false, allowMessages: false },
+    preferences: 'quiet',
+  },
+  {
+    id: 'u-par3',
+    first: lt('Silvia', 'Силвия'),
+    last: lt('Petkova', 'Петкова'),
+    chapterId: 'ch-2',
+    memberType: 'parent',
+    linkedTo: ['u-p05'],
+    position: null,
+    status: 'active',
+    age: 43,
+    joinedDaysAgo: 150,
+    lastLoginDaysAgo: 3,
+    phone: '+359 000 000 263',
+    address: 'бул. „Примерен“ 14, Пловдив (fictional)',
+    privacy: { showInDirectory: false, allowMessages: false },
+  },
+  {
+    id: 'u-par4',
+    first: lt('Plamen', 'Пламен'),
+    last: lt('Genov', 'Генов'),
+    chapterId: 'ch-5',
+    memberType: 'parent',
+    linkedTo: ['u-t03'],
+    position: null,
+    status: 'pending',
+    age: 48,
+    joinedDaysAgo: 4,
+    lastLoginDaysAgo: null,
+    phone: '+359 000 000 264',
+    address: 'бул. „Примерен“ 9, Велико Търново (fictional)',
+    privacy: { showInDirectory: false, allowMessages: false },
+  },
 ];
 
-/** Manual role assignments that take precedence over position mappings. */
+/** Roles assigned by a system administrator, in addition to any position-derived role. */
 interface ManualOverride {
   userId: ID;
   role: Role;
@@ -454,20 +534,20 @@ interface ManualOverride {
 export const MANUAL_OVERRIDES: ManualOverride[] = [
   {
     userId: 'u-s12',
-    role: 'chapter_advisor',
-    scope: { level: 'multi_chapter', chapterIds: ['ch-1', 'ch-5'] },
+    role: 'ch_chairman',
+    scope: { level: 'chapter', chapterIds: ['ch-5'] },
     assignedBy: 'u-admin',
     assignedDaysAgo: 60,
     reason:
-      'Regional advisor for Sofia and Veliko Tarnovo while the Tarnovo advisory council completes advisor training.',
+      'Acting Chapter Chairman for Veliko Tarnovo while its advisors complete advisor training.',
   },
   {
     userId: 'u-v03',
-    role: 'chapter_officer',
+    role: 'ch_sec',
     scope: { level: 'chapter', chapterIds: ['ch-3'] },
     assignedBy: 'u-admin',
     assignedDaysAgo: 30,
-    reason: 'Acting Scribe for Varna until the registry is updated after the next installation.',
+    reason: 'Acting Secretary for Varna until the registry is updated after the next installation.',
   },
 ];
 
@@ -490,6 +570,29 @@ function preferencesFor(profile: PreferenceProfile = 'default'): NotificationPre
   return prefs;
 }
 
+/** Positions held by adults (advisor member type). */
+const ADVISOR_POSITIONS: readonly string[] = ['CH_ADVISOR', 'CH_CHAIRMAN'];
+
+/** Member type from the seed: explicit, else advisor for adult offices, senior from 22, else active. */
+function memberTypeOf(p: PersonSeed): MemberType {
+  if (p.memberType) return p.memberType;
+  if (p.position && ADVISOR_POSITIONS.includes(p.position.code)) return 'advisor';
+  return p.age >= 22 ? 'senior' : 'active';
+}
+
+/** Fictional DeMolay International id (DeM ID) — derived from the registry id when there is one. */
+function demIdOf(p: PersonSeed, memberType: MemberType): string | null {
+  if (!requiresDemId(memberType)) return null;
+  const digits = (p.position?.externalId ?? p.id).replace(/\D/g, '').padStart(5, '0');
+  return `DEM-BG-${digits}`;
+}
+
+/** Privacy notice, terms and photo consent signed at signup (version 2026-09). */
+export function signupConsents(acceptedAt: string, photo = true): ConsentRecord[] {
+  const kinds: ConsentKind[] = photo ? ['privacy', 'terms', 'photo'] : ['privacy', 'terms'];
+  return kinds.map((kind) => ({ kind, version: '2026-09', acceptedAt }));
+}
+
 const usernameOf = (p: PersonSeed): string =>
   `${p.first.en}.${p.last.en}`.toLowerCase().replace(/[^a-z.]/g, '');
 
@@ -501,10 +604,10 @@ export interface PeopleSeed {
 }
 
 /**
- * Builds users, members and role assignments for every non-demo person. Roles are DERIVED from
- * the position mappings exactly like the synchronisation does (manual overrides win; members with
- * an unmapped or no position get baseline member access, recorded as source 'mapping' with
- * mappingId null so a future mapping can replace it).
+ * Builds users, members and role assignments for every non-demo person. The position-derived role
+ * comes from the mappings exactly like the synchronisation does; members whose position maps to
+ * "no role" (or is unmapped, or absent) hold member-type access only. Manual roles are added on
+ * top (MANUAL_OVERRIDES).
  */
 export function seedPeople(
   ctx: SeedContext,
@@ -552,6 +655,7 @@ export function seedPeople(
       });
     }
 
+    const memberType = memberTypeOf(person);
     out.members.push({
       id: person.id,
       userId: person.id,
@@ -562,6 +666,9 @@ export function seedPeople(
         `${person.first.bg} ${person.last.bg}`,
       ),
       avatarUrl: null,
+      memberType,
+      demId: demIdOf(person, memberType),
+      linkedMemberIds: person.linkedTo ?? [],
       chapterId: person.chapterId,
       importedPosition: position,
       joinedAt: dateAgo(ctx, person.joinedDaysAgo),
@@ -576,13 +683,33 @@ export function seedPeople(
         phone: person.phone,
         birthDate: birthDate(ctx, person.age, (person.joinedDaysAgo % 200) + 11),
         address: person.address,
+        // Two minors signed without photo consent: their photos never appear anywhere public.
+        consents: signupConsents(createdAt, !['u-s08', 'u-t03'].includes(person.id)),
       },
     });
 
-    const manual = MANUAL_OVERRIDES.find((o) => o.userId === person.id);
-    if (manual) {
+    const resolution = resolveMemberRole({
+      position,
+      homeChapterId: person.chapterId,
+      mappings,
+    });
+    if (resolution.kind === 'mapped') {
       out.roleAssignments.push({
-        id: `ra-${person.id}`,
+        id: positionAssignmentId(person.id),
+        userId: person.id,
+        role: resolution.role,
+        scope: resolution.scope,
+        source: 'mapping',
+        mappingId: resolution.mapping.id,
+        assignedBy: null,
+        assignedAt: person.joinedDaysAgo < 29 ? createdAt : initialImportAt,
+        reason: null,
+        endedAt: null,
+      });
+    }
+    for (const manual of MANUAL_OVERRIDES.filter((o) => o.userId === person.id)) {
+      out.roleAssignments.push({
+        id: manualAssignmentId(person.id, manual.role),
         userId: person.id,
         role: manual.role,
         scope: manual.scope,
@@ -591,29 +718,9 @@ export function seedPeople(
         assignedBy: manual.assignedBy,
         assignedAt: ago(ctx, { days: manual.assignedDaysAgo, hours: 4 }),
         reason: manual.reason,
+        endedAt: null,
       });
-      continue;
     }
-    const resolution = resolveMemberRole({
-      position,
-      homeChapterId: person.chapterId,
-      mappings,
-      current: null,
-    });
-    out.roleAssignments.push({
-      id: `ra-${person.id}`,
-      userId: person.id,
-      role: resolution.kind === 'mapped' ? resolution.role : 'member',
-      scope:
-        resolution.kind === 'mapped'
-          ? resolution.scope
-          : { level: 'chapter', chapterIds: [person.chapterId] },
-      source: 'mapping',
-      mappingId: resolution.kind === 'mapped' ? resolution.mapping.id : null,
-      assignedBy: null,
-      assignedAt: person.joinedDaysAgo < 29 ? createdAt : initialImportAt,
-      reason: null,
-    });
   }
   return out;
 }

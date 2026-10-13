@@ -5,15 +5,15 @@ import type { LocalizedText } from '@/domain';
 import { useLocalized } from '@/i18n/public';
 import { cn } from '@/lib/utils';
 
-/** Brand-palette fills, each paired with a text colour that passes 4.5:1. */
+/** DI palette fills (docs/DESIGN-SYSTEM.md §3), each paired with a text colour that passes 4.5:1. */
 const AVATAR_TONES = [
-  'bg-[#1E4488] text-white', // Oxford Blue
-  'bg-[#152945] text-white', // Dark Navy
-  'bg-[#AC242A] text-white', // Ruby
-  'bg-[#00694B] text-white', // Emerald shade
-  'bg-[#1F7391] text-white', // Teal (info)
-  'bg-[#FFCF00] text-[#152945]', // Crown Gold
-  'bg-[#5E677A] text-white', // Slate
+  'bg-brand-oxford text-white', // 9.4:1
+  'bg-brand-oxford-shade text-white', // 12.1:1
+  'bg-brand-ruby text-white', // 6.9:1
+  'bg-brand-emerald-shade text-white', // 6.7:1
+  'bg-brand-sapphire-shade text-white', // 7.6:1
+  'bg-brand-gold text-brand-ink', // 8.2:1
+  'bg-brand-beacon-shade text-white', // 5.3:1
 ] as const;
 
 const SIZES = {

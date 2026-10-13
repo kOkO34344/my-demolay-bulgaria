@@ -107,7 +107,7 @@
       "notFoundTitle": "Page not found",
       "notFoundDescription": "The page may have been moved or removed. Check the address or go back to Home.",
       "permissionDeniedTitle": "You don't have access to this page",
-      "permissionDeniedDescription": "Your role doesn't include permission to view this. If you think you should have access, contact your chapter advisor.",
+      "permissionDeniedDescription": "Your role doesn't include permission to view this. If you think you should have access, contact your Chapter Chairman.",
       "offlineTitle": "You're offline",
       "offlineDescription": "You can keep browsing pages you've already opened. Changes need a connection.",
       "backOnline": "You're back online.",
@@ -133,8 +133,8 @@
       "conflict": "This was changed in the meantime. Reload and try again.",
       "rateLimited_one": "Too many sign-in attempts. Try again in {{count}} second.",
       "rateLimited_other": "Too many sign-in attempts. Try again in {{count}} seconds.",
-      "accountSuspended": "This account is suspended. Contact your chapter advisor.",
-      "accountPending": "This account isn't active yet. Contact your chapter advisor.",
+      "accountSuspended": "This account is suspended. Contact your Chapter Chairman.",
+      "accountPending": "This account isn't active yet. Contact your Chapter Chairman.",
       "notImplemented": "This action isn't available in the prototype yet.",
       "apiUnavailable": "The live API isn't available in this prototype.",
       "demoModeDisabled": "Demo tools are turned off.",
@@ -280,7 +280,37 @@
     "simulated": "Simulated",
     "simulatedCode": "Simulated code",
     "noEmailSent": "No email is sent in this prototype.",
-    "fictionalChapter": "Fictional chapter"
+    "fictionalChapter": "Fictional chapter",
+    "personas": {
+      "active_member": {
+        "name": "Active member",
+        "description": "No role: reads everything, uses the directory and RSVPs."
+      },
+      "parent": {
+        "name": "Parent",
+        "description": "Linked to the demo active member. No directory, no posting."
+      },
+      "chapter_secretary": {
+        "name": "Chapter Secretary",
+        "description": "Submits posts for approval, uploads minutes, keeps attendance."
+      },
+      "chapter_chairman": {
+        "name": "Chapter Chairman",
+        "description": "Approves chapter posts and events, manages the roster."
+      },
+      "chapter_treasurer": {
+        "name": "Chapter Treasurer",
+        "description": "Sees chapter dues and records payments (payments arrive in Phase 2)."
+      },
+      "national_coordinator": {
+        "name": "National Coordinator",
+        "description": "Publishes and approves content nationally and verifies accounts."
+      },
+      "sysadmin": {
+        "name": "System administrator",
+        "description": "National Representative with system administration: assigns roles, manages everything."
+      }
+    }
   },
   "nav": {
     "home": "Home",
@@ -324,25 +354,61 @@
     "count_other": "{{count}} chapters"
   },
   "roles": {
-    "member": {
-      "name": "Member",
-      "description": "Reads news, RSVPs to events and uses the resources of their chapter."
+    "sysadmin": {
+      "name": "System administrator",
+      "description": "Assigns roles, manages accounts, mappings, synchronisation and the system, and answers helpdesk tickets."
     },
-    "chapter_officer": {
-      "name": "Chapter Officer",
-      "description": "Drafts chapter announcements, runs chapter events, records attendance and manages chapter resources."
+    "exec_director": {
+      "name": "Executive Director",
+      "description": "Publishes and approves national and chapter content, verifies accounts, sees all payments and sends mass email."
     },
-    "chapter_advisor": {
-      "name": "Chapter Advisor",
-      "description": "Reviews and publishes chapter content, approves events and manages chapter-level access."
+    "nat_rep": {
+      "name": "National Representative",
+      "description": "Publishes and approves national and chapter content, verifies accounts, sees all payments and sends mass email."
     },
-    "national_officer": {
-      "name": "National Officer",
-      "description": "Publishes national announcements and events, sends national notifications and coordinates across chapters."
+    "nat_sec": {
+      "name": "National Secretary",
+      "description": "Publishes and approves content, uploads national documents and minutes, verifies accounts and manages rosters."
     },
-    "national_admin": {
-      "name": "National Administrator",
-      "description": "Manages chapters, accounts, roles, mappings, translations, audit and synchronization."
+    "nat_coord": {
+      "name": "National Coordinator",
+      "description": "Publishes and approves content, runs national events, uploads national documents and verifies accounts."
+    },
+    "nat_mc": {
+      "name": "National Master Councillor",
+      "description": "Publishes national posts."
+    },
+    "nat_treas": {
+      "name": "National Treasurer",
+      "description": "Sees all payments and dues and records cash and transfer payments."
+    },
+    "ch_chairman": {
+      "name": "Chapter Chairman",
+      "description": "The single advisor point of contact: approves chapter posts and events, manages the roster and sees chapter dues."
+    },
+    "ch_mc": {
+      "name": "Master Councillor",
+      "description": "Publishes chapter posts and creates chapter events."
+    },
+    "ch_sc": {
+      "name": "Senior Councillor",
+      "description": "Drafts chapter posts and submits them for approval."
+    },
+    "ch_jc": {
+      "name": "Junior Councillor",
+      "description": "Drafts chapter posts and submits them for approval."
+    },
+    "ch_sec": {
+      "name": "Chapter Secretary",
+      "description": "Submits posts for approval, uploads minutes, keeps attendance and manages the roster."
+    },
+    "ch_treas": {
+      "name": "Chapter Treasurer",
+      "description": "Sees chapter dues and records cash and transfer payments."
+    },
+    "advisor": {
+      "name": "Advisor",
+      "description": "General advisor, held nationally. Reads everything; publishes nothing."
     }
   },
   "scopes": {
@@ -384,7 +450,9 @@
       "translations": "Translations",
       "audit": "Audit",
       "integration": "Integration",
-      "system": "System"
+      "system": "System",
+      "payments": "Payments",
+      "helpdesk": "Helpdesk"
     },
     "items": {
       "feed": {
@@ -445,6 +513,10 @@
             "label": "View participants",
             "description": "See who is attending, regardless of the event's visibility setting."
           }
+        },
+        "approve": {
+          "label": "Approve events",
+          "description": "Publish (approve) and cancel events in scope."
         }
       },
       "attendance": {
@@ -582,8 +654,59 @@
           "label": "Manage system",
           "description": "Administer chapters, accounts and system settings."
         }
+      },
+      "ritual": {
+        "read": {
+          "label": "Read rituals",
+          "description": "Open ritual documents; downloads are watermarked per reader."
+        }
+      },
+      "account": {
+        "verify": {
+          "label": "Approve new accounts",
+          "description": "Verify new accounts against the member list before anything unlocks."
+        }
+      },
+      "email": {
+        "send": {
+          "mass": {
+            "label": "Send mass email",
+            "description": "Email the whole membership or a chapter."
+          }
+        }
+      },
+      "payment": {
+        "read": {
+          "all": {
+            "label": "View all payments and dues",
+            "description": "See every payment, due and donation."
+          },
+          "chapter": {
+            "label": "View chapter dues status",
+            "description": "See who has paid in a chapter."
+          }
+        },
+        "record": {
+          "label": "Record cash or transfer payment",
+          "description": "Record payments made outside the card form so the ledger stays complete."
+        },
+        "pay": {
+          "label": "Pay dues",
+          "description": "Pay own dues and event costs; parents pay for their linked children."
+        }
+      },
+      "helpdesk": {
+        "create": {
+          "label": "Raise a helpdesk ticket",
+          "description": "Ask the administrators for help."
+        },
+        "answer": {
+          "label": "Answer helpdesk tickets",
+          "description": "Reply to and close helpdesk tickets."
+        }
       }
-    }
+    },
+    "plannedPhase": "Phase {{phase}} — not built yet"
   },
   "contentStatus": {
     "draft": "Draft",
@@ -624,7 +747,8 @@
     "policies": "Policies",
     "leadership": "Leadership",
     "forms": "Forms",
-    "branding": "Branding"
+    "branding": "Branding",
+    "rituals": "Rituals"
   },
   "resourceLanguages": {
     "en": "English",
@@ -648,7 +772,8 @@
   "accountStatus": {
     "active": "Active",
     "suspended": "Suspended",
-    "pending": "Pending activation"
+    "pending": "Pending activation",
+    "expelled": "Expelled"
   },
   "notificationCategories": {
     "announcements": "Announcements",
@@ -765,7 +890,8 @@
       "profile_updated": "Updated profile"
     },
     "role": {
-      "assigned": "Assigned role"
+      "assigned": "Assigned role",
+      "removed": "Removed role"
     },
     "special_assignment": {
       "created": "Granted special permission",
@@ -850,5 +976,24 @@
     "translationMissingEn": "Add the English version.",
     "translationMissingBg": "Add the Bulgarian version.",
     "atLeastOneChapter": "Select at least one chapter."
+  },
+  "roleNone": "No role",
+  "memberTypes": {
+    "active": {
+      "name": "Active member",
+      "description": "Aged 14 to 21, with a DeM ID. Sees everything in the member area."
+    },
+    "senior": {
+      "name": "Senior",
+      "description": "Over 21, with a DeM ID. Same read access as an advisor."
+    },
+    "advisor": {
+      "name": "Advisor",
+      "description": "Adult advisor with a DeM ID. Sees everything in the member area."
+    },
+    "parent": {
+      "name": "Parent",
+      "description": "Linked to their children. Sees the feed, calendar, documents, rituals and their children’s payments — never the directory."
+    }
   }
 }

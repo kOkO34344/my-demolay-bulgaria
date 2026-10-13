@@ -4,11 +4,10 @@ import { NavigationType, useLocation, useNavigate, useNavigationType } from 'rea
 import { toast } from 'sonner';
 
 import { canAccessAppRoute, matchAppRoute } from '@/app/routes';
-import { useAuth } from '@/auth';
+import { personaLabelKey, useAuth } from '@/auth';
 import { errorMessageKey } from '@/data/errors';
 import { useResetDemoData, useUnreadNotificationCount } from '@/data/hooks';
-import type { Role } from '@/domain';
-import { labelKeys } from '@/i18n/public';
+import type { DemoPersonaId } from '@/domain';
 import { paths } from '@/lib/routes';
 
 import { setSigningOut, useIsSigningOut } from './signOutState';
@@ -41,20 +40,19 @@ export function useSignOut(): { signOut: () => Promise<void>; isSigningOut: bool
  * role may not open it.
  */
 export function useDemoRoleSwitch() {
-  const { subject, actualRole, demoOverride, switchDemoRole, isSwitchingRole, isDemoMode } =
-    useAuth();
+  const { actualPersona, demoOverride, switchDemoRole, isSwitchingRole, isDemoMode } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
   const switchTo = useCallback(
-    async (role: Role | null) => {
-      const target = role === actualRole ? null : role;
+    async (persona: DemoPersonaId | null) => {
+      const target = persona === actualPersona ? null : persona;
       try {
         const session = await switchDemoRole(target);
         toast.success(
           target
-            ? t('demo.roleSwitched', { role: t(labelKeys.role(session.subject.role)) })
+            ? t('demo.roleSwitched', { role: t(personaLabelKey(target)) })
             : t('shell.demo.returnedToOwnRole'),
         );
         const current = matchAppRoute(location.pathname);
@@ -66,14 +64,14 @@ export function useDemoRoleSwitch() {
         toast.error(t(key, params));
       }
     },
-    [actualRole, switchDemoRole, t, location.pathname, navigate],
+    [actualPersona, switchDemoRole, t, location.pathname, navigate],
   );
 
   return {
     isDemoMode,
-    /** Role currently in effect (override or real). */
-    currentRole: subject?.role ?? actualRole,
-    actualRole,
+    /** Persona currently in effect (override or the demo account's own); null for other accounts. */
+    currentPersona: demoOverride?.persona ?? actualPersona,
+    actualPersona,
     isOverridden: demoOverride !== null,
     isSwitching: isSwitchingRole,
     switchTo,

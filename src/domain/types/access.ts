@@ -1,13 +1,17 @@
 import type { ID, ISODateTime } from './common';
+import type { AccountStatus } from './members';
 
 /**
- * Authorization vocabulary. Four SEPARATE concepts:
- *  1. Imported organizational position (see positions.ts) — data from the external member registry.
- *  2. Application role (Role) — what the portal lets you do, usually derived from the position via mapping.
- *  3. Access scope (Scope) — where the role applies (self / chapter / multi-chapter / national / system).
- *  4. Individual permissions (Permission) — granted by a role at a scope level, or by a time-boxed
- *     SpecialAssignment.
- * The behaviour of each role lives in src/auth/roles.ts (ROLE_DEFINITIONS); checks live in src/auth/policy.ts.
+ * Authorization vocabulary (docs/ROLES-AND-PERMISSIONS.md). Two dimensions:
+ *  - Member type (MemberType) governs what a person SEES — base grants in src/auth/memberTypes.ts.
+ *  - Roles (Role, zero or more per person) govern what a person DOES — src/auth/roles.ts.
+ * Supporting concepts:
+ *  - Imported organizational position (see positions.ts) — data from the external member registry,
+ *    which may map to one role.
+ *  - Access scope (Scope) — where a role applies (self / chapter / multi-chapter / national / system).
+ *  - Individual permissions (Permission) — granted by member type, by a role at a scope level, or
+ *    by a time-boxed SpecialAssignment.
+ * Checks live in src/auth/policy.ts.
  */
 
 /** The complete permission catalogue (spec). Order = display order in administration. */
@@ -22,6 +26,7 @@ export const PERMISSIONS = [
   'event.read',
   'event.create',
   'event.update',
+  'event.approve',
   'event.cancel',
   'event.rsvp',
   'event.participants.read',
@@ -31,15 +36,24 @@ export const PERMISSIONS = [
   'resource.upload',
   'resource.update',
   'resource.archive',
+  'ritual.read',
   'chapter.read',
   'chapter.update',
   'chapter.directory.read',
   'member.profile.read',
   'member.profile.update',
   'member.access.manage',
+  'account.verify',
   'notification.read',
   'notification.send.chapter',
   'notification.send.national',
+  'email.send.mass',
+  'payment.read.all',
+  'payment.read.chapter',
+  'payment.record',
+  'payment.pay',
+  'helpdesk.create',
+  'helpdesk.answer',
   'role.read',
   'role.assign',
   'role.mapping.manage',
@@ -54,13 +68,51 @@ export const PERMISSIONS = [
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
-/** Application roles, ordered from least to most privileged. */
+/**
+ * Member types (docs/ROLES-AND-PERMISSIONS.md §2). Alumni and donor accounts arrive in Release 3.
+ * Active members, seniors and advisors hold a DeM ID; parents are linked to one or more members.
+ */
+export const MEMBER_TYPES = ['active', 'senior', 'advisor', 'parent'] as const;
+export type MemberType = (typeof MEMBER_TYPES)[number];
+
+/** National roles (docs/ROLES-AND-PERMISSIONS.md §3). `advisor` is a general advisor, held nationally. */
+export const NATIONAL_ROLES = [
+  'sysadmin',
+  'exec_director',
+  'nat_rep',
+  'nat_mc',
+  'nat_sec',
+  'nat_coord',
+  'nat_treas',
+  'advisor',
+] as const;
+
+/** Chapter roles, one set per chapter. */
+export const CHAPTER_ROLES = [
+  'ch_chairman',
+  'ch_mc',
+  'ch_sc',
+  'ch_jc',
+  'ch_sec',
+  'ch_treas',
+] as const;
+
+/** Application roles, in the order of the brief's permission matrix. */
 export const ROLES = [
-  'member',
-  'chapter_officer',
-  'chapter_advisor',
-  'national_officer',
-  'national_admin',
+  'sysadmin',
+  'exec_director',
+  'nat_rep',
+  'nat_sec',
+  'nat_coord',
+  'nat_mc',
+  'nat_treas',
+  'ch_chairman',
+  'ch_mc',
+  'ch_sc',
+  'ch_jc',
+  'ch_sec',
+  'ch_treas',
+  'advisor',
 ] as const;
 export type Role = (typeof ROLES)[number];
 
@@ -86,11 +138,20 @@ export interface Scope {
 export interface PermissionGrant {
   permission: Permission;
   scope: ScopeLevel;
+  /**
+   * National-level objects only: a national grant that does NOT reach into chapters (e.g. the
+   * National Master Councillor publishes national posts but not chapter posts).
+   */
+  nationalOnly?: boolean;
+  /** 'self' grants that also cover the records of linked members (parents → their children). */
+  linked?: boolean;
 }
 
 export interface RoleDefinition {
   role: Role;
-  /** 1 (member) … 5 (national admin). Used for escalation checks, never for UI branching. */
+  /** Where the role is held: nationally or per chapter. */
+  level: 'national' | 'chapter';
+  /** 1 (advisor) … 10 (sysadmin). Used for escalation checks and ordering, never for UI branching. */
   rank: number;
   /** i18n keys: roles.<role>.name / roles.<role>.description */
   labelKey: string;
@@ -104,7 +165,12 @@ export interface RoleDefinition {
 export const ASSIGNMENT_SOURCES = ['mapping', 'manual'] as const;
 export type AssignmentSource = (typeof ASSIGNMENT_SOURCES)[number];
 
-/** The application role a user holds, with its scope. One active assignment per user. */
+/**
+ * One application role a user holds, with its scope. A user holds zero or more. At most one comes
+ * from the imported position (source 'mapping', id `ra-<userId>-pos`); the rest are assigned by a
+ * system administrator (source 'manual', id `ra-<userId>-<role>`). Roles carry a term: an ended
+ * assignment stays as history and grants nothing.
+ */
 export interface RoleAssignment {
   id: ID;
   userId: ID;
@@ -118,6 +184,8 @@ export interface RoleAssignment {
   assignedBy: ID | null;
   assignedAt: ISODateTime;
   reason: string | null;
+  /** End of term (rotation, removal, suspension). Null while the role is held. */
+  endedAt: ISODateTime | null;
 }
 
 /** A time-boxed extra permission at an explicit scope (e.g. a member helping with one event). */
@@ -140,23 +208,37 @@ export interface SpecialAssignment {
 export const SPECIAL_ASSIGNMENT_STATES = ['scheduled', 'active', 'expired', 'revoked'] as const;
 export type SpecialAssignmentState = (typeof SPECIAL_ASSIGNMENT_STATES)[number];
 
+/** A role held by a subject at a concrete scope. */
+export interface SubjectRole {
+  role: Role;
+  scope: Scope;
+}
+
 /**
  * The acting principal for every authorization decision.
- * Built from the session; the demo role switcher may override role + scope (prototype only).
+ * Built from the session; the demo role switcher may override member type + roles (prototype only).
  */
 export interface Subject {
   userId: ID;
-  role: Role;
-  scope: Scope;
+  memberType: MemberType;
+  /** Suspended, expelled and pending accounts hold no permissions at all. */
+  accountStatus: AccountStatus;
   homeChapterId: ID;
+  /** Parents: the members they are linked to. Empty for everyone else. */
+  linkedMemberIds: ID[];
+  /** Active roles (zero or more). */
+  roles: SubjectRole[];
   specialAssignments: SpecialAssignment[];
 }
 
-/** Effective permission after resolving role grants and special assignments. */
+/** Effective permission after resolving member-type grants, role grants and special assignments. */
 export interface EffectiveGrant {
   permission: Permission;
   scope: Scope;
-  source: 'role' | 'special_assignment';
+  /** See PermissionGrant. */
+  nationalOnly?: boolean;
+  linked?: boolean;
+  source: 'member_type' | 'role' | 'special_assignment';
   /** Special assignment id when source = 'special_assignment'. */
   sourceId: ID | null;
 }
@@ -177,6 +259,11 @@ export interface RoleAssignmentInput {
   userId: ID;
   role: Role;
   scope: Scope;
+  reason: string;
+}
+
+export interface RoleRemovalInput {
+  assignmentId: ID;
   reason: string;
 }
 

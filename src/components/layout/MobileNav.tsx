@@ -47,7 +47,7 @@ export function MobileTopBar() {
             className="size-8 shrink-0 object-contain"
           />
         </Link>
-        <p className="min-w-0 flex-1 truncate font-heading text-lg font-semibold">{title}</p>
+        <p className="min-w-0 flex-1 truncate text-lg font-bold">{title}</p>
         <DemoChip className="max-w-36" />
         <Link
           to={paths.notifications()}

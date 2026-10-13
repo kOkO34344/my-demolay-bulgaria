@@ -42,10 +42,10 @@ export default defineConfig({
         display: 'standalone',
         display_override: ['standalone', 'minimal-ui'],
         orientation: 'any',
-        background_color: '#F7F6F2',
+        background_color: '#F5F7FA',
         // SHELL: same as index.html's <meta name="theme-color"> and THEME_COLORS.light in
         // src/lib/theme/theme.ts (the white app header); the ThemeProvider switches the meta to
-        // #132136 in dark mode at runtime.
+        // #0e1b30 in dark mode at runtime.
         theme_color: '#ffffff',
         categories: ['education', 'productivity'],
       },
@@ -53,7 +53,12 @@ export default defineConfig({
         // App shell only (manifest + generated icons are added by the plugin). Brand images and
         // photos are cached at runtime so large originals do not bloat the install.
         globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'],
-        globIgnores: ['brand/**', 'images/**', 'assets/*-greek-*.woff2'],
+        globIgnores: [
+          'brand/**',
+          'images/**',
+          'assets/*-greek-*.woff2',
+          'assets/*-vietnamese-*.woff2',
+        ],
         navigateFallback: '/index.html',
         // SHELL: file-like paths (/offline.html, /docs/x.pdf …) and /api/ are not SPA routes.
         navigateFallbackDenylist: [/^\/api\//, /\/[^/?]+\.[a-z0-9]+$/i],

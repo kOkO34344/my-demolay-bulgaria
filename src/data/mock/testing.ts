@@ -1,6 +1,6 @@
 import { DEMO_USER_IDS } from '@/data/mock/seed/demoAccounts';
 import { db } from '@/data/store';
-import type { AuditAction, ID, Notification, Role, Session } from '@/domain';
+import type { AuditAction, DemoPersonaId, ID, Notification, Session } from '@/domain';
 
 import { startSessionForUser } from './repositories/authRepository';
 
@@ -9,9 +9,9 @@ import { startSessionForUser } from './repositories/authRepository';
  * The vitest setup re-seeds the store after every test.
  */
 
-/** Signs in the demo account of `role` (optionally with a demo-switcher override). */
-export function signInAs(role: Role, demoRole: Role | null = null): Session {
-  return startSessionForUser(DEMO_USER_IDS[role], demoRole);
+/** Signs in the demo account of `persona` (optionally acting as another persona). */
+export function signInAs(persona: DemoPersonaId, actAs: DemoPersonaId | null = null): Session {
+  return startSessionForUser(DEMO_USER_IDS[persona], actAs);
 }
 
 /** Signs in any seeded user by id (e.g. a non-demo officer of another chapter). */
